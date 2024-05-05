@@ -4,7 +4,13 @@ import styles from "./OS.module.css";
 import cx from "classnames";
 import { assertNever } from "@/utils/assertNever";
 import { atomFamily, atomWithReducer } from "jotai/utils";
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import {
+  atom,
+  getDefaultStore,
+  useAtom,
+  useAtomValue,
+  useSetAtom,
+} from "jotai";
 import { useEffect } from "react";
 
 export function OS() {
@@ -41,7 +47,36 @@ export function OS() {
       {windows.map((id) => (
         <Window key={id} id={id} />
       ))}
-      <button onClick={() => dispatch({ type: "ADD" })}>Add Window</button>
+      <button
+        onClick={() => {
+          const id = generateRandomId();
+          getDefaultStore().set(windowAtomFamily(id), {
+            type: "INIT",
+            payload: {
+              title: "Welcome to Windows 96",
+              program: { type: "welcome" },
+              id,
+            },
+          });
+          dispatch({ type: "ADD", payload: id });
+          setFocusedWindow(id);
+        }}
+      >
+        Add Welcome
+      </button>
+      <button
+        onClick={() => {
+          const id = generateRandomId();
+          getDefaultStore().set(windowAtomFamily(id), {
+            type: "INIT",
+            payload: { title: "Run", program: { type: "run" }, id },
+          });
+          dispatch({ type: "ADD", payload: id });
+          setFocusedWindow(id);
+        }}
+      >
+        Add Run
+      </button>
       <TaskBar />
     </div>
   );
@@ -77,7 +112,7 @@ function WindowTaskBar({ id }: { id: string }) {
         }
       }}
     >
-      {id}
+      {state.title}
     </button>
   );
 }
@@ -126,7 +161,7 @@ function Window({ id }: { id: string }) {
           window.addEventListener("mouseup", handleMouseUp);
         }}
       >
-        <div className="title-bar-text">Welcome to 98.css</div>
+        <div className="title-bar-text">{state.title}</div>
         <div className="title-bar-controls">
           <button
             aria-label="Minimize"
@@ -148,12 +183,7 @@ function Window({ id }: { id: string }) {
         </div>
       </div>
       <div className="window-body">
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat.
-        </p>
+        <WindowBody state={state} />
       </div>
     </div>
   );
@@ -165,13 +195,23 @@ type WindowState = {
     x: number;
     y: number;
   };
+  title: string;
+  icon?: string;
+  program: {
+    type: "welcome" | "run";
+  };
+  id: string;
 };
 
 type WindowAction =
   | { type: "TOGGLE_MAXIMIZE" }
   | { type: "TOGGLE_MINIMIZE" }
   | { type: "RESTORE" }
-  | { type: "MOVE"; payload: { dx: number; dy: number } };
+  | { type: "MOVE"; payload: { dx: number; dy: number } }
+  | {
+      type: "INIT";
+      payload: { title: string; program: WindowState["program"]; id: string };
+    };
 
 function windowReducer(state: WindowState, action: WindowAction): WindowState {
   switch (action.type) {
@@ -198,6 +238,8 @@ function windowReducer(state: WindowState, action: WindowAction): WindowState {
       };
     case "RESTORE":
       return { ...state, status: "normal" };
+    case "INIT":
+      return { ...state, ...action.payload };
     default:
       assertNever(action);
   }
@@ -207,14 +249,16 @@ function windowReducer(state: WindowState, action: WindowAction): WindowState {
 
 type WindowsListState = string[];
 
-type WindowsListAction = { type: "ADD" } | { type: "REMOVE"; payload: string };
+type WindowsListAction =
+  | { type: "ADD"; payload: string }
+  | { type: "REMOVE"; payload: string };
 
 const windowsListAtom = atomWithReducer(
   ["window1"],
   (state: WindowsListState, action: WindowsListAction): WindowsListState => {
     switch (action.type) {
       case "ADD":
-        return [...state, generateRandomId()];
+        return [...state, action.payload];
       case "REMOVE":
         return state.filter((id) => id !== action.payload);
       default:
@@ -229,6 +273,11 @@ const windowAtomFamily = atomFamily((id: string) => {
     {
       status: "normal",
       pos: { x: 100, y: 100 },
+      title: "Welcome to Windows 96",
+      program: {
+        type: "welcome",
+      },
+      id,
     },
     windowReducer
   );
@@ -240,5 +289,53 @@ function generateRandomId(): string {
   return (
     Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15)
+  );
+}
+
+function WindowBody({ state }: { state: WindowState }) {
+  switch (state.program.type) {
+    case "welcome":
+      return <Welcome id={state.id} />;
+    case "run":
+      return <Run id={state.id} />;
+  }
+}
+
+function Welcome({ id }: { id: string }) {
+  return <div>Welcome to Windows 96</div>;
+}
+
+function Run({ id }: { id: string }) {
+  const windowsDispatch = useSetAtom(windowsListAtom);
+  return (
+    <form
+      style={{ display: "flex", flexDirection: "column", gap: 8 }}
+      onSubmit={(e) => {
+        e.preventDefault();
+      }}
+    >
+      <p>
+        Type the description of the program you want to run and Windows will
+        create it for you.
+      </p>
+      <div className="field-row">
+        <label htmlFor="program-description">Open: </label>
+        <input
+          id="program-description"
+          type="text"
+          style={{ width: "100%" }}
+          spellCheck={false}
+          autoComplete="off"
+        />
+      </div>
+      <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+        <button type="submit">Open</button>
+        <button
+          onClick={() => windowsDispatch({ type: "REMOVE", payload: id })}
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
   );
 }
