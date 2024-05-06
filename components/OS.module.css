@@ -29,6 +29,7 @@
   flex-direction: row;
   align-items: stretch;
   gap: 4px;
+  z-index: 2;
 }
 
 .startButton {

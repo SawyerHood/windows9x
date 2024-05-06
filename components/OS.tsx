@@ -49,30 +49,20 @@ export function OS() {
       ))}
       <button
         onClick={() => {
-          const id = generateRandomId();
-          getDefaultStore().set(windowAtomFamily(id), {
-            type: "INIT",
-            payload: {
-              title: "Welcome to Windows 96",
-              program: { type: "welcome" },
-              id,
-            },
+          createWindow({
+            title: "Welcome to Windows 96",
+            program: { type: "welcome" },
           });
-          dispatch({ type: "ADD", payload: id });
-          setFocusedWindow(id);
         }}
       >
         Add Welcome
       </button>
       <button
         onClick={() => {
-          const id = generateRandomId();
-          getDefaultStore().set(windowAtomFamily(id), {
-            type: "INIT",
-            payload: { title: "Run", program: { type: "run" }, id },
+          createWindow({
+            title: "Run",
+            program: { type: "run" },
           });
-          dispatch({ type: "ADD", payload: id });
-          setFocusedWindow(id);
         }}
       >
         Add Run
@@ -80,6 +70,22 @@ export function OS() {
       <TaskBar />
     </div>
   );
+}
+
+function createWindow({
+  title,
+  program,
+}: {
+  title: string;
+  program: WindowState["program"];
+}) {
+  const id = generateRandomId();
+  getDefaultStore().set(windowAtomFamily(id), {
+    type: "INIT",
+    payload: { title, program, id },
+  });
+  getDefaultStore().set(windowsListAtom, { type: "ADD", payload: id });
+  getDefaultStore().set(focusedWindowAtom, id);
 }
 
 function TaskBar() {
@@ -136,7 +142,9 @@ function Window({ id }: { id: string }) {
           state.status === "maximized"
             ? "none"
             : `translate(${state.pos.x}px, ${state.pos.y}px)`,
-        display: state.status === "minimized" ? "none" : "block",
+        display: state.status === "minimized" ? "none" : "flex",
+        flexDirection: "column",
+        zIndex: focusedWindow === id ? 1 : 0,
       }}
     >
       <div
@@ -182,12 +190,17 @@ function Window({ id }: { id: string }) {
           ></button>
         </div>
       </div>
-      <div className="window-body">
+      <div className="window-body" style={{ flex: 1 }}>
         <WindowBody state={state} />
       </div>
     </div>
   );
 }
+
+type Program =
+  | { type: "welcome" }
+  | { type: "run" }
+  | { type: "iframe"; src: string };
 
 type WindowState = {
   status: "maximized" | "minimized" | "normal";
@@ -195,11 +208,13 @@ type WindowState = {
     x: number;
     y: number;
   };
+  size: {
+    width: number;
+    height: number | "auto";
+  };
   title: string;
   icon?: string;
-  program: {
-    type: "welcome" | "run";
-  };
+  program: Program;
   id: string;
 };
 
@@ -273,6 +288,7 @@ const windowAtomFamily = atomFamily((id: string) => {
     {
       status: "normal",
       pos: { x: 100, y: 100 },
+      size: { width: 400, height: "auto" },
       title: "Welcome to Windows 96",
       program: {
         type: "welcome",
@@ -298,6 +314,10 @@ function WindowBody({ state }: { state: WindowState }) {
       return <Welcome id={state.id} />;
     case "run":
       return <Run id={state.id} />;
+    case "iframe":
+      return <Iframe id={state.id} />;
+    default:
+      assertNever(state.program);
   }
 }
 
@@ -312,6 +332,18 @@ function Run({ id }: { id: string }) {
       style={{ display: "flex", flexDirection: "column", gap: 8 }}
       onSubmit={(e) => {
         e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const programDescription = formData.get("program-description");
+        if (typeof programDescription === "string") {
+          createWindow({
+            title: programDescription,
+            program: {
+              type: "iframe",
+              src: `/api/program?description=${programDescription}`,
+            },
+          });
+          windowsDispatch({ type: "REMOVE", payload: id });
+        }
       }}
     >
       <p>
@@ -322,6 +354,7 @@ function Run({ id }: { id: string }) {
         <label htmlFor="program-description">Open: </label>
         <input
           id="program-description"
+          name="program-description"
           type="text"
           style={{ width: "100%" }}
           spellCheck={false}
@@ -337,5 +370,16 @@ function Run({ id }: { id: string }) {
         </button>
       </div>
     </form>
+  );
+}
+
+function Iframe({ id }: { id: string }) {
+  const [state, dispatch] = useAtom(windowAtomFamily(id));
+  return (
+    <iframe
+      src={state.program.type === "iframe" ? state.program.src : ""}
+      style={{ width: "100%", height: "100%", border: "none" }}
+      allowTransparency
+    />
   );
 }
