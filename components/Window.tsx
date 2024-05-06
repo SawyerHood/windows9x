@@ -91,20 +91,12 @@ export function Window({ id }: { id: string }) {
           background: "red",
           cursor: "ew-resize",
         }}
-        onMouseDown={(e) => {
-          const handleMouseMove = (e: MouseEvent) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "right", delta: e.movementX },
-            });
-          };
-          const handleMouseUp = () => {
-            window.removeEventListener("mousemove", handleMouseMove);
-            window.removeEventListener("mouseup", handleMouseUp);
-          };
-          window.addEventListener("mousemove", handleMouseMove);
-          window.addEventListener("mouseup", handleMouseUp);
-        }}
+        onMouseDown={createResizeEvent((e: MouseEvent) => {
+          dispatch({
+            type: "RESIZE",
+            payload: { side: "right", delta: e.movementX },
+          });
+        })}
       ></div>
       {/* left side */}
       <div
@@ -117,20 +109,12 @@ export function Window({ id }: { id: string }) {
           background: "red",
           cursor: "ew-resize",
         }}
-        onMouseDown={(e) => {
-          const handleMouseMove = (e: MouseEvent) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "left", delta: e.movementX * -1 },
-            });
-          };
-          const handleMouseUp = () => {
-            window.removeEventListener("mousemove", handleMouseMove);
-            window.removeEventListener("mouseup", handleMouseUp);
-          };
-          window.addEventListener("mousemove", handleMouseMove);
-          window.addEventListener("mouseup", handleMouseUp);
-        }}
+        onMouseDown={createResizeEvent((e: MouseEvent) => {
+          dispatch({
+            type: "RESIZE",
+            payload: { side: "left", delta: e.movementX * -1 },
+          });
+        })}
       ></div>
       {/* bottom side */}
       <div
@@ -143,20 +127,12 @@ export function Window({ id }: { id: string }) {
           background: "red",
           cursor: "ns-resize",
         }}
-        onMouseDown={(e) => {
-          const handleMouseMove = (e: MouseEvent) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "bottom", delta: e.movementY },
-            });
-          };
-          const handleMouseUp = () => {
-            window.removeEventListener("mousemove", handleMouseMove);
-            window.removeEventListener("mouseup", handleMouseUp);
-          };
-          window.addEventListener("mousemove", handleMouseMove);
-          window.addEventListener("mouseup", handleMouseUp);
-        }}
+        onMouseDown={createResizeEvent((e: MouseEvent) => {
+          dispatch({
+            type: "RESIZE",
+            payload: { side: "bottom", delta: e.movementY },
+          });
+        })}
       ></div>
       {/* top side */}
       <div
@@ -169,21 +145,75 @@ export function Window({ id }: { id: string }) {
           background: "red",
           cursor: "ns-resize",
         }}
-        onMouseDown={(e) => {
-          const handleMouseMove = (e: MouseEvent) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "top", delta: e.movementY * -1 },
-            });
-          };
-          const handleMouseUp = () => {
-            window.removeEventListener("mousemove", handleMouseMove);
-            window.removeEventListener("mouseup", handleMouseUp);
-          };
-          window.addEventListener("mousemove", handleMouseMove);
-          window.addEventListener("mouseup", handleMouseUp);
+        onMouseDown={createResizeEvent((e: MouseEvent) => {
+          dispatch({
+            type: "RESIZE",
+            payload: { side: "top", delta: e.movementY * -1 },
+          });
+        })}
+      ></div>
+      {/* top left */}
+      <div
+        style={{
+          top: -4,
+          left: -4,
+          position: "absolute",
+          width: 7,
+          height: 7,
+          background: "yellow",
+          cursor: "nwse-resize",
+        }}
+      ></div>
+      {/* top right */}
+      <div
+        style={{
+          top: -4,
+          right: -4,
+          position: "absolute",
+          width: 7,
+          height: 7,
+          background: "yellow",
+          cursor: "nesw-resize",
+        }}
+      ></div>
+      {/* bottom left */}
+      <div
+        style={{
+          bottom: -4,
+          left: -4,
+          position: "absolute",
+          width: 7,
+          height: 7,
+          background: "yellow",
+          cursor: "nesw-resize",
+        }}
+      ></div>
+      {/* bottom right */}
+      <div
+        style={{
+          bottom: -4,
+          right: -4,
+          position: "absolute",
+          width: 7,
+          height: 7,
+          background: "yellow",
+          cursor: "nwse-resize",
         }}
       ></div>
     </div>
   );
+}
+
+function createResizeEvent(cb: (e: MouseEvent) => void) {
+  return () => {
+    const handleMouseMove = (e: MouseEvent) => {
+      cb(e);
+    };
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
 }
