@@ -29,7 +29,19 @@ export type WindowAction =
   | { type: "MOVE"; payload: { dx: number; dy: number } }
   | {
       type: "RESIZE";
-      payload: { side: "top" | "bottom" | "left" | "right"; delta: number };
+      payload: {
+        side:
+          | "top"
+          | "bottom"
+          | "left"
+          | "right"
+          | "top-left"
+          | "top-right"
+          | "bottom-left"
+          | "bottom-right";
+        dx: number;
+        dy: number;
+      };
     }
   | {
       type: "INIT";
@@ -51,6 +63,18 @@ export const windowAtomFamily = atomFamily((id: string) => {
     windowReducer
   );
 });
+
+const MIN_WINDOW_SIZE = { width: 300, height: 100 };
+
+function clampSize(size: WindowState["size"]): WindowState["size"] {
+  return {
+    width: Math.max(size.width, MIN_WINDOW_SIZE.width),
+    height:
+      size.height === "auto"
+        ? "auto"
+        : Math.max(size.height, MIN_WINDOW_SIZE.height),
+  };
+}
 
 function windowReducer(state: WindowState, action: WindowAction): WindowState {
   switch (action.type) {
@@ -80,56 +104,134 @@ function windowReducer(state: WindowState, action: WindowAction): WindowState {
     case "INIT":
       return { ...state, ...action.payload };
     case "RESIZE":
-      switch (action.payload.side) {
-        case "top":
-          return {
-            ...state,
-            size: {
-              ...state.size,
-              height:
-                (state.size.height === "auto" ? 0 : state.size.height) +
-                action.payload.delta,
-            },
-            pos: {
-              ...state.pos,
-              y: state.pos.y - action.payload.delta,
-            },
-          };
-
-        case "bottom":
-          return {
-            ...state,
-            size: {
-              ...state.size,
-              height:
-                (state.size.height === "auto" ? 0 : state.size.height) +
-                action.payload.delta,
-            },
-          };
-        case "left":
-          return {
-            ...state,
-            size: {
-              ...state.size,
-              width: state.size.width + action.payload.delta,
-            },
-            pos: {
-              ...state.pos,
-              x: state.pos.x - action.payload.delta,
-            },
-          };
-        case "right":
-          return {
-            ...state,
-            size: {
-              ...state.size,
-              width: state.size.width + action.payload.delta,
-            },
-          };
-      }
+      const newState = handleResize(state, action);
+      return {
+        ...newState,
+        size: clampSize(newState.size),
+      };
     default:
       assertNever(action);
   }
 
   return state;
+}
+
+function handleResize(state: WindowState, action: WindowAction) {
+  if (action.type !== "RESIZE") {
+    return state;
+  }
+
+  switch (action.payload.side) {
+    case "top": {
+      const delta = -action.payload.dy;
+      return {
+        ...state,
+        size: {
+          ...state.size,
+          height:
+            (state.size.height === "auto" ? 0 : state.size.height) + delta,
+        },
+        pos: {
+          ...state.pos,
+          y: state.pos.y - delta,
+        },
+      };
+    }
+
+    case "bottom": {
+      const delta = action.payload.dy;
+      return {
+        ...state,
+        size: {
+          ...state.size,
+          height:
+            (state.size.height === "auto" ? 0 : state.size.height) + delta,
+        },
+      };
+    }
+    case "left": {
+      const delta = -action.payload.dx;
+      return {
+        ...state,
+        size: {
+          ...state.size,
+          width: state.size.width + delta,
+        },
+        pos: {
+          ...state.pos,
+          x: state.pos.x - delta,
+        },
+      };
+    }
+    case "right": {
+      const delta = action.payload.dx;
+      return {
+        ...state,
+        size: {
+          ...state.size,
+          width: state.size.width + delta,
+        },
+      };
+    }
+    case "bottom-right": {
+      const { dx, dy } = action.payload;
+      return {
+        ...state,
+        size: {
+          ...state.size,
+          width: state.size.width + dx,
+          height: (state.size.height === "auto" ? 0 : state.size.height) + dy,
+        },
+      };
+    }
+    case "top-right": {
+      const dx = action.payload.dx;
+      const dy = -action.payload.dy;
+      return {
+        ...state,
+        size: {
+          ...state.size,
+          width: state.size.width + dx,
+          height: (state.size.height === "auto" ? 0 : state.size.height) + dy,
+        },
+        pos: {
+          ...state.pos,
+          y: state.pos.y - dy,
+        },
+      };
+    }
+    case "bottom-left": {
+      const dx = -action.payload.dx;
+      const dy = action.payload.dy;
+      return {
+        ...state,
+        size: {
+          ...state.size,
+          width: state.size.width + dx,
+          height: (state.size.height === "auto" ? 0 : state.size.height) + dy,
+        },
+        pos: {
+          ...state.pos,
+          x: state.pos.x - dx,
+        },
+      };
+    }
+    case "top-left": {
+      const dx = -action.payload.dx;
+      const dy = -action.payload.dy;
+      return {
+        ...state,
+        size: {
+          ...state.size,
+          width: state.size.width + dx,
+          height: (state.size.height === "auto" ? 0 : state.size.height) + dy,
+        },
+        pos: {
+          ...state.pos,
+          x: state.pos.x - dx,
+          y: state.pos.y - dy,
+        },
+      };
+    }
+  }
 }

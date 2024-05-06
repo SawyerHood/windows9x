@@ -88,13 +88,12 @@ export function Window({ id }: { id: string }) {
           bottom: 0,
           position: "absolute",
           width: 7,
-          background: "red",
           cursor: "ew-resize",
         }}
         onMouseDown={createResizeEvent((e: MouseEvent) => {
           dispatch({
             type: "RESIZE",
-            payload: { side: "right", delta: e.movementX },
+            payload: { side: "right", dx: e.movementX, dy: e.movementY },
           });
         })}
       ></div>
@@ -106,13 +105,12 @@ export function Window({ id }: { id: string }) {
           bottom: 0,
           position: "absolute",
           width: 7,
-          background: "red",
           cursor: "ew-resize",
         }}
         onMouseDown={createResizeEvent((e: MouseEvent) => {
           dispatch({
             type: "RESIZE",
-            payload: { side: "left", delta: e.movementX * -1 },
+            payload: { side: "left", dx: e.movementX, dy: e.movementY },
           });
         })}
       ></div>
@@ -124,13 +122,12 @@ export function Window({ id }: { id: string }) {
           bottom: -4,
           position: "absolute",
           height: 7,
-          background: "red",
           cursor: "ns-resize",
         }}
         onMouseDown={createResizeEvent((e: MouseEvent) => {
           dispatch({
             type: "RESIZE",
-            payload: { side: "bottom", delta: e.movementY },
+            payload: { side: "bottom", dx: e.movementX, dy: e.movementY },
           });
         })}
       ></div>
@@ -142,13 +139,12 @@ export function Window({ id }: { id: string }) {
           right: 0,
           position: "absolute",
           height: 7,
-          background: "red",
           cursor: "ns-resize",
         }}
         onMouseDown={createResizeEvent((e: MouseEvent) => {
           dispatch({
             type: "RESIZE",
-            payload: { side: "top", delta: e.movementY * -1 },
+            payload: { side: "top", dx: e.movementX, dy: e.movementY },
           });
         })}
       ></div>
@@ -160,9 +156,14 @@ export function Window({ id }: { id: string }) {
           position: "absolute",
           width: 7,
           height: 7,
-          background: "yellow",
           cursor: "nwse-resize",
         }}
+        onMouseDown={createResizeEvent((e: MouseEvent) => {
+          dispatch({
+            type: "RESIZE",
+            payload: { side: "top-left", dx: e.movementX, dy: e.movementY },
+          });
+        })}
       ></div>
       {/* top right */}
       <div
@@ -172,9 +173,14 @@ export function Window({ id }: { id: string }) {
           position: "absolute",
           width: 7,
           height: 7,
-          background: "yellow",
           cursor: "nesw-resize",
         }}
+        onMouseDown={createResizeEvent((e: MouseEvent) => {
+          dispatch({
+            type: "RESIZE",
+            payload: { side: "top-right", dx: e.movementX, dy: e.movementY },
+          });
+        })}
       ></div>
       {/* bottom left */}
       <div
@@ -184,9 +190,14 @@ export function Window({ id }: { id: string }) {
           position: "absolute",
           width: 7,
           height: 7,
-          background: "yellow",
           cursor: "nesw-resize",
         }}
+        onMouseDown={createResizeEvent((e: MouseEvent) => {
+          dispatch({
+            type: "RESIZE",
+            payload: { side: "bottom-left", dx: e.movementX, dy: e.movementY },
+          });
+        })}
       ></div>
       {/* bottom right */}
       <div
@@ -196,9 +207,14 @@ export function Window({ id }: { id: string }) {
           position: "absolute",
           width: 7,
           height: 7,
-          background: "yellow",
           cursor: "nwse-resize",
         }}
+        onMouseDown={createResizeEvent((e: MouseEvent) => {
+          dispatch({
+            type: "RESIZE",
+            payload: { side: "bottom-right", dx: e.movementX, dy: e.movementY },
+          });
+        })}
       ></div>
     </div>
   );

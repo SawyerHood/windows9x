@@ -39,6 +39,7 @@ export function OS() {
         position: "relative",
         backgroundImage: "url(/bg.jpg)",
         backgroundSize: "cover",
+        overflow: "hidden",
       }}
     >
       {windows.map((id) => (
