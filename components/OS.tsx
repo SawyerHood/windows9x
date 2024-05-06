@@ -136,8 +136,8 @@ function Window({ id }: { id: string }) {
         position: "absolute",
         top: 0,
         left: 0,
-        width: state.status === "maximized" ? "100%" : 400,
-        height: state.status === "maximized" ? "100%" : undefined,
+        width: state.status === "maximized" ? "100%" : state.size.width,
+        height: state.status === "maximized" ? "100%" : state.size.height,
         transform:
           state.status === "maximized"
             ? "none"
@@ -145,6 +145,7 @@ function Window({ id }: { id: string }) {
         display: state.status === "minimized" ? "none" : "flex",
         flexDirection: "column",
         zIndex: focusedWindow === id ? 1 : 0,
+        isolation: "isolate",
       }}
     >
       <div
@@ -193,6 +194,110 @@ function Window({ id }: { id: string }) {
       <div className="window-body" style={{ flex: 1 }}>
         <WindowBody state={state} />
       </div>
+      {/* right side */}
+      <div
+        style={{
+          top: 0,
+          right: -4,
+          bottom: 0,
+          position: "absolute",
+          width: 7,
+          background: "red",
+          cursor: "ew-resize",
+        }}
+        onMouseDown={(e) => {
+          const handleMouseMove = (e: MouseEvent) => {
+            dispatch({
+              type: "RESIZE",
+              payload: { side: "right", delta: e.movementX },
+            });
+          };
+          const handleMouseUp = () => {
+            window.removeEventListener("mousemove", handleMouseMove);
+            window.removeEventListener("mouseup", handleMouseUp);
+          };
+          window.addEventListener("mousemove", handleMouseMove);
+          window.addEventListener("mouseup", handleMouseUp);
+        }}
+      ></div>
+      {/* left side */}
+      <div
+        style={{
+          top: 0,
+          left: -4,
+          bottom: 0,
+          position: "absolute",
+          width: 7,
+          background: "red",
+          cursor: "ew-resize",
+        }}
+        onMouseDown={(e) => {
+          const handleMouseMove = (e: MouseEvent) => {
+            dispatch({
+              type: "RESIZE",
+              payload: { side: "left", delta: e.movementX * -1 },
+            });
+          };
+          const handleMouseUp = () => {
+            window.removeEventListener("mousemove", handleMouseMove);
+            window.removeEventListener("mouseup", handleMouseUp);
+          };
+          window.addEventListener("mousemove", handleMouseMove);
+          window.addEventListener("mouseup", handleMouseUp);
+        }}
+      ></div>
+      {/* bottom side */}
+      <div
+        style={{
+          left: 0,
+          right: 0,
+          bottom: -4,
+          position: "absolute",
+          height: 7,
+          background: "red",
+          cursor: "ns-resize",
+        }}
+        onMouseDown={(e) => {
+          const handleMouseMove = (e: MouseEvent) => {
+            dispatch({
+              type: "RESIZE",
+              payload: { side: "bottom", delta: e.movementY },
+            });
+          };
+          const handleMouseUp = () => {
+            window.removeEventListener("mousemove", handleMouseMove);
+            window.removeEventListener("mouseup", handleMouseUp);
+          };
+          window.addEventListener("mousemove", handleMouseMove);
+          window.addEventListener("mouseup", handleMouseUp);
+        }}
+      ></div>
+      {/* top side */}
+      <div
+        style={{
+          top: -4,
+          left: 0,
+          right: 0,
+          position: "absolute",
+          height: 7,
+          background: "red",
+          cursor: "ns-resize",
+        }}
+        onMouseDown={(e) => {
+          const handleMouseMove = (e: MouseEvent) => {
+            dispatch({
+              type: "RESIZE",
+              payload: { side: "top", delta: e.movementY * -1 },
+            });
+          };
+          const handleMouseUp = () => {
+            window.removeEventListener("mousemove", handleMouseMove);
+            window.removeEventListener("mouseup", handleMouseUp);
+          };
+          window.addEventListener("mousemove", handleMouseMove);
+          window.addEventListener("mouseup", handleMouseUp);
+        }}
+      ></div>
     </div>
   );
 }
@@ -223,6 +328,10 @@ type WindowAction =
   | { type: "TOGGLE_MINIMIZE" }
   | { type: "RESTORE" }
   | { type: "MOVE"; payload: { dx: number; dy: number } }
+  | {
+      type: "RESIZE";
+      payload: { side: "top" | "bottom" | "left" | "right"; delta: number };
+    }
   | {
       type: "INIT";
       payload: { title: string; program: WindowState["program"]; id: string };
@@ -255,6 +364,54 @@ function windowReducer(state: WindowState, action: WindowAction): WindowState {
       return { ...state, status: "normal" };
     case "INIT":
       return { ...state, ...action.payload };
+    case "RESIZE":
+      switch (action.payload.side) {
+        case "top":
+          return {
+            ...state,
+            size: {
+              ...state.size,
+              height:
+                (state.size.height === "auto" ? 0 : state.size.height) +
+                action.payload.delta,
+            },
+            pos: {
+              ...state.pos,
+              y: state.pos.y - action.payload.delta,
+            },
+          };
+
+        case "bottom":
+          return {
+            ...state,
+            size: {
+              ...state.size,
+              height:
+                (state.size.height === "auto" ? 0 : state.size.height) +
+                action.payload.delta,
+            },
+          };
+        case "left":
+          return {
+            ...state,
+            size: {
+              ...state.size,
+              width: state.size.width + action.payload.delta,
+            },
+            pos: {
+              ...state.pos,
+              x: state.pos.x - action.payload.delta,
+            },
+          };
+        case "right":
+          return {
+            ...state,
+            size: {
+              ...state.size,
+              width: state.size.width + action.payload.delta,
+            },
+          };
+      }
     default:
       assertNever(action);
   }
