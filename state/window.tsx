@@ -20,9 +20,11 @@ export type WindowState = {
   icon?: string;
   program: Program;
   id: string;
+  loading: boolean;
 };
 
 export type WindowAction =
+  | { type: "SET_LOADING"; payload: boolean }
   | { type: "TOGGLE_MAXIMIZE" }
   | { type: "TOGGLE_MINIMIZE" }
   | { type: "RESTORE" }
@@ -45,7 +47,14 @@ export type WindowAction =
     }
   | {
       type: "INIT";
-      payload: { title: string; program: WindowState["program"]; id: string };
+      payload: {
+        title: string;
+        program: WindowState["program"];
+        id: string;
+        loading?: boolean;
+        size?: WindowState["size"];
+        pos?: WindowState["pos"];
+      };
     };
 
 export const windowAtomFamily = atomFamily((id: string) => {
@@ -59,12 +68,13 @@ export const windowAtomFamily = atomFamily((id: string) => {
         type: "welcome",
       },
       id,
+      loading: false,
     },
     windowReducer
   );
 });
 
-const MIN_WINDOW_SIZE = { width: 300, height: 100 };
+export const MIN_WINDOW_SIZE = { width: 300, height: 100 };
 
 function clampSize(size: WindowState["size"]): WindowState["size"] {
   return {
@@ -109,6 +119,8 @@ function windowReducer(state: WindowState, action: WindowAction): WindowState {
         ...newState,
         size: clampSize(newState.size),
       };
+    case "SET_LOADING":
+      return { ...state, loading: action.payload };
     default:
       assertNever(action);
   }

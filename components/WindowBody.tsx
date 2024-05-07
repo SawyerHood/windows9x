@@ -2,7 +2,7 @@
 import { assertNever } from "@/utils/assertNever";
 import { useAtom, useSetAtom } from "jotai";
 import { windowsListAtom } from "@/state/windowsList";
-import { WindowState, windowAtomFamily } from "@/state/window";
+import { MIN_WINDOW_SIZE, WindowState, windowAtomFamily } from "@/state/window";
 import { createWindow } from "../utils/createWindow";
 
 export function WindowBody({ state }: { state: WindowState }) {
@@ -35,6 +35,11 @@ function Run({ id }: { id: string }) {
             program: {
               type: "iframe",
               src: `/api/program?description=${programDescription}`,
+            },
+            loading: true,
+            size: {
+              width: 400,
+              height: 400,
             },
           });
           windowsDispatch({ type: "REMOVE", payload: id });
@@ -74,6 +79,9 @@ function Iframe({ id }: { id: string }) {
       src={state.program.type === "iframe" ? state.program.src : ""}
       style={{ width: "100%", height: "100%", border: "none" }}
       allowTransparency
+      onLoad={() => {
+        dispatch({ type: "SET_LOADING", payload: false });
+      }}
     />
   );
 }

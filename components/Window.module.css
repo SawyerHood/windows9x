@@ -1,0 +1,19 @@
+.jiggle {
+  animation: jiggleAnimation 5s infinite;
+}
+
+@keyframes jiggleAnimation {
+  0%,
+  100% {
+    transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+  25% {
+    transform: rotateX(5deg) rotateY(5deg) rotateZ(5deg);
+  }
+  50% {
+    transform: rotateX(-5deg) rotateY(-5deg) rotateZ(-5deg);
+  }
+  75% {
+    transform: rotateX(5deg) rotateY(5deg) rotateZ(5deg);
+  }
+}

@@ -4,8 +4,9 @@ import cx from "classnames";
 import { useAtom, useSetAtom } from "jotai";
 import { focusedWindowAtom } from "@/state/focusedWindowAtom";
 import { windowsListAtom } from "@/state/windowsList";
-import { windowAtomFamily } from "@/state/window";
+import { MIN_WINDOW_SIZE, windowAtomFamily } from "@/state/window";
 import { WindowBody } from "./WindowBody";
+import styles from "./Window.module.css";
 
 export function Window({ id }: { id: string }) {
   const [state, dispatch] = useAtom(windowAtomFamily(id));
@@ -14,12 +15,14 @@ export function Window({ id }: { id: string }) {
 
   return (
     <div
-      className={cx("window")}
+      className={cx("window", {
+        [styles.jiggle]: state.loading,
+      })}
       id={id}
       style={{
         position: "absolute",
-        top: 0,
-        left: 0,
+        top: state.loading ? state.pos.y : 0,
+        left: state.loading ? state.pos.x : 0,
         width: state.status === "maximized" ? "100%" : state.size.width,
         height: state.status === "maximized" ? "100%" : state.size.height,
         transform:
@@ -30,8 +33,8 @@ export function Window({ id }: { id: string }) {
         flexDirection: "column",
         zIndex: focusedWindow === id ? 1 : 0,
         isolation: "isolate",
-        minWidth: 300,
-        minHeight: 100,
+        minWidth: MIN_WINDOW_SIZE.width,
+        minHeight: MIN_WINDOW_SIZE.height,
       }}
     >
       <div

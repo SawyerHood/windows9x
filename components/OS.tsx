@@ -2,13 +2,14 @@
 
 import styles from "./OS.module.css";
 import cx from "classnames";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { useEffect } from "react";
+import { getDefaultStore, useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useEffect, useState } from "react";
 import { focusedWindowAtom } from "@/state/focusedWindowAtom";
 import { windowsListAtom } from "@/state/windowsList";
 import { windowAtomFamily } from "@/state/window";
 import { createWindow } from "@/utils/createWindow";
 import { Window } from "./Window";
+import { startMenuOpenAtom } from "@/state/startMenu";
 
 export function OS() {
   const [windows, dispatch] = useAtom(windowsListAtom);
@@ -16,6 +17,7 @@ export function OS() {
   useEffect(() => {
     const onMouseDown = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
+      getDefaultStore().set(startMenuOpenAtom, false);
       const windowID = windows.find((windowId) => {
         const windowElement = document.getElementById(windowId);
         return windowElement && windowElement.contains(target);
@@ -45,26 +47,7 @@ export function OS() {
       {windows.map((id) => (
         <Window key={id} id={id} />
       ))}
-      <button
-        onClick={() => {
-          createWindow({
-            title: "Welcome to Windows 96",
-            program: { type: "welcome" },
-          });
-        }}
-      >
-        Add Welcome
-      </button>
-      <button
-        onClick={() => {
-          createWindow({
-            title: "Run",
-            program: { type: "run" },
-          });
-        }}
-      >
-        Add Run
-      </button>
+
       <TaskBar />
     </div>
   );
@@ -72,18 +55,52 @@ export function OS() {
 
 function TaskBar() {
   const windows = useAtomValue(windowsListAtom);
+  const [startMenuOpen, setStartMenuOpen] = useAtom(startMenuOpenAtom);
   return (
     <div className={cx("window", styles.taskbar)}>
-      <button className={styles.startButton}>Start</button>
+      <button
+        className={styles.startButton}
+        onClick={() => setStartMenuOpen((v) => !v)}
+      >
+        Start
+      </button>
+      {startMenuOpen && <StartMenu />}
       <div className={styles.divider}></div>
       {windows.map((id) => (
-        <WindowTaskBar key={id} id={id} />
+        <WindowTaskBarItem key={id} id={id} />
       ))}
     </div>
   );
 }
 
-function WindowTaskBar({ id }: { id: string }) {
+function StartMenu() {
+  return (
+    <div className={cx("window", styles.startMenu)}>
+      <button
+        onMouseDown={() => {
+          createWindow({
+            title: "Welcome to Windows 96",
+            program: { type: "welcome" },
+          });
+        }}
+      >
+        Welcome
+      </button>
+      <button
+        onMouseDown={() => {
+          createWindow({
+            title: "Run",
+            program: { type: "run" },
+          });
+        }}
+      >
+        Run
+      </button>
+    </div>
+  );
+}
+
+function WindowTaskBarItem({ id }: { id: string }) {
   const [focusedWindow, setFocusedWindow] = useAtom(focusedWindowAtom);
   const [state, dispatch] = useAtom(windowAtomFamily(id));
   return (
