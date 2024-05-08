@@ -1,17 +1,26 @@
 "use client";
 
 import cx from "classnames";
-import { useAtom, useSetAtom } from "jotai";
+import {
+  atom,
+  getDefaultStore,
+  useAtom,
+  useAtomValue,
+  useSetAtom,
+} from "jotai";
 import { focusedWindowAtom } from "@/state/focusedWindowAtom";
 import { windowsListAtom } from "@/state/windowsList";
 import { MIN_WINDOW_SIZE, windowAtomFamily } from "@/state/window";
 import { WindowBody } from "./WindowBody";
 import styles from "./Window.module.css";
 
+const isResizingAtom = atom(false);
+
 export function Window({ id }: { id: string }) {
   const [state, dispatch] = useAtom(windowAtomFamily(id));
   const windowsDispatch = useSetAtom(windowsListAtom);
   const [focusedWindow, setFocusedWindow] = useAtom(focusedWindowAtom);
+  const isResizing = useAtomValue(isResizingAtom);
 
   return (
     <div
@@ -41,23 +50,12 @@ export function Window({ id }: { id: string }) {
         className={cx("title-bar", {
           inactive: focusedWindow !== id,
         })}
-        onMouseDown={(e) => {
-          const handleMouseMove = (e: MouseEvent) => {
-            dispatch({
-              type: "MOVE",
-              payload: { dx: e.movementX, dy: e.movementY },
-            });
-          };
-
-          window.addEventListener("mousemove", handleMouseMove);
-
-          const handleMouseUp = () => {
-            window.removeEventListener("mousemove", handleMouseMove);
-            window.removeEventListener("mouseup", handleMouseUp);
-          };
-
-          window.addEventListener("mouseup", handleMouseUp);
-        }}
+        onMouseDown={createResizeEvent((e: MouseEvent) => {
+          dispatch({
+            type: "MOVE",
+            payload: { dx: e.movementX, dy: e.movementY },
+          });
+        })}
       >
         <div className="title-bar-text">{state.title}</div>
         <div className="title-bar-controls">
@@ -80,7 +78,14 @@ export function Window({ id }: { id: string }) {
           ></button>
         </div>
       </div>
-      <div className="window-body" style={{ flex: 1 }}>
+      <div
+        className="window-body"
+        style={{
+          flex: 1,
+          pointerEvents: isResizing ? "none" : "auto",
+          overflow: "hidden",
+        }}
+      >
         <WindowBody state={state} />
       </div>
       {/* right side */}
@@ -228,11 +233,15 @@ function createResizeEvent(cb: (e: MouseEvent) => void) {
     const handleMouseMove = (e: MouseEvent) => {
       cb(e);
     };
+    getDefaultStore().set(isResizingAtom, true);
     const handleMouseUp = () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("blur", handleMouseUp);
+      getDefaultStore().set(isResizingAtom, false);
     };
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener("blur", handleMouseUp);
   };
 }

@@ -1,4 +1,5 @@
 "use client";
+
 import { assertNever } from "@/utils/assertNever";
 import { useAtom, useSetAtom } from "jotai";
 import { windowsListAtom } from "@/state/windowsList";
@@ -59,6 +60,7 @@ function Run({ id }: { id: string }) {
           style={{ width: "100%" }}
           spellCheck={false}
           autoComplete="off"
+          autoFocus
         />
       </div>
       <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>

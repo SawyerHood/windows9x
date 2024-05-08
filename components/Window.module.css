@@ -1,5 +1,5 @@
 .jiggle {
-  animation: jiggleAnimation 5s infinite;
+  animation: jiggleAnimation 15s infinite;
 }
 
 @keyframes jiggleAnimation {

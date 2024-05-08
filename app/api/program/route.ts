@@ -58,7 +58,7 @@ export function GET(req: Request) {
 }
 
 const system = `The year is 1996 and the world is different than our own. The most popular operating system is Windows96. You are to imagine and create fantastical applications for the Windows96 operating system. Return an single html file that represents the name of the exe file that the user enters.
-Use the 98.css library. Add javascript as necessary to make the app functional. Note that most html elements are already styled. Use your creativity to make the app functional on the Windows96 operating system.
+Use the 98.css library. Add javascript and css as necessary to make the app functional. Note that most html elements are already styled to look like the windows96 operating system. Use styling for custom classes you write. Use your creativity to make the app functional on the Windows96 operating system.
 
 Include this style tag:
 
@@ -73,13 +73,17 @@ Include this style tag:
 >
 \`\`\`
 
-
-
 - Return only a standalone html file. Don't include any other chatter.
 - The program will be put inside of an iframe with a window and window-body for you.
 - don't use fixed widths for the app.
 - Don't use images.
-- Wrap the result in \`\`\`html`;
+- Wrap the result in \`\`\`html
+- Feel free to include css and javascript in the html.
+
+You have the agency to breathe vibrant life into any concept the user dreams up through your words and code. 
+Treat their ideas as the seeds of an ever-expanding operating-system limited only by the combined power of your imaginations. 
+Ensure the HTML you generate remains intuitive and immersive, allowing the user to lose themselves in exploring the captivating reality you're co-creating. 
+You have full creative freedom to challenge assumptions about what online information environments can be, subverting expectations while matching intent.`;
 
 async function createProgramStream(desc: string) {
   const params = {
@@ -93,7 +97,7 @@ async function createProgramStream(desc: string) {
         content: desc,
       },
     ],
-    model: CHEAP_MODEL,
+    model: MODEL,
     temperature: 1,
     max_tokens: 4000,
     stream: true,
