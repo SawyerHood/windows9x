@@ -4,7 +4,7 @@ import { atomFamily, atomWithReducer } from "jotai/utils";
 export type Program =
   | { type: "welcome" }
   | { type: "run" }
-  | { type: "iframe"; src: string }
+  | { type: "iframe"; src?: string; srcDoc?: string }
   | { type: "paint" };
 
 export type WindowState = {
@@ -55,8 +55,10 @@ export type WindowAction =
         loading?: boolean;
         size?: WindowState["size"];
         pos?: WindowState["pos"];
+        icon?: string;
       };
-    };
+    }
+  | { type: "SET_ICON"; payload: string };
 
 export const windowAtomFamily = atomFamily((id: string) => {
   return atomWithReducer(
@@ -122,6 +124,8 @@ function windowReducer(state: WindowState, action: WindowAction): WindowState {
       };
     case "SET_LOADING":
       return { ...state, loading: action.payload };
+    case "SET_ICON":
+      return { ...state, icon: action.payload };
     default:
       assertNever(action);
   }

@@ -10,6 +10,7 @@ import { windowAtomFamily } from "@/state/window";
 import { createWindow } from "@/utils/createWindow";
 import { Window } from "./Window";
 import { startMenuOpenAtom } from "@/state/startMenu";
+import { Desktop } from "./Desktop";
 
 export function OS() {
   const [windows, dispatch] = useAtom(windowsListAtom);
@@ -44,6 +45,7 @@ export function OS() {
         overflow: "hidden",
       }}
     >
+      <Desktop />
       {windows.map((id) => (
         <Window key={id} id={id} />
       ))}

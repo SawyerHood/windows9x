@@ -14,6 +14,7 @@ import { MIN_WINDOW_SIZE, windowAtomFamily } from "@/state/window";
 import { WindowBody } from "./WindowBody";
 import styles from "./Window.module.css";
 import { useRef } from "react";
+import Image from "next/image";
 
 const isResizingAtom = atom(false);
 
@@ -58,7 +59,12 @@ export function Window({ id }: { id: string }) {
           });
         })}
       >
-        <div className="title-bar-text">{state.title}</div>
+        <div className={styles.title}>
+          {state.icon && (
+            <Image src={state.icon} alt={state.title} width={16} height={16} />
+          )}
+          <div className="title-bar-text">{state.title}</div>
+        </div>
         <div className="title-bar-controls">
           <button
             aria-label="Minimize"

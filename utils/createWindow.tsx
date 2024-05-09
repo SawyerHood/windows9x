@@ -11,17 +11,19 @@ export function createWindow({
   loading = false,
   size = { ...MIN_WINDOW_SIZE, height: "auto" },
   pos = { x: 200, y: 200 },
+  icon,
 }: {
   title: string;
   program: WindowState["program"];
   loading?: boolean;
   size?: WindowState["size"];
   pos?: WindowState["pos"];
+  icon?: string;
 }) {
   const id = generateRandomId();
   getDefaultStore().set(windowAtomFamily(id), {
     type: "INIT",
-    payload: { title, program, id, loading, size, pos },
+    payload: { title, program, id, loading, size, pos, icon },
   });
   getDefaultStore().set(windowsListAtom, { type: "ADD", payload: id });
   getDefaultStore().set(focusedWindowAtom, id);

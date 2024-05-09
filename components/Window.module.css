@@ -17,3 +17,11 @@
     transform: rotateX(5deg) rotateY(5deg) rotateZ(5deg);
   }
 }
+
+.title {
+  display: flex;
+
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}

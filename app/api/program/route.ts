@@ -97,7 +97,7 @@ async function createProgramStream(desc: string) {
         content: desc,
       },
     ],
-    model: MODEL,
+    model: CHEAP_MODEL,
     temperature: 1,
     max_tokens: 4000,
     stream: true,

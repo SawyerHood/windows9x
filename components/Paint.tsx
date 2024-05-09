@@ -77,6 +77,7 @@ export function Paint({ id }: { id: string }) {
                 width: 800,
                 height: 600,
               },
+              loading: true,
             });
           }}
         >
