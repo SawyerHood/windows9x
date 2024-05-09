@@ -5,6 +5,7 @@ import { useAtom, useSetAtom } from "jotai";
 import { windowsListAtom } from "@/state/windowsList";
 import { MIN_WINDOW_SIZE, WindowState, windowAtomFamily } from "@/state/window";
 import { createWindow } from "../utils/createWindow";
+import { Paint } from "./Paint";
 
 export function WindowBody({ state }: { state: WindowState }) {
   switch (state.program.type) {
@@ -14,6 +15,8 @@ export function WindowBody({ state }: { state: WindowState }) {
       return <Run id={state.id} />;
     case "iframe":
       return <Iframe id={state.id} />;
+    case "paint":
+      return <Paint id={state.id} />;
     default:
       assertNever(state.program);
   }
@@ -74,6 +77,7 @@ function Run({ id }: { id: string }) {
     </form>
   );
 }
+
 function Iframe({ id }: { id: string }) {
   const [state, dispatch] = useAtom(windowAtomFamily(id));
   return (

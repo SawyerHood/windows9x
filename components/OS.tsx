@@ -4,7 +4,7 @@ import styles from "./OS.module.css";
 import cx from "classnames";
 import { getDefaultStore, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
-import { focusedWindowAtom } from "@/state/focusedWindowAtom";
+import { focusedWindowAtom } from "@/state/focusedWindow";
 import { windowsListAtom } from "@/state/windowsList";
 import { windowAtomFamily } from "@/state/window";
 import { createWindow } from "@/utils/createWindow";
@@ -95,6 +95,16 @@ function StartMenu() {
         }}
       >
         Run
+      </button>
+      <button
+        onMouseDown={() => {
+          createWindow({
+            title: "Paint",
+            program: { type: "paint" },
+          });
+        }}
+      >
+        Paint
       </button>
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { getDefaultStore } from "jotai";
-import { focusedWindowAtom } from "../state/focusedWindowAtom";
+import { focusedWindowAtom } from "../state/focusedWindow";
 import { windowsListAtom } from "@/state/windowsList";
 import { MIN_WINDOW_SIZE, WindowState, windowAtomFamily } from "@/state/window";
 

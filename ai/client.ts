@@ -1,3 +1,4 @@
+import { initLogger, wrapOpenAI } from "braintrust";
 import OpenAI from "openai";
 
 const MODE: "openrouter" | "braintrust" | "groq" = "braintrust" as const;
@@ -34,7 +35,7 @@ const createClient = (mode: "openrouter" | "braintrust" | "groq") => {
     case "braintrust":
       return new OpenAI({
         baseURL: "https://braintrustproxy.com/v1",
-        apiKey: process.env.ANTHROPIC_API_KEY,
+        apiKey: process.env.BRAINTRUST_API_KEY,
       });
     case "groq":
       return new OpenAI({
@@ -47,5 +48,9 @@ const createClient = (mode: "openrouter" | "braintrust" | "groq") => {
 export const MODEL = getModel(MODE);
 
 export const CHEAP_MODEL = getCheapModel(MODE);
+const logger = initLogger({
+  projectName: "windows96",
+  apiKey: process.env.BRAINTRUST_API_KEY,
+});
 
-export const openai = createClient(MODE);
+export const openai = wrapOpenAI(createClient(MODE));

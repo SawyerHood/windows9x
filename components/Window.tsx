@@ -8,11 +8,12 @@ import {
   useAtomValue,
   useSetAtom,
 } from "jotai";
-import { focusedWindowAtom } from "@/state/focusedWindowAtom";
+import { focusedWindowAtom } from "@/state/focusedWindow";
 import { windowsListAtom } from "@/state/windowsList";
 import { MIN_WINDOW_SIZE, windowAtomFamily } from "@/state/window";
 import { WindowBody } from "./WindowBody";
 import styles from "./Window.module.css";
+import { useRef } from "react";
 
 const isResizingAtom = atom(false);
 

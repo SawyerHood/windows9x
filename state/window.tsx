@@ -4,7 +4,8 @@ import { atomFamily, atomWithReducer } from "jotai/utils";
 export type Program =
   | { type: "welcome" }
   | { type: "run" }
-  | { type: "iframe"; src: string };
+  | { type: "iframe"; src: string }
+  | { type: "paint" };
 
 export type WindowState = {
   status: "maximized" | "minimized" | "normal";
