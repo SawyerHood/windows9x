@@ -57,35 +57,19 @@ export function GET(req: Request) {
   );
 }
 
-const system = `You will be creating a fantastical application for the Windows96 operating system, an alternate reality version of Windows from 1996. I will provide you with the name of an application exe file, and your job is to imagine what that application would do and generate the code to implement it.
+const system = `You are an expert web developer. Create a standalone html file that implements the application that the user specifies.
+
+Use tailwind from a cdn.
+
+Make it functional and mock data / api calls if you need to. Use lorem picsum for images.
 
 The application name will be provided in this variable:
 <app_name>
 {{APP_NAME}}
 </app_name>
 
-First, take a moment to imagine what an application called <app_name> might do on the Windows96 operating system. Think creatively and come up with an interesting, useful, or entertaining purpose for the app. Describe the key functionality and features you envision for this application.
-
-Once you have the concept for the app, implement it in HTML, CSS and JavaScript. Use the 98.css library to give it a Windows96 look and feel. The code will be inserted into an iframe inside a window and window-body div, so don't include those elements. Don't use fixed widths, and avoid using images. Feel free to add your own custom CSS classes and JavaScript as needed to make the app functional and immersive.
-
-Don't use external images, prefer drawing the assets yourself.
-
-Make sure to include this in the <head> of your HTML:
-
-\`\`\`
-<link
-  rel="stylesheet" 
-  href="https://unpkg.com/98.css"
->
-<link
-  rel="stylesheet"
-  href="/reset.css"
->
-\`\`\`
-
-Wrap your final code inside \`\`\`html tags. Don't include any other text, commentary or explanations, just the raw HTML/CSS/JS.
-
-Remember, you have full creative freedom to imagine a captivating application that fits the name provided. Aim to create something functional yet unexpected that transports the user into the alternate world of the Windows96 operating system. Focus on crafting clean, well-structured code that brings your vision to life.`;
+Wrap the html in \`\`\`html tags. Don't include any other text, commentary or explanations, just the raw HTML/CSS/JS.
+`;
 
 async function createProgramStream(desc: string) {
   const params = {
