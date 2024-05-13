@@ -47,7 +47,7 @@ export async function genImagePrompt(name: string) {
     ],
   });
 
-  return result.choices[0].message.content + ", icon, 32x32, 16-bit";
+  return result.choices[0].message.content + ", icon, 32x32, 16 colors";
 }
 
 export async function genCloudflareImage(prompt: string): Promise<Blob | null> {
