@@ -1,9 +1,10 @@
 import { initLogger, wrapOpenAI } from "braintrust";
 import OpenAI from "openai";
 
-const MODE: "openrouter" | "braintrust" | "groq" = "braintrust" as const;
+type Provider = "openrouter" | "braintrust" | "groq" | "openai";
+const MODE: Provider = "openai" as const;
 
-const getModel = (mode: "openrouter" | "braintrust" | "groq") => {
+const getModel = (mode: Provider) => {
   switch (mode) {
     case "braintrust":
       return "claude-3-opus-20240229";
@@ -11,10 +12,12 @@ const getModel = (mode: "openrouter" | "braintrust" | "groq") => {
       return "fireworks/mixtral-8x22b-instruct-preview";
     case "groq":
       return "llama3-70b-8192";
+    case "openai":
+      return "gpt-4o";
   }
 };
 
-const getCheapModel = (mode: "openrouter" | "braintrust" | "groq") => {
+const getCheapModel = (mode: Provider) => {
   switch (mode) {
     case "openrouter":
       return "fireworks/mixtral-8x22b-instruct-preview";
@@ -22,10 +25,12 @@ const getCheapModel = (mode: "openrouter" | "braintrust" | "groq") => {
       return "claude-3-haiku-20240307";
     case "groq":
       return "llama3-8b-8192";
+    case "openai":
+      return "gpt-3.5-turbo";
   }
 };
 
-const createClient = (mode: "openrouter" | "braintrust" | "groq") => {
+const createClient = (mode: Provider) => {
   switch (mode) {
     case "openrouter":
       return new OpenAI({
@@ -41,6 +46,10 @@ const createClient = (mode: "openrouter" | "braintrust" | "groq") => {
       return new OpenAI({
         baseURL: "https://api.groq.com/openai/v1",
         apiKey: process.env.GROQ_API_KEY,
+      });
+    case "openai":
+      return new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
       });
   }
 };
