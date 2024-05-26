@@ -1,7 +1,8 @@
 import { CHEAP_MODEL, MODEL, openai } from "@/ai/client";
 import { ChatCompletionCreateParamsStreaming } from "openai/resources/index.mjs";
+import { streamHtml } from "openai-html-stream";
 
-export function GET(req: Request) {
+export async function GET(req: Request) {
   const url = new URL(req.url);
   const desc = url.searchParams.get("description");
   if (!desc) {
@@ -9,52 +10,14 @@ export function GET(req: Request) {
       status: 404,
     });
   }
-  return new Response(
-    new ReadableStream({
-      async start(controller) {
-        const programStream = await createProgramStream(desc);
-        let programResult = "";
 
-        let startedSending = false;
-        let sentIndex = 0;
-
-        for await (const chunk of programStream) {
-          const value = chunk.choices[0]?.delta?.content || "";
-
-          programResult += value;
-
-          if (startedSending) {
-            const match = programResult.match(/```/);
-            if (match) {
-              controller.enqueue(programResult.slice(sentIndex, match.index));
-              break;
-            } else {
-              controller.enqueue(value);
-              sentIndex = programResult.length;
-            }
-          } else {
-            const match = programResult.match(/```html/);
-            if (match) {
-              programResult = programResult.slice(
-                match.index! + match[0].length
-              );
-              controller.enqueue(programResult);
-              sentIndex = programResult.length;
-              startedSending = true;
-            }
-          }
-        }
-        await new Promise((resolve) => setTimeout(resolve, 50));
-        controller.close();
-      },
-    }).pipeThrough(new TextEncoderStream()),
-    {
-      headers: {
-        "Content-Type": "text/html",
-      },
-      status: 200,
-    }
-  );
+  const programStream = await createProgramStream(desc);
+  return new Response(streamHtml(programStream), {
+    headers: {
+      "Content-Type": "text/html",
+    },
+    status: 200,
+  });
 }
 
 const system = `You are an expert web developer. Create a standalone html file that implements the application that the user specifies.
