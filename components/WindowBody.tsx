@@ -9,6 +9,7 @@ import { Paint } from "./Paint";
 import { useEffect, useRef } from "react";
 import { programsAtom } from "@/state/programs";
 import assert from "assert";
+import { registryAtom } from "@/state/registry"; // Importing the registry atom
 
 export function WindowBody({ state }: { state: WindowState }) {
   switch (state.program.type) {
@@ -119,6 +120,32 @@ function Iframe({ id }: { id: string }) {
       fetchIcon();
     }
   }, [state.title, dispatch, dispatchPrograms, icon]);
+
+  // Adding message event listener to the iframe to handle registry operations
+  useEffect(() => {
+    const handleMessage = async (event) => {
+      // Assuming the message contains the operation type and key-value data
+      const { operation, key, value } = event.data;
+      const [registry, setRegistry] = useAtom(registryAtom);
+
+      switch (operation) {
+        case 'get':
+          event.source.postMessage({ operation: 'result', key, value: registry[key] }, '*');
+          break;
+        case 'set':
+          setRegistry({ ...registry, [key]: value });
+          break;
+        case 'listKeys':
+          event.source.postMessage({ operation: 'result', keys: Object.keys(registry) }, '*');
+          break;
+        default:
+          console.error('Unsupported operation');
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
   return (
     <iframe
