@@ -12,7 +12,15 @@ export async function GET(req: Request) {
   }
 
   const programStream = await createProgramStream(desc);
-  return new Response(streamHtml(programStream), {
+  return new Response(streamHtml(programStream, {
+    injectIntoHead: `<script>
+      window.registry = {
+        get: (key) => { /* logic to get value by key */ },
+        set: (key, value) => { /* logic to set key-value pair */ },
+        listKeys: () => { /* logic to list all keys */ }
+      };
+    </script>`
+  }), {
     headers: {
       "Content-Type": "text/html",
     },
@@ -32,7 +40,9 @@ The application name will be provided in this variable:
 </app_name>
 
 Wrap the html in \`\`\`html tags. Don't include any other text, commentary or explanations, just the raw HTML/CSS/JS.
-`;
+
+A registry API is available for your application to use. You can access it via the global \`window.registry\` object. It supports the following operations: \`get(key)\`, \`set(key, value)\`, and \`listKeys()\`.`
+;
 
 async function createProgramStream(desc: string) {
   const params = {
