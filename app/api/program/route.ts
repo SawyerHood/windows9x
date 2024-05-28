@@ -5,13 +5,14 @@ import { streamHtml } from "openai-html-stream";
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const desc = url.searchParams.get("description");
+  const keys = JSON.parse(url.searchParams.get("keys") ?? "[]");
   if (!desc) {
     return new Response("No description", {
       status: 404,
     });
   }
 
-  const programStream = await createProgramStream(desc);
+  const programStream = await createProgramStream(desc, keys);
   return new Response(
     streamHtml(programStream, {
       injectIntoHead: `<script src="/api.js"></script>
@@ -33,7 +34,9 @@ href="https://unpkg.com/98.css"
   );
 }
 
-const system = `You will be creating a fantastical application for the Windows96 operating system, an alternate reality version of Windows from 1996. I will provide you with the name of an application exe file, and your job is to imagine what that application would do and generate the code to implement it.
+function makeSystem(keys: string[]) {
+  console.log(keys);
+  return `You will be creating a fantastical application for the Windows96 operating system, an alternate reality version of Windows from 1996. I will provide you with the name of an application exe file, and your job is to imagine what that application would do and generate the code to implement it.
 The application name will be provided in this variable:
 <app_name>
 {{APP_NAME}}
@@ -62,15 +65,19 @@ Uses for the registry:
 - To store user state
 - Interact with the operating system.
 
+If the key can be written by other apps, it should be prefixed with "public_"
+
 You can define your own registry keys or use one of these known keys:
-- public_desktop_url
+${keys.join("\n")}
 `;
-async function createProgramStream(desc: string) {
+}
+
+async function createProgramStream(desc: string, keys: string[]) {
   const params = {
     messages: [
       {
         role: "system",
-        content: system,
+        content: makeSystem(keys),
       },
       {
         role: "user",

@@ -1,7 +1,7 @@
 "use client";
 
 import { assertNever } from "@/utils/assertNever";
-import { getDefaultStore, useAtom, useSetAtom } from "jotai";
+import { getDefaultStore, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { windowsListAtom } from "@/state/windowsList";
 import { WindowState, windowAtomFamily } from "@/state/window";
 import { createWindow } from "../utils/createWindow";
@@ -9,7 +9,7 @@ import { Paint } from "./Paint";
 import { useEffect, useRef } from "react";
 import { programsAtom } from "@/state/programs";
 import assert from "assert";
-import { registryAtom } from "@/state/registry"; // Importing the registry atom
+import { BUILTIN_REGISTRY_KEYS, registryAtom } from "@/state/registry"; // Importing the registry atom
 
 export function WindowBody({ state }: { state: WindowState }) {
   switch (state.program.type) {
@@ -30,6 +30,7 @@ function Welcome({ id }: { id: string }) {
 }
 function Run({ id }: { id: string }) {
   const windowsDispatch = useSetAtom(windowsListAtom);
+  const registry = useAtomValue(registryAtom);
   return (
     <form
       style={{ display: "flex", flexDirection: "column", gap: 8 }}
@@ -38,11 +39,25 @@ function Run({ id }: { id: string }) {
         const formData = new FormData(e.currentTarget);
         const programDescription = formData.get("program-description");
         if (typeof programDescription === "string") {
+          const keys = new Set(
+            Object.keys(registry).filter((key) => key.startsWith("public_"))
+          );
+
+          for (const key of BUILTIN_REGISTRY_KEYS) {
+            keys.add(key);
+          }
+
+          const keyString = JSON.stringify(Array.from(keys).sort());
+          console.log("keys");
+          console.log(keyString);
+
           createWindow({
             title: programDescription,
             program: {
               type: "iframe",
-              src: `/api/program?description=${programDescription}`,
+              src: `/api/program?description=${programDescription}&keys=${encodeURIComponent(
+                keyString
+              )}`,
             },
             loading: true,
             size: {

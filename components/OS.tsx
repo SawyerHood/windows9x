@@ -11,14 +11,14 @@ import { createWindow } from "@/utils/createWindow";
 import { Window } from "./Window";
 import { startMenuOpenAtom } from "@/state/startMenu";
 import { Desktop } from "./Desktop";
-import { registryAtom } from "@/state/registry";
+import { DESKTOP_URL_KEY, registryAtom } from "@/state/registry";
 
 export function OS() {
   const [windows, dispatch] = useAtom(windowsListAtom);
   const setFocusedWindow = useSetAtom(focusedWindowAtom);
   const registry = useAtomValue(registryAtom);
 
-  const publicDesktopUrl = registry["public_desktop_url"] ?? "/bg.jpg";
+  const publicDesktopUrl = registry[DESKTOP_URL_KEY] ?? "/bg.jpg";
 
   useEffect(() => {
     const onMouseDown = (e: MouseEvent) => {

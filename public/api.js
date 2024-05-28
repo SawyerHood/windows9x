@@ -27,7 +27,7 @@ class Registry {
     return new Promise((resolve, reject) => {
       window.addEventListener("message", (event) => {
         if (event.data.id === id) {
-          resolve(event.data.keys);
+          resolve(event.data.value);
         }
       });
     });
