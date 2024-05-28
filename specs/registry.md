@@ -17,6 +17,7 @@ These are the major components we need to support the registry inside of windows
 interface RegistryApi {
   get: (key: string) => any;
   set: (key: string, value: any) => void;
+  delete: (key: string) => void;
   listKeys: () => string[];
 }
 

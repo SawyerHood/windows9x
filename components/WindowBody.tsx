@@ -1,7 +1,7 @@
 "use client";
 
 import { assertNever } from "@/utils/assertNever";
-import { useAtom, useSetAtom } from "jotai";
+import { getDefaultStore, useAtom, useSetAtom } from "jotai";
 import { windowsListAtom } from "@/state/windowsList";
 import { WindowState, windowAtomFamily } from "@/state/window";
 import { createWindow } from "../utils/createWindow";
@@ -123,29 +123,47 @@ function Iframe({ id }: { id: string }) {
 
   // Adding message event listener to the iframe to handle registry operations
   useEffect(() => {
-    const handleMessage = async (event) => {
+    const handleMessage = async (event: MessageEvent) => {
+      // Check if the message is from our iframe
+      if (event.source !== ref.current?.contentWindow) {
+        return;
+      }
+
       // Assuming the message contains the operation type and key-value data
-      const { operation, key, value } = event.data;
-      const [registry, setRegistry] = useAtom(registryAtom);
+      const { operation, key, value, id } = event.data;
+
+      const store = getDefaultStore();
+      const registry = store.get(registryAtom);
 
       switch (operation) {
-        case 'get':
-          event.source.postMessage({ operation: 'result', key, value: registry[key] }, '*');
+        case "get":
+          event.source!.postMessage({
+            operation: "result",
+            id,
+            value: registry[key],
+          });
           break;
-        case 'set':
-          setRegistry({ ...registry, [key]: value });
+        case "set":
+          store.set(registryAtom, { ...registry, [key]: value });
           break;
-        case 'listKeys':
-          event.source.postMessage({ operation: 'result', keys: Object.keys(registry) }, '*');
+        case "delete":
+          store.set(registryAtom, { ...registry, [key]: undefined });
+          break;
+        case "listKeys":
+          event.source!.postMessage({
+            operation: "result",
+            id,
+            value: Object.keys(registry),
+          });
           break;
         default:
-          console.error('Unsupported operation');
+          console.error("Unsupported operation");
       }
     };
 
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [ref]);
 
   return (
     <iframe

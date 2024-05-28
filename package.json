@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build-iframe": "bun build ./iframe/api.ts --outdir ./public"
   },
   "dependencies": {
     "98.css": "^0.1.20",
