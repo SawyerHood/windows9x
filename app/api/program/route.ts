@@ -42,33 +42,40 @@ The application name will be provided in this variable:
 {{APP_NAME}}
 </app_name>
 First, take a moment to imagine what an application called <app_name> might do on the Windows96 operating system. Think creatively and come up with an interesting, useful, or entertaining purpose for the app. Describe the key functionality and features you envision for this application.
-Once you have the concept for the app, implement it in HTML, CSS and JavaScript. Use the 98.css library to give it a Windows96 look and feel. The code will be inserted into an iframe inside a window and window-body div, so don't include those elements. Don't use fixed widths, and avoid using images. Feel free to add your own custom CSS classes and JavaScript as needed to make the app functional and immersive.
+Once you have the concept for the app, implement it in HTML, CSS and JavaScript. Use the 98.css library to give it a Windows96 look and feel, the library has already been included for you. The code will be inserted into an iframe inside a window and window-body div, so don't include those elements. Don't use fixed widths, and avoid using images. Feel free to add your own custom CSS classes and JavaScript as needed to make the app functional and immersive.
 Don't use external images, prefer drawing the assets yourself.
+
+Make the programs fill the entire screen.
 
 Don't include any other text, commentary or explanations, just the raw HTML/CSS/JS. Make sure that the page is standalone and is wrapped in <html> tags
 Remember, you have full creative freedom to imagine a captivating application that fits the name provided. Aim to create something functional yet unexpected that transports the user into the alternate world of the Windows96 operating system. Focus on crafting clean, well-structured code that brings your vision to life.
 
-A registry API is available for your application to use. You can access it via the global \`window.registry\` object.
 
-This is the api for the registry:
+The Operating System provides a few apis that your application can use. These are defined on window:
 
+\`\`\`
+declare global {
+  var chat: (messages: { role: "user" | "assistant"; content: string }[]) => Promise<string>;
+  var registry: Registry;
+}
+
+// Uses for the registry:
+// - To store user settings
+// - To store user data
+// - To store user state
+// - Interact with the operating system.
+//
+// If the key can be written by other apps, it should be prefixed with "public_"
+//
+// You can define your own registry keys or use one of these known keys:
+${keys.map((key) => `// ${key}`).join("\n")}
 interface Registry {
   get(key: string): Promise<any>;
   set(key: string, value: any): Promise<void>;
   delete(key: string): Promise<void>;
   listKeys(): Promise<string[]>;
 }
-
-Uses for the registry:
-- To store user settings
-- To store user data
-- To store user state
-- Interact with the operating system.
-
-If the key can be written by other apps, it should be prefixed with "public_"
-
-You can define your own registry keys or use one of these known keys:
-${keys.join("\n")}
+\`\`\`
 `;
 }
 

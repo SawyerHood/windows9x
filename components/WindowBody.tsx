@@ -145,32 +145,48 @@ function Iframe({ id }: { id: string }) {
       }
 
       // Assuming the message contains the operation type and key-value data
-      const { operation, key, value, id } = event.data;
+      const { operation, key, value, id, messages } = event.data;
 
       const store = getDefaultStore();
       const registry = store.get(registryAtom);
 
       switch (operation) {
-        case "get":
+        case "get": {
           event.source!.postMessage({
             operation: "result",
             id,
             value: registry[key],
           });
           break;
-        case "set":
+        }
+        case "set": {
           store.set(registryAtom, { ...registry, [key]: value });
           break;
-        case "delete":
+        }
+        case "delete": {
           store.set(registryAtom, { ...registry, [key]: undefined });
           break;
-        case "listKeys":
+        }
+        case "listKeys": {
           event.source!.postMessage({
             operation: "result",
             id,
             value: Object.keys(registry),
           });
           break;
+        }
+        case "chat": {
+          const result = await fetch(`/api/chat`, {
+            method: "POST",
+            body: JSON.stringify({ messages: value }),
+          });
+          event.source!.postMessage({
+            operation: "result",
+            value: await result.json(),
+            id,
+          });
+          break;
+        }
         default:
           console.error("Unsupported operation");
       }

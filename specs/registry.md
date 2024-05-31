@@ -27,3 +27,7 @@ declare global {
   }
 }
 ```
+
+Tweet:
+
+New windows9X experiment: reading and writing to the registry. This is the gate way to letting AI generated applications interact with the operating system and each other. For example, ai generated programs to change your desktop background!

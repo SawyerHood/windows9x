@@ -1,8 +1,9 @@
 // iframe/api.ts
+var currId = 0;
+
 class Registry {
-  currId = 0;
   async get(key) {
-    const id = this.currId++;
+    const id = currId++;
     window.parent.postMessage({ operation: "get", key, id }, "*");
     return new Promise((resolve, reject) => {
       window.addEventListener("message", (event) => {
@@ -14,15 +15,15 @@ class Registry {
     });
   }
   async set(key, value) {
-    const id = this.currId++;
+    const id = currId++;
     window.parent.postMessage({ operation: "set", key, value, id }, "*");
   }
   async delete(key) {
-    const id = this.currId++;
+    const id = currId++;
     window.parent.postMessage({ operation: "delete", key, id }, "*");
   }
   async listKeys() {
-    const id = this.currId++;
+    const id = currId++;
     window.parent.postMessage({ operation: "listKeys", id }, "*");
     return new Promise((resolve, reject) => {
       window.addEventListener("message", (event) => {
@@ -33,4 +34,15 @@ class Registry {
     });
   }
 }
+window.chat = (messages) => {
+  const id = currId++;
+  window.parent.postMessage({ operation: "chat", value: messages, id }, "*");
+  return new Promise((resolve, reject) => {
+    window.addEventListener("message", (event) => {
+      if (event.data.id === id) {
+        resolve(event.data.value);
+      }
+    });
+  });
+};
 window.registry = new Registry;
