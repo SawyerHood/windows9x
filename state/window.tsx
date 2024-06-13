@@ -1,4 +1,5 @@
 import { assertNever } from "@/utils/assertNever";
+import { getDefaultStore } from "jotai";
 import { atomFamily, atomWithReducer } from "jotai/utils";
 
 export type Program =
@@ -58,7 +59,8 @@ export type WindowAction =
         icon?: string;
       };
     }
-  | { type: "SET_ICON"; payload: string };
+  | { type: "SET_ICON"; payload: string }
+  | { type: "UPDATE_PROGRAM"; payload: Partial<WindowState["program"]> };
 
 export const windowAtomFamily = atomFamily((id: string) => {
   return atomWithReducer(
@@ -126,6 +128,8 @@ function windowReducer(state: WindowState, action: WindowAction): WindowState {
       return { ...state, loading: action.payload };
     case "SET_ICON":
       return { ...state, icon: action.payload };
+    case "UPDATE_PROGRAM":
+      return { ...state, program: { ...state.program, ...action.payload } };
     default:
       assertNever(action);
   }
@@ -258,6 +262,14 @@ export function getIframeID(id: string) {
 }
 
 export function reloadIframe(id: string) {
+  const store = getDefaultStore();
+  store.set(windowAtomFamily(id), {
+    type: "UPDATE_PROGRAM",
+    payload: {
+      type: "iframe",
+      srcDoc: undefined,
+    },
+  });
   const iframe = document.getElementById(getIframeID(id));
   if (iframe && iframe instanceof HTMLIFrameElement) {
     iframe.contentWindow?.location.reload();

@@ -26,6 +26,7 @@ function ProgramIcon({ program }: { program: ProgramEntry }) {
       program: {
         type: "iframe",
         srcDoc: program.code,
+        src: program.url,
       },
       icon: program.icon ?? undefined,
     });
