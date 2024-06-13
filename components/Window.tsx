@@ -10,7 +10,11 @@ import {
 } from "jotai";
 import { focusedWindowAtom } from "@/state/focusedWindow";
 import { windowsListAtom } from "@/state/windowsList";
-import { MIN_WINDOW_SIZE, windowAtomFamily } from "@/state/window";
+import {
+  MIN_WINDOW_SIZE,
+  reloadIframe,
+  windowAtomFamily,
+} from "@/state/window";
 import { WindowBody } from "./WindowBody";
 import styles from "./Window.module.css";
 import {
@@ -19,6 +23,7 @@ import {
   MouseEvent as ReactMouseEvent,
 } from "react";
 import Image from "next/image";
+import { MenuBar } from "./MenuBar";
 
 const isResizingAtom = atom(false);
 
@@ -91,14 +96,37 @@ export function Window({ id }: { id: string }) {
           ></button>
         </div>
       </div>
+
       <div
         className="window-body"
         style={{
           flex: 1,
           pointerEvents: isResizing ? "none" : "auto",
           overflow: "hidden",
+          marginTop: 0,
         }}
       >
+        <MenuBar
+          options={[
+            {
+              label: "File",
+              items: [
+                state.program.type === "iframe"
+                  ? {
+                      label: "Reload",
+                      onClick: () => reloadIframe(id),
+                    }
+                  : null,
+                {
+                  label: "Close",
+                  onClick: () => {
+                    windowsDispatch({ type: "REMOVE", payload: id });
+                  },
+                },
+              ],
+            },
+          ]}
+        />
         <WindowBody state={state} />
       </div>
       {/* right side */}

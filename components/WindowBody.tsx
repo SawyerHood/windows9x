@@ -3,7 +3,7 @@
 import { assertNever } from "@/utils/assertNever";
 import { getDefaultStore, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { windowsListAtom } from "@/state/windowsList";
-import { WindowState, windowAtomFamily } from "@/state/window";
+import { WindowState, getIframeID, windowAtomFamily } from "@/state/window";
 import { createWindow } from "../utils/createWindow";
 import { Paint } from "./Paint";
 import { useEffect, useRef } from "react";
@@ -48,8 +48,6 @@ function Run({ id }: { id: string }) {
           }
 
           const keyString = JSON.stringify(Array.from(keys).sort());
-          console.log("keys");
-          console.log(keyString);
 
           createWindow({
             title: programDescription,
@@ -199,6 +197,7 @@ function Iframe({ id }: { id: string }) {
   return (
     <iframe
       ref={ref}
+      id={getIframeID(id)}
       src={state.program.src ?? undefined}
       srcDoc={state.program.srcDoc ?? undefined}
       style={{ width: "100%", height: "100%", border: "none" }}

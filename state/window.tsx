@@ -252,3 +252,14 @@ function handleResize(state: WindowState, action: WindowAction) {
     }
   }
 }
+
+export function getIframeID(id: string) {
+  return `iframe-${id}`;
+}
+
+export function reloadIframe(id: string) {
+  const iframe = document.getElementById(getIframeID(id));
+  if (iframe && iframe instanceof HTMLIFrameElement) {
+    iframe.contentWindow?.location.reload();
+  }
+}
