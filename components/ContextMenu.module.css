@@ -1,0 +1,15 @@
+.contextMenu {
+  display: flex;
+  flex-direction: column;
+
+  & > button {
+    box-shadow: none;
+    padding: 4px 16px 4px 16px;
+    text-align: left;
+  }
+
+  & > button:hover {
+    background-color: darkblue;
+    color: white;
+  }
+}

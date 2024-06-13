@@ -1,9 +1,10 @@
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import styles from "./Desktop.module.css";
 import { ProgramEntry, programsAtom } from "@/state/programs";
 import window from "./assets/window.png";
 import Image from "next/image";
 import { createWindow } from "@/utils/createWindow";
+import { useCreateContextMenu } from "@/state/contextMenu";
 
 export const Desktop = () => {
   const { programs } = useAtomValue(programsAtom);
@@ -17,19 +18,34 @@ export const Desktop = () => {
 };
 
 function ProgramIcon({ program }: { program: ProgramEntry }) {
+  const createContextMenu = useCreateContextMenu();
+  const dispatch = useSetAtom(programsAtom);
+  const runProgram = () => {
+    createWindow({
+      title: program.name,
+      program: {
+        type: "iframe",
+        srcDoc: program.code,
+      },
+      icon: program.icon ?? undefined,
+    });
+  };
   return (
     <button
       className={styles.programIcon}
-      onDoubleClick={() => {
-        createWindow({
-          title: program.name,
-          program: {
-            type: "iframe",
-            srcDoc: program.code,
+      onContextMenu={createContextMenu([
+        { label: "Run", onClick: runProgram },
+        {
+          label: "Delete",
+          onClick: () => {
+            dispatch({
+              type: "REMOVE_PROGRAM",
+              payload: program.name,
+            });
           },
-          icon: program.icon ?? undefined,
-        });
-      }}
+        },
+      ])}
+      onDoubleClick={runProgram}
     >
       <Image
         src={program.icon ?? window}

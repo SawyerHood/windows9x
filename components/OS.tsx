@@ -12,6 +12,7 @@ import { Window } from "./Window";
 import { startMenuOpenAtom } from "@/state/startMenu";
 import { Desktop } from "./Desktop";
 import { DESKTOP_URL_KEY, registryAtom } from "@/state/registry";
+import { ContextMenu } from "./ContextMenu";
 
 export function OS() {
   const [windows, dispatch] = useAtom(windowsListAtom);
@@ -50,6 +51,9 @@ export function OS() {
         backgroundPosition: "center",
         overflow: "hidden",
       }}
+      onContextMenu={(e) => {
+        e.preventDefault();
+      }}
     >
       <Desktop />
       {windows.map((id) => (
@@ -57,6 +61,7 @@ export function OS() {
       ))}
 
       <TaskBar />
+      <ContextMenu />
     </div>
   );
 }
