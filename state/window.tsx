@@ -6,7 +6,8 @@ export type Program =
   | { type: "welcome" }
   | { type: "run" }
   | { type: "iframe"; src?: string; srcDoc?: string }
-  | { type: "paint" };
+  | { type: "paint" }
+  | { type: "help"; targetWindowID?: string };
 
 export type WindowState = {
   status: "maximized" | "minimized" | "normal";
