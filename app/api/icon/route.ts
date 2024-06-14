@@ -38,7 +38,7 @@ async function toDataURL(blob: Blob) {
 
 const imageDescriptionPrompt = `You are a master icon designer for Microsoft in the 90s. A user will give you the name of an exe and you will describe an icon for it. Return an object or symbol that should be used as an icon. Return only the object or symbol`;
 
-export async function genImagePrompt(name: string) {
+async function genImagePrompt(name: string) {
   const result = await openai.chat.completions.create({
     model: CHEAP_MODEL,
     messages: [
@@ -50,7 +50,7 @@ export async function genImagePrompt(name: string) {
   return result.choices[0].message.content + ", icon, 32x32, 16 colors";
 }
 
-export async function genCloudflareImage(prompt: string): Promise<Blob | null> {
+async function genCloudflareImage(prompt: string): Promise<Blob | null> {
   const options = {
     method: "POST",
     headers: {

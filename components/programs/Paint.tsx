@@ -2,7 +2,6 @@
 import { useAtom } from "jotai";
 import { windowAtomFamily } from "@/state/window";
 import { useEffect, useRef, useState } from "react";
-import { createWindow } from "@/utils/createWindow";
 
 export function Paint({ id }: { id: string }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -66,20 +65,20 @@ export function Paint({ id }: { id: string }) {
       <div className="field-row" style={{ justifyContent: "flex-end" }}>
         <button onClick={clearCanvas}>Clear</button>
         <button
-          onClick={() => {
-            createWindow({
-              title: "new program.exe",
-              program: {
-                type: "iframe",
-                src: `/api/image?image=${encodeURIComponent(getJpegBase64())}`,
-              },
-              size: {
-                width: 800,
-                height: 600,
-              },
-              loading: true,
-            });
-          }}
+        // onClick={() => {
+        //   createWindow({
+        //     title: "new program.exe",
+        //     program: {
+        //       type: "iframe",
+        //       src: `/api/image?image=${encodeURIComponent(getJpegBase64())}`,
+        //     },
+        //     size: {
+        //       width: 800,
+        //       height: 600,
+        //     },
+        //     loading: true,
+        //   });
+        // }}
         >
           Make Real
         </button>

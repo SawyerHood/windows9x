@@ -25,8 +25,7 @@ function ProgramIcon({ program }: { program: ProgramEntry }) {
       title: program.name,
       program: {
         type: "iframe",
-        srcDoc: program.code,
-        src: program.url,
+        programID: program.id,
       },
       icon: program.icon ?? undefined,
     });

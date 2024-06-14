@@ -88,7 +88,7 @@ export function Window({ id }: { id: string }) {
           </div>
         </div>
         <div className="title-bar-controls">
-          {state.program.type === "help" ? null : (
+          {state.program.type !== "iframe" ? null : (
             <button
               aria-label="Help"
               style={{

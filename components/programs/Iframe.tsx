@@ -1,19 +1,29 @@
 "use client";
-import { getDefaultStore, useAtom, useSetAtom } from "jotai";
+import { getDefaultStore, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { getIframeID, windowAtomFamily } from "@/state/window";
 import { useEffect, useRef } from "react";
-import { programsAtom } from "@/state/programs";
+import { programAtomFamily, programsAtom } from "@/state/programs";
 import assert from "assert";
 import { registryAtom } from "@/state/registry";
+import { getURLForProgram } from "@/utils/getURLForProgram";
 
 export function Iframe({ id }: { id: string }) {
   const [state, dispatch] = useAtom(windowAtomFamily(id));
   const ref = useRef<HTMLIFrameElement>(null);
   const dispatchPrograms = useSetAtom(programsAtom);
   const startedRef = useRef(false);
+  const registry = useAtomValue(registryAtom);
 
   assert(state.program.type === "iframe", "Program is not an iframe");
+
+  const program = useAtomValue(programAtomFamily(state.program.programID));
   const { icon } = state;
+
+  const programID = state.program.programID;
+
+  assert(program, "Program not found");
+
+  const url = getURLForProgram(program, registry);
 
   useEffect(() => {
     async function fetchIcon() {
@@ -34,6 +44,7 @@ export function Iframe({ id }: { id: string }) {
       dispatchPrograms({
         type: "UPDATE_PROGRAM",
         payload: {
+          id: programID,
           name: state.title,
           icon: dataUri,
         },
@@ -43,7 +54,7 @@ export function Iframe({ id }: { id: string }) {
     if (!icon) {
       fetchIcon();
     }
-  }, [state.title, dispatch, dispatchPrograms, icon]);
+  }, [state.title, dispatch, dispatchPrograms, icon, programID]);
 
   // Adding message event listener to the iframe to handle registry operations
   useEffect(() => {
@@ -109,16 +120,17 @@ export function Iframe({ id }: { id: string }) {
     <iframe
       ref={ref}
       id={getIframeID(id)}
-      src={state.program.src ?? undefined}
-      srcDoc={state.program.srcDoc ?? undefined}
+      src={!program?.code ? url : undefined}
+      srcDoc={program?.code ?? undefined}
       style={{ width: "100%", flexGrow: 1, border: "none" }}
       allowTransparency
       onLoad={() => {
         assert(state.program.type === "iframe", "Program is not an iframe");
 
-        if (!state.program.src) {
+        if (program?.code) {
           return;
         }
+
         dispatch({ type: "SET_LOADING", payload: false });
         if (ref.current) {
           const outerHTML =
@@ -128,8 +140,7 @@ export function Iframe({ id }: { id: string }) {
           dispatchPrograms({
             type: "UPDATE_PROGRAM",
             payload: {
-              name: state.title,
-              url: state.program.src!,
+              id: programID,
               code: outerHTML,
             },
           });

@@ -3,9 +3,11 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { windowsListAtom } from "@/state/windowsList";
 import { createWindow } from "../../utils/createWindow";
 import { BUILTIN_REGISTRY_KEYS, registryAtom } from "@/state/registry";
+import { ProgramEntry, programsAtom } from "@/state/programs";
 
 export function Run({ id }: { id: string }) {
   const windowsDispatch = useSetAtom(windowsListAtom);
+  const programsDispatch = useSetAtom(programsAtom);
   const registry = useAtomValue(registryAtom);
   return (
     <form
@@ -15,23 +17,19 @@ export function Run({ id }: { id: string }) {
         const formData = new FormData(e.currentTarget);
         const programDescription = formData.get("program-description");
         if (typeof programDescription === "string") {
-          const keys = new Set(
-            Object.keys(registry).filter((key) => key.startsWith("public_"))
-          );
+          const program: ProgramEntry = {
+            id: crypto.randomUUID(),
+            prompt: programDescription,
+            name: programDescription,
+          };
 
-          for (const key of BUILTIN_REGISTRY_KEYS) {
-            keys.add(key);
-          }
-
-          const keyString = JSON.stringify(Array.from(keys).sort());
+          programsDispatch({ type: "ADD_PROGRAM", payload: program });
 
           createWindow({
             title: programDescription,
             program: {
               type: "iframe",
-              src: `/api/program?description=${programDescription}&keys=${encodeURIComponent(
-                keyString
-              )}`,
+              programID: program.id,
             },
             loading: true,
             size: {

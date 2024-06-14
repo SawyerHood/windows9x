@@ -1,6 +1,6 @@
 import { atomWithStorage } from "jotai/utils";
 
-interface RegistryEntry {
+export interface RegistryEntry {
   [key: string]: any;
 }
 

@@ -1,11 +1,13 @@
+import { assert } from "@/utils/assert";
 import { assertNever } from "@/utils/assertNever";
 import { getDefaultStore } from "jotai";
 import { atomFamily, atomWithReducer } from "jotai/utils";
+import { programAtomFamily, programsAtom } from "./programs";
 
 export type Program =
   | { type: "welcome" }
   | { type: "run" }
-  | { type: "iframe"; src?: string; srcDoc?: string }
+  | { type: "iframe"; programID: string }
   | { type: "paint" }
   | { type: "help"; targetWindowID?: string };
 
@@ -130,7 +132,10 @@ function windowReducer(state: WindowState, action: WindowAction): WindowState {
     case "SET_ICON":
       return { ...state, icon: action.payload };
     case "UPDATE_PROGRAM":
-      return { ...state, program: { ...state.program, ...action.payload } };
+      return {
+        ...state,
+        program: { ...state.program, ...action.payload } as any,
+      };
     default:
       assertNever(action);
   }
@@ -264,13 +269,16 @@ export function getIframeID(id: string) {
 
 export function reloadIframe(id: string) {
   const store = getDefaultStore();
-  store.set(windowAtomFamily(id), {
+  const window = store.get(windowAtomFamily(id));
+  assert(window.program.type === "iframe", "Window is not an iframe");
+  const program = store.get(programAtomFamily(window.program.programID));
+  assert(program, "Program not found");
+
+  store.set(programsAtom, {
     type: "UPDATE_PROGRAM",
-    payload: {
-      type: "iframe",
-      srcDoc: undefined,
-    },
+    payload: { id: program.id, code: undefined },
   });
+
   const iframe = document.getElementById(getIframeID(id));
   if (iframe && iframe instanceof HTMLIFrameElement) {
     iframe.contentWindow?.location.reload();

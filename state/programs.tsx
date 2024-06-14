@@ -1,9 +1,10 @@
 import { atom, useAtom } from "jotai";
-import { atomWithStorage } from "jotai/utils";
+import { atomFamily, atomWithStorage } from "jotai/utils";
 
 export type ProgramEntry = {
+  id: string;
   name: string;
-  url?: string;
+  prompt: string;
   code?: string;
   icon?: string | null;
 };
@@ -17,7 +18,7 @@ type ProgramAction =
   | { type: "REMOVE_PROGRAM"; payload: string }
   | {
       type: "UPDATE_PROGRAM";
-      payload: ProgramEntry;
+      payload: Partial<ProgramEntry> & { id: string };
     };
 
 function programsReducer(
@@ -33,19 +34,10 @@ function programsReducer(
         programs: state.programs.filter((p) => p.name !== action.payload),
       };
     case "UPDATE_PROGRAM":
-      const program = state.programs.find(
-        (p) => p.name === action.payload.name
-      );
-      if (!program) {
-        return {
-          ...state,
-          programs: [...state.programs, action.payload],
-        };
-      }
       return {
         ...state,
         programs: state.programs.map((p) =>
-          p.name === action.payload.name ? { ...p, ...action.payload } : p
+          p.id === action.payload.id ? { ...p, ...action.payload } : p
         ),
       };
   }
@@ -60,4 +52,8 @@ export const programsAtom = atom<ProgramsState, [ProgramAction], void>(
   (get, set, action) => {
     set(privateProgramsAtom, programsReducer(get(privateProgramsAtom), action));
   }
+);
+
+export const programAtomFamily = atomFamily((id: string) =>
+  atom((get) => get(programsAtom).programs.find((p) => p.id === id))
 );
