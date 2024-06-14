@@ -70,11 +70,25 @@ export function Window({ id }: { id: string }) {
           }
         )}
       >
-        <div className={styles.title}>
+        <div
+          className={styles.title}
+          style={{
+            overflow: "hidden",
+          }}
+        >
           {state.icon && (
             <Image src={state.icon} alt={state.title} width={16} height={16} />
           )}
-          <div className="title-bar-text">{state.title}</div>
+          <div
+            className="title-bar-text"
+            style={{
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {state.title}
+          </div>
         </div>
         <div className="title-bar-controls">
           <button
@@ -103,30 +117,32 @@ export function Window({ id }: { id: string }) {
           flex: 1,
           pointerEvents: isResizing ? "none" : "auto",
           overflow: "hidden",
-          marginTop: 0,
+          marginTop: state.program.type === "iframe" ? 0 : undefined,
         }}
       >
-        <MenuBar
-          options={[
-            {
-              label: "File",
-              items: [
-                state.program.type === "iframe"
-                  ? {
-                      label: "Reload",
-                      onClick: () => reloadIframe(id),
-                    }
-                  : null,
-                {
-                  label: "Close",
-                  onClick: () => {
-                    windowsDispatch({ type: "REMOVE", payload: id });
+        {state.program.type === "iframe" ? (
+          <MenuBar
+            options={[
+              {
+                label: "File",
+                items: [
+                  state.program.type === "iframe"
+                    ? {
+                        label: "Reload",
+                        onClick: () => reloadIframe(id),
+                      }
+                    : null,
+                  {
+                    label: "Close",
+                    onClick: () => {
+                      windowsDispatch({ type: "REMOVE", payload: id });
+                    },
                   },
-                },
-              ],
-            },
-          ]}
-        />
+                ],
+              },
+            ]}
+          />
+        ) : null}
         <WindowBody state={state} />
       </div>
       {/* right side */}

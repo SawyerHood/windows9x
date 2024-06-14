@@ -139,6 +139,12 @@ function WindowTaskBarItem({ id }: { id: string }) {
           dispatch({ type: "RESTORE" });
         }
       }}
+      style={{
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        maxWidth: "256px",
+      }}
     >
       {state.title}
     </button>

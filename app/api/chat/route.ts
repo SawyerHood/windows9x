@@ -7,15 +7,8 @@ export async function POST(req: Request) {
 
   const response = await openai.chat.completions.create({
     model: MODEL,
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are a helpful assistant. Respond only in plain text, not markdown.",
-      },
-      ...messages,
-    ],
-    max_tokens: 1000,
+    messages: [...messages],
+    max_tokens: 4000,
   });
 
   console.log(response);

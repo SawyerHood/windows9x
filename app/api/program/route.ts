@@ -55,7 +55,8 @@ The Operating System provides a few apis that your application can use. These ar
 
 \`\`\`
 declare global {
-  var chat: (messages: { role: "user" | "assistant"; content: string }[]) => Promise<string>;
+  // Chat lets you use an LLM to generate a response.
+  var chat: (messages: { role: "user" | "assistant" | "system"; content: string }[]) => Promise<string>;
   var registry: Registry;
 }
 
