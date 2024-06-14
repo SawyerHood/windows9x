@@ -17,11 +17,7 @@ import {
 } from "@/state/window";
 import { WindowBody } from "./WindowBody";
 import styles from "./Window.module.css";
-import {
-  MouseEventHandler,
-  useRef,
-  MouseEvent as ReactMouseEvent,
-} from "react";
+import { MouseEventHandler, MouseEvent as ReactMouseEvent } from "react";
 import Image from "next/image";
 import { MenuBar } from "./MenuBar";
 
@@ -118,6 +114,8 @@ export function Window({ id }: { id: string }) {
           pointerEvents: isResizing ? "none" : "auto",
           overflow: "hidden",
           marginTop: state.program.type === "iframe" ? 0 : undefined,
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         {state.program.type === "iframe" ? (
