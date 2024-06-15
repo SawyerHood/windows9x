@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "build-iframe": "bun build ./iframe/api.ts --outdir ./public"
+    "build-iframe": "bun build ./iframe/api.ts --outdir ./public",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "98.css": "^0.1.20",
@@ -24,11 +26,19 @@
     "react-markdown": "^9.0.1"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@testing-library/jest-dom": "^6.4.6",
+    "@testing-library/react": "^16.0.0",
+    "@types/bun": "latest",
+    "@types/jest": "^29.5.12",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
-    "eslint-config-next": "14.2.3"
-  }
+    "eslint-config-next": "14.2.3",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "typescript": "^5"
+  },
+  "module": "index.ts",
+  "type": "module"
 }
