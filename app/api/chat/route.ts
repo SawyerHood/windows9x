@@ -1,7 +1,7 @@
 import { MODEL, openai } from "@/ai/client";
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const { messages, returnJson } = await req.json();
 
   console.log(messages);
 
@@ -9,6 +9,7 @@ export async function POST(req: Request) {
     model: MODEL,
     messages: [...messages],
     max_tokens: 4000,
+    response_format: returnJson ? { type: "json_object" } : { type: "text" },
   });
 
   console.log(response);

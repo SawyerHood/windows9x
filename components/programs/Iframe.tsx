@@ -65,10 +65,12 @@ export function Iframe({ id }: { id: string }) {
       }
 
       // Assuming the message contains the operation type and key-value data
-      const { operation, key, value, id, messages } = event.data;
+      const { operation, key, value, id, messages, returnJson } = event.data;
 
       const store = getDefaultStore();
       const registry = store.get(registryAtom);
+
+      debugger;
 
       switch (operation) {
         case "get": {
@@ -98,7 +100,7 @@ export function Iframe({ id }: { id: string }) {
         case "chat": {
           const result = await fetch(`/api/chat`, {
             method: "POST",
-            body: JSON.stringify({ messages: value }),
+            body: JSON.stringify({ messages: value, returnJson }),
           });
           event.source!.postMessage({
             operation: "result",

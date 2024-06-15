@@ -1,19 +1,13 @@
 import { ProgramEntry } from "@/state/programs";
-import { BUILTIN_REGISTRY_KEYS, RegistryEntry } from "@/state/registry";
+import { RegistryEntry } from "@/state/registry";
+import { getRegistryKeys } from "./getRegistryKeys";
 
 export function getURLForProgram(
   program: ProgramEntry,
   registry: RegistryEntry
 ) {
-  const keys = new Set(
-    Object.keys(registry).filter((key) => key.startsWith("public_"))
-  );
-
-  for (const key of BUILTIN_REGISTRY_KEYS) {
-    keys.add(key);
-  }
-
-  const keyString = JSON.stringify(Array.from(keys).sort());
+  const keys = getRegistryKeys(registry);
+  const keyString = JSON.stringify(keys);
 
   return `/api/program?description=${program.prompt}&keys=${encodeURIComponent(
     keyString

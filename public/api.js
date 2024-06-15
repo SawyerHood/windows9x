@@ -34,9 +34,9 @@ class Registry {
     });
   }
 }
-window.chat = (messages) => {
+window.chat = (messages, returnJson) => {
   const id = currId++;
-  window.parent.postMessage({ operation: "chat", value: messages, id }, "*");
+  window.parent.postMessage({ operation: "chat", value: messages, id, returnJson }, "*");
   return new Promise((resolve, reject) => {
     window.addEventListener("message", (event) => {
       if (event.data.id === id) {

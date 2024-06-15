@@ -5,27 +5,35 @@ import {
   programAtomFamily,
   programsAtom,
 } from "@/state/programs";
-import { WindowState, windowAtomFamily } from "@/state/window";
+import { registryAtom } from "@/state/registry";
+import { windowAtomFamily } from "@/state/window";
 import { windowsListAtom } from "@/state/windowsList";
+import { getApiText } from "@/utils/apiText";
 import { assert } from "@/utils/assert";
+import { getRegistryKeys } from "@/utils/getRegistryKeys";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import Markdown from "react-markdown";
 
-const makePrompt = (program: ProgramEntry) => {
+const makePrompt = (program: ProgramEntry, keys: string[]) => {
   return `You are a helpful assistant designed for the following Windows96 program:
 
 html\`\`\`
 ${program.code}
 \`\`\`
 
-You can either answer questions about the program or rewrite it to fix the user's issue. If you rewrite the program, you must return the entire new HTML document wrapped in html\`\`\` markers.
+The Operating System provides a few apis that your application can use. These are defined on window:
+
+${getApiText(keys)}
+
+You can either answer questions about the program or rewrite it to fix the user's issue. If you rewrite the program, you must return the entire new HTML document wrapped in \`\`\`html markers.
 `;
 };
 
 export function Help({ id }: { id: string }) {
   const helpWindow = useAtomValue(windowAtomFamily(id));
   const windowsListDispatch = useSetAtom(windowsListAtom);
+  const registry = useAtomValue(registryAtom);
   assert(
     helpWindow.program.type === "help" && helpWindow.program.targetWindowID,
     "Help window must have a target window ID"
@@ -52,8 +60,10 @@ export function Help({ id }: { id: string }) {
 
   const program = useAtomValue(programAtomFamily(programID));
 
+  const keys = getRegistryKeys(registry);
+
   const [messages, setMessages] = useState<{ role: string; content: string }[]>(
-    () => [{ role: "system", content: makePrompt(program!) }]
+    () => [{ role: "system", content: makePrompt(program!, keys) }]
   );
   const [input, setInput] = useState("");
 
@@ -70,16 +80,15 @@ export function Help({ id }: { id: string }) {
       body: JSON.stringify({ messages: [...messages, newMessage] }),
     });
 
-    let data = await response.json();
+    const data = await response.json();
 
-    const newHtml = data.match(/html```([\s\S]*?)```/);
+    const newHtml = data.match(/```html([\s\S]*?)```/);
 
     if (newHtml) {
       programsDispatch({
         type: "UPDATE_PROGRAM",
         payload: { id: programID, code: newHtml[1] },
       });
-      data = data.replace(/html```([\s\S]*?)```/, "**App updated**");
     }
 
     setMessages([
@@ -150,7 +159,11 @@ const Message = ({ msg }: { msg: { role: string; content: string } }) => (
         background: msg.role === "user" ? "#acf" : "#eaeaea",
       }}
     >
-      <Markdown>{msg.content}</Markdown>
+      <Markdown>
+        {msg.role === "assistant"
+          ? msg.content.replace(/```html([\s\S]*?)```/, "**App updated**")
+          : msg.content}
+      </Markdown>
     </div>
   </div>
 );
