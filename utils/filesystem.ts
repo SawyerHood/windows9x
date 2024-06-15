@@ -1,8 +1,8 @@
 export class VirtualFileSystem {
   private root: VirtualFolder;
 
-  constructor() {
-    this.root = new VirtualFolder("");
+  constructor(root?: VirtualFolder) {
+    this.root = root || new VirtualFolder("");
   }
 
   createFile(path: string, content: string = ""): void {
@@ -113,7 +113,7 @@ export class VirtualFileSystem {
     return serializeFolder(this.root);
   }
 
-  fromJSON(data: JSONFolder): void {
+  static fromJSON(data: JSONFolder): VirtualFileSystem {
     const deserializeFolder = (data: {
       name: string;
       files: { name: string; content: string }[];
@@ -135,7 +135,7 @@ export class VirtualFileSystem {
       return folder;
     };
 
-    this.root = deserializeFolder(data);
+    return new VirtualFileSystem(deserializeFolder(data));
   }
 }
 

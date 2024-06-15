@@ -120,7 +120,7 @@ describe("VirtualFileSystem", () => {
         },
       ],
     };
-    vfs.fromJSON(json);
+    const vfs = VirtualFileSystem.fromJSON(json);
     const folders = vfs.listFolders();
     const files = vfs.listFiles("folder");
     expect(folders).toContain("folder");
