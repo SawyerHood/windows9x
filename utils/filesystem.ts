@@ -95,6 +95,48 @@ export class VirtualFileSystem {
     const parentFolder = this.getFolder(parts.join("/"));
     return { parentFolder, name };
   }
+
+  toJSON(): JSONFolder {
+    const serializeFolder = (folder: VirtualFolder): JSONFolder => {
+      return {
+        name: folder.name,
+        files: Array.from(folder.files.entries()).map(([name, file]) => ({
+          name: file.name,
+          content: file.content,
+        })),
+        folders: Array.from(folder.folders.entries()).map(([name, subfolder]) =>
+          serializeFolder(subfolder)
+        ),
+      };
+    };
+
+    return serializeFolder(this.root);
+  }
+
+  fromJSON(data: JSONFolder): void {
+    const deserializeFolder = (data: {
+      name: string;
+      files: { name: string; content: string }[];
+      folders: any[];
+    }): VirtualFolder => {
+      const folder = new VirtualFolder(data.name);
+      data.files.forEach((fileData) => {
+        folder.files.set(
+          fileData.name,
+          new VirtualFile(fileData.name, fileData.content)
+        );
+      });
+      data.folders.forEach((subfolderData) => {
+        folder.folders.set(
+          subfolderData.name,
+          deserializeFolder(subfolderData)
+        );
+      });
+      return folder;
+    };
+
+    this.root = deserializeFolder(data);
+  }
 }
 
 export class VirtualFile {
@@ -118,3 +160,9 @@ export class VirtualFolder {
     this.folders = new Map();
   }
 }
+
+type JSONFolder = {
+  name: string;
+  files: { name: string; content: string }[];
+  folders: JSONFolder[];
+};

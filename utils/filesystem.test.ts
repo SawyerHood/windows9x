@@ -83,4 +83,47 @@ describe("VirtualFileSystem", () => {
       'Folder "nonexistent/folder/structure" does not exist.'
     );
   });
+
+  test("should serialize the filesystem to JSON", () => {
+    vfs.createFolder("folder");
+    vfs.createFile("folder/file1.txt", "Content 1");
+    vfs.createFile("folder/file2.txt", "Content 2");
+    const json = vfs.toJSON();
+    expect(json).toEqual({
+      name: "",
+      files: [],
+      folders: [
+        {
+          name: "folder",
+          files: [
+            { name: "file1.txt", content: "Content 1" },
+            { name: "file2.txt", content: "Content 2" },
+          ],
+          folders: [],
+        },
+      ],
+    });
+  });
+
+  test("should deserialize the filesystem from JSON", () => {
+    const json = {
+      name: "",
+      files: [],
+      folders: [
+        {
+          name: "folder",
+          files: [
+            { name: "file1.txt", content: "Content 1" },
+            { name: "file2.txt", content: "Content 2" },
+          ],
+          folders: [],
+        },
+      ],
+    };
+    vfs.fromJSON(json);
+    const folders = vfs.listFolders();
+    const files = vfs.listFiles("folder");
+    expect(folders).toContain("folder");
+    expect(files).toEqual(["file1.txt", "file2.txt"]);
+  });
 });
