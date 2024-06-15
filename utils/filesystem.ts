@@ -1,10 +1,20 @@
 export class VirtualFileSystem {
   private root: VirtualFolder;
+  private onWrite: () => void = () => {};
 
-  constructor(root?: VirtualFolder) {
+  constructor({
+    root,
+    onWrite,
+  }: { root?: VirtualFolder; onWrite?: () => void } = {}) {
     this.root = root || new VirtualFolder("");
+    this.onWrite = onWrite || (() => {});
   }
 
+  flush() {
+    this.onWrite();
+  }
+
+  //   @mutates
   createFile(path: string, content: string = ""): void {
     const { parentFolder, name } = this.getParentFolderAndName(path);
     if (parentFolder.files.has(name) || parentFolder.folders.has(name)) {
@@ -13,26 +23,27 @@ export class VirtualFileSystem {
       );
     }
     parentFolder.files.set(name, new VirtualFile(name, content));
+    this.flush();
   }
 
-  readFile(path: string): string {
-    const file = this.getFile(path);
-    return file.content;
-  }
-
+  //   @mutates
   updateFile(path: string, content: string): void {
     const file = this.getFile(path);
     file.content = content;
+    this.flush();
   }
 
+  //   @mutates
   deleteFile(path: string): void {
     const { parentFolder, name } = this.getParentFolderAndName(path);
     if (!parentFolder.files.has(name)) {
       throw new Error(`VirtualFile "${path}" does not exist.`);
     }
     parentFolder.files.delete(name);
+    this.flush();
   }
 
+  //   @mutates
   createFolder(path: string): void {
     const { parentFolder, name } = this.getParentFolderAndName(path);
     if (parentFolder.files.has(name) || parentFolder.folders.has(name)) {
@@ -41,14 +52,22 @@ export class VirtualFileSystem {
       );
     }
     parentFolder.folders.set(name, new VirtualFolder(name));
+    this.flush();
   }
 
+  //   @mutates
   deleteFolder(path: string): void {
     const { parentFolder, name } = this.getParentFolderAndName(path);
     if (!parentFolder.folders.has(name)) {
       throw new Error(`Folder "${path}" does not exist.`);
     }
     parentFolder.folders.delete(name);
+    this.flush();
+  }
+
+  readFile(path: string): string {
+    const file = this.getFile(path);
+    return file.content;
   }
 
   listFiles(path: string = ""): string[] {
@@ -135,7 +154,7 @@ export class VirtualFileSystem {
       return folder;
     };
 
-    return new VirtualFileSystem(deserializeFolder(data));
+    return new VirtualFileSystem({ root: deserializeFolder(data) });
   }
 }
 
@@ -166,3 +185,11 @@ type JSONFolder = {
   files: { name: string; content: string }[];
   folders: JSONFolder[];
 };
+
+// function mutates(originalMethod: any, _: any) {
+//   return function (this: VirtualFileSystem, ...args: any[]) {
+//     const result = originalMethod.apply(this, args);
+//     this.flush();
+//     return result;
+//   };
+// }
