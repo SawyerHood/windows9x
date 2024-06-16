@@ -1,3 +1,5 @@
+import { produce, immerable } from "immer";
+
 export type VirtualItem = VirtualFile | VirtualFolder;
 
 export type VirtualFile = {
@@ -21,73 +23,68 @@ export function createVirtualFolder(name: string): VirtualFolder {
 }
 
 export class VirtualFileSystem {
-  private root: VirtualFolder;
-  private onWrite: () => void = () => {};
+  private readonly root: VirtualFolder;
 
-  constructor({
-    root,
-    onWrite,
-  }: { root?: VirtualFolder; onWrite?: () => void } = {}) {
+  constructor({ root }: { root?: VirtualFolder } = {}) {
+    (this as any)[immerable] = true;
     this.root = root || createVirtualFolder("");
-    this.onWrite = onWrite || (() => {});
   }
 
-  flush() {
-    this.onWrite();
+  createFile(path: string, content: string = ""): VirtualFileSystem {
+    return produce(this, (draft: VirtualFileSystem) => {
+      const { parentFolder, name } = draft.getParentFolderAndName(path);
+      if (parentFolder.items[name]) {
+        throw new Error(
+          `A file or folder with the name "${name}" already exists in the path "${path}".`
+        );
+      }
+      parentFolder.items[name] = createVirtualFile(name, content);
+    });
   }
 
-  //   @mutates
-  createFile(path: string, content: string = ""): void {
-    const { parentFolder, name } = this.getParentFolderAndName(path);
-    if (parentFolder.items[name]) {
-      throw new Error(
-        `A file or folder with the name "${name}" already exists in the path "${path}".`
-      );
-    }
-    parentFolder.items[name] = createVirtualFile(name, content);
-    this.flush();
+  updateFile(path: string, content: string): VirtualFileSystem {
+    return produce(this, (draft: VirtualFileSystem) => {
+      const file = draft.getFile(path);
+      file.content = content;
+    });
   }
 
-  //   @mutates
-  updateFile(path: string, content: string): void {
-    const file = this.getFile(path);
-    file.content = content;
-    this.flush();
+  deleteFile(path: string): VirtualFileSystem {
+    return produce(this, (draft: VirtualFileSystem) => {
+      const { parentFolder, name } = draft.getParentFolderAndName(path);
+      if (
+        !parentFolder.items[name] ||
+        parentFolder.items[name].type !== "file"
+      ) {
+        throw new Error(`VirtualFile "${path}" does not exist.`);
+      }
+      delete parentFolder.items[name];
+    });
   }
 
-  //   @mutates
-  deleteFile(path: string): void {
-    const { parentFolder, name } = this.getParentFolderAndName(path);
-    if (!parentFolder.items[name] || parentFolder.items[name].type !== "file") {
-      throw new Error(`VirtualFile "${path}" does not exist.`);
-    }
-    delete parentFolder.items[name];
-    this.flush();
+  createFolder(path: string): VirtualFileSystem {
+    return produce(this, (draft: VirtualFileSystem) => {
+      const { parentFolder, name } = draft.getParentFolderAndName(path);
+      if (parentFolder.items[name]) {
+        throw new Error(
+          `A file or folder with the name "${name}" already exists in the path "${path}".`
+        );
+      }
+      parentFolder.items[name] = createVirtualFolder(name);
+    });
   }
 
-  //   @mutates
-  createFolder(path: string): void {
-    const { parentFolder, name } = this.getParentFolderAndName(path);
-    if (parentFolder.items[name]) {
-      throw new Error(
-        `A file or folder with the name "${name}" already exists in the path "${path}".`
-      );
-    }
-    parentFolder.items[name] = createVirtualFolder(name);
-    this.flush();
-  }
-
-  //   @mutates
-  deleteFolder(path: string): void {
-    const { parentFolder, name } = this.getParentFolderAndName(path);
-    if (
-      !parentFolder.items[name] ||
-      parentFolder.items[name].type !== "folder"
-    ) {
-      throw new Error(`Folder "${path}" does not exist.`);
-    }
-    delete parentFolder.items[name];
-    this.flush();
+  deleteFolder(path: string): VirtualFileSystem {
+    return produce(this, (draft: VirtualFileSystem) => {
+      const { parentFolder, name } = draft.getParentFolderAndName(path);
+      if (
+        !parentFolder.items[name] ||
+        parentFolder.items[name].type !== "folder"
+      ) {
+        throw new Error(`Folder "${path}" does not exist.`);
+      }
+      delete parentFolder.items[name];
+    });
   }
 
   readFile(path: string): string {
@@ -152,11 +149,3 @@ export class VirtualFileSystem {
     return new VirtualFileSystem({ root: data });
   }
 }
-
-// function mutates(originalMethod: any, _: any) {
-//   return function (this: VirtualFileSystem, ...args: any[]) {
-//     const result = originalMethod.apply(this, args);
-//     this.flush();
-//     return result;
-//   };
-// }
