@@ -1,5 +1,4 @@
 import { atom } from "jotai";
-import { atomWithStorage } from "jotai/utils";
 import { fileSystemAtom } from "./filesystem";
 import { REGISTRY_PATH } from "@/lib/filesystem/defaultFileSystem";
 
