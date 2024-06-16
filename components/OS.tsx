@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { focusedWindowAtom } from "@/state/focusedWindow";
 import { windowsListAtom } from "@/state/windowsList";
 import { windowAtomFamily } from "@/state/window";
-import { createWindow } from "@/utils/createWindow";
+import { createWindow } from "@/lib/createWindow";
 import { Window } from "./Window";
 import { startMenuOpenAtom } from "@/state/startMenu";
 import { Desktop } from "./Desktop";

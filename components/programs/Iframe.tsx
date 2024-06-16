@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { programAtomFamily, programsAtom } from "@/state/programs";
 import assert from "assert";
 import { registryAtom } from "@/state/registry";
-import { getURLForProgram } from "@/utils/getURLForProgram";
+import { getURLForProgram } from "@/lib/getURLForProgram";
 
 export function Iframe({ id }: { id: string }) {
   const [state, dispatch] = useAtom(windowAtomFamily(id));

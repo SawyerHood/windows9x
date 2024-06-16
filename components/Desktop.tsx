@@ -3,7 +3,7 @@ import styles from "./Desktop.module.css";
 import { ProgramEntry, programsAtom } from "@/state/programs";
 import window from "./assets/window.png";
 import Image from "next/image";
-import { createWindow } from "@/utils/createWindow";
+import { createWindow } from "@/lib/createWindow";
 import { useCreateContextMenu } from "@/state/contextMenu";
 
 export const Desktop = () => {

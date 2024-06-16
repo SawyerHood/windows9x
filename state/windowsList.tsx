@@ -1,4 +1,4 @@
-import { assertNever } from "@/utils/assertNever";
+import { assertNever } from "@/lib/assertNever";
 import { atomWithReducer } from "jotai/utils";
 
 export type WindowsListState = string[];

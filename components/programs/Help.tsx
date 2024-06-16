@@ -8,9 +8,9 @@ import {
 import { registryAtom } from "@/state/registry";
 import { windowAtomFamily } from "@/state/window";
 import { windowsListAtom } from "@/state/windowsList";
-import { getApiText } from "@/utils/apiText";
-import { assert } from "@/utils/assert";
-import { getRegistryKeys } from "@/utils/getRegistryKeys";
+import { getApiText } from "@/lib/apiText";
+import { assert } from "@/lib/assert";
+import { getRegistryKeys } from "@/lib/getRegistryKeys";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import Markdown from "react-markdown";

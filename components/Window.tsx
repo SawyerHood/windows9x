@@ -20,7 +20,7 @@ import styles from "./Window.module.css";
 import { MouseEventHandler, MouseEvent as ReactMouseEvent } from "react";
 import Image from "next/image";
 import { MenuBar } from "./MenuBar";
-import { createWindow } from "@/utils/createWindow";
+import { createWindow } from "@/lib/createWindow";
 
 const isResizingAtom = atom(false);
 

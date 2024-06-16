@@ -1,7 +1,7 @@
 import { CHEAP_MODEL, MODEL, openai } from "@/ai/client";
 import { ChatCompletionCreateParamsStreaming } from "openai/resources/index.mjs";
 import { streamHtml } from "openai-html-stream";
-import { getApiText } from "@/utils/apiText";
+import { getApiText } from "@/lib/apiText";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);

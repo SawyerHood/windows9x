@@ -1,7 +1,7 @@
 "use client";
 import { useAtomValue, useSetAtom } from "jotai";
 import { windowsListAtom } from "@/state/windowsList";
-import { createWindow } from "../../utils/createWindow";
+import { createWindow } from "../../lib/createWindow";
 import { BUILTIN_REGISTRY_KEYS, registryAtom } from "@/state/registry";
 import { ProgramEntry, programsAtom } from "@/state/programs";
 

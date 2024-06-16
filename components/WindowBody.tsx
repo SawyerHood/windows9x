@@ -1,6 +1,6 @@
 "use client";
 
-import { assertNever } from "@/utils/assertNever";
+import { assertNever } from "@/lib/assertNever";
 import { WindowState } from "@/state/window";
 import { Paint } from "./programs/Paint";
 import { Iframe } from "./programs/Iframe";

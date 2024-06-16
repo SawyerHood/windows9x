@@ -1,6 +1,6 @@
 import { CHEAP_MODEL, openai } from "@/ai/client";
 import { removeBackground } from "@/ai/removeBackground";
-import { put } from "@/utils/put";
+import { put } from "@/lib/put";
 
 const REMOVE_BG = false;
 

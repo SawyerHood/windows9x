@@ -1,4 +1,4 @@
-import { atom, useAtom } from "jotai";
+import { atom } from "jotai";
 import { atomFamily, atomWithStorage } from "jotai/utils";
 
 export type ProgramEntry = {

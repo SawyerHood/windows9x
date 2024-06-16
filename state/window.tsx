@@ -1,5 +1,5 @@
-import { assert } from "@/utils/assert";
-import { assertNever } from "@/utils/assertNever";
+import { assert } from "@/lib/assert";
+import { assertNever } from "@/lib/assertNever";
 import { getDefaultStore } from "jotai";
 import { atomFamily, atomWithReducer } from "jotai/utils";
 import { programAtomFamily, programsAtom } from "./programs";
