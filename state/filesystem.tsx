@@ -12,7 +12,7 @@ const privateFileSystemAtom = atomWithStorage<{ root: VirtualFolder }>(
 
 export const fileSystemAtom = atom<
   VirtualFileSystem,
-  [VirtualFileSystem | ((vs: VirtualFileSystem) => VirtualFileSystem), any],
+  [VirtualFileSystem | ((vs: VirtualFileSystem) => VirtualFileSystem)],
   any
 >(
   (get) => new VirtualFileSystem({ root: get(privateFileSystemAtom).root }),

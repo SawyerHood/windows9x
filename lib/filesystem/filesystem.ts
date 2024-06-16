@@ -6,20 +6,29 @@ export type VirtualFile = {
   type: "file";
   name: string;
   content: string;
+  metaData: Record<string, any>;
 };
 
 export type VirtualFolder = {
   type: "folder";
   name: string;
   items: Record<string, VirtualItem>;
+  metaData: Record<string, any>;
 };
 
-export function createVirtualFile(name: string, content: string): VirtualFile {
-  return { type: "file", name, content };
+export function createVirtualFile(
+  name: string,
+  content: string,
+  metaData: Record<string, any> = {}
+): VirtualFile {
+  return { type: "file", name, content, metaData };
 }
 
-export function createVirtualFolder(name: string): VirtualFolder {
-  return { type: "folder", name, items: {} };
+export function createVirtualFolder(
+  name: string,
+  metaData: Record<string, any> = {}
+): VirtualFolder {
+  return { type: "folder", name, items: {}, metaData };
 }
 
 export class VirtualFileSystem {
@@ -30,7 +39,11 @@ export class VirtualFileSystem {
     this.root = root || createVirtualFolder("");
   }
 
-  createFile(path: string, content: string = ""): VirtualFileSystem {
+  createFile(
+    path: string,
+    content: string = "",
+    metaData: Record<string, any> = {}
+  ): VirtualFileSystem {
     return produce(this, (draft: VirtualFileSystem) => {
       const { parentFolder, name } = draft.getParentFolderAndName(path);
       if (parentFolder.items[name]) {
@@ -38,14 +51,19 @@ export class VirtualFileSystem {
           `A file or folder with the name "${name}" already exists in the path "${path}".`
         );
       }
-      parentFolder.items[name] = createVirtualFile(name, content);
+      parentFolder.items[name] = createVirtualFile(name, content, metaData);
     });
   }
 
-  updateFile(path: string, content: string): VirtualFileSystem {
+  updateFile(
+    path: string,
+    content: string,
+    metaData: Record<string, any> = {}
+  ): VirtualFileSystem {
     return produce(this, (draft: VirtualFileSystem) => {
       const file = draft.getFile(path);
       file.content = content;
+      file.metaData = metaData;
     });
   }
 
@@ -62,7 +80,10 @@ export class VirtualFileSystem {
     });
   }
 
-  createFolder(path: string): VirtualFileSystem {
+  createFolder(
+    path: string,
+    metaData: Record<string, any> = {}
+  ): VirtualFileSystem {
     return produce(this, (draft: VirtualFileSystem) => {
       const { parentFolder, name } = draft.getParentFolderAndName(path);
       if (parentFolder.items[name]) {
@@ -70,7 +91,7 @@ export class VirtualFileSystem {
           `A file or folder with the name "${name}" already exists in the path "${path}".`
         );
       }
-      parentFolder.items[name] = createVirtualFolder(name);
+      parentFolder.items[name] = createVirtualFolder(name, metaData);
     });
   }
 

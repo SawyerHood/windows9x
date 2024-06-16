@@ -92,20 +92,24 @@ describe("VirtualFileSystem", () => {
     expect(json).toEqual({
       type: "folder",
       name: "",
+      metaData: {},
       items: {
         folder: {
           type: "folder",
           name: "folder",
+          metaData: {},
           items: {
             "file1.txt": {
               type: "file",
               name: "file1.txt",
               content: "Content 1",
+              metaData: {},
             },
             "file2.txt": {
               type: "file",
               name: "file2.txt",
               content: "Content 2",
+              metaData: {},
             },
           },
         },
@@ -117,20 +121,24 @@ describe("VirtualFileSystem", () => {
     const json: VirtualFolder = {
       type: "folder",
       name: "",
+      metaData: {},
       items: {
         folder: {
           type: "folder",
           name: "folder",
+          metaData: {},
           items: {
             "file1.txt": {
               type: "file",
               name: "file1.txt",
               content: "Content 1",
+              metaData: {},
             },
             "file2.txt": {
               type: "file",
               name: "file2.txt",
               content: "Content 2",
+              metaData: {},
             },
           },
         },
