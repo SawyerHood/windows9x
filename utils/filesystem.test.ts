@@ -1,4 +1,4 @@
-import { VirtualFileSystem } from "./filesystem";
+import { VirtualFileSystem, VirtualFolder } from "./filesystem";
 
 describe("VirtualFileSystem", () => {
   let vfs: VirtualFileSystem;
@@ -96,43 +96,58 @@ describe("VirtualFileSystem", () => {
     );
     expect(onWriteMock).not.toHaveBeenCalled(); // onWrite should not be called due to error
   });
-
   test("should serialize the filesystem to JSON", () => {
     vfs.createFolder("folder");
     vfs.createFile("folder/file1.txt", "Content 1");
     vfs.createFile("folder/file2.txt", "Content 2");
     const json = vfs.toJSON();
     expect(json).toEqual({
+      type: "folder",
       name: "",
-      files: [],
-      folders: [
-        {
+      items: {
+        folder: {
+          type: "folder",
           name: "folder",
-          files: [
-            { name: "file1.txt", content: "Content 1" },
-            { name: "file2.txt", content: "Content 2" },
-          ],
-          folders: [],
+          items: {
+            "file1.txt": {
+              type: "file",
+              name: "file1.txt",
+              content: "Content 1",
+            },
+            "file2.txt": {
+              type: "file",
+              name: "file2.txt",
+              content: "Content 2",
+            },
+          },
         },
-      ],
+      },
     });
     expect(onWriteMock).toHaveBeenCalledTimes(3); // Called for createFolder and both createFile
   });
 
   test("should deserialize the filesystem from JSON", () => {
-    const json = {
+    const json: VirtualFolder = {
+      type: "folder",
       name: "",
-      files: [],
-      folders: [
-        {
+      items: {
+        folder: {
+          type: "folder",
           name: "folder",
-          files: [
-            { name: "file1.txt", content: "Content 1" },
-            { name: "file2.txt", content: "Content 2" },
-          ],
-          folders: [],
+          items: {
+            "file1.txt": {
+              type: "file",
+              name: "file1.txt",
+              content: "Content 1",
+            },
+            "file2.txt": {
+              type: "file",
+              name: "file2.txt",
+              content: "Content 2",
+            },
+          },
         },
-      ],
+      },
     };
     const vfs = VirtualFileSystem.fromJSON(json);
     const folders = vfs.listFolders();
