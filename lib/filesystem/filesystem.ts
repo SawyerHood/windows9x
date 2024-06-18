@@ -70,11 +70,11 @@ export class VirtualFileSystem {
   deleteFile(path: string): VirtualFileSystem {
     return produce(this, (draft: VirtualFileSystem) => {
       const { parentFolder, name } = draft.getParentFolderAndName(path);
-      if (
-        !parentFolder.items[name] ||
-        parentFolder.items[name].type !== "file"
-      ) {
-        throw new Error(`VirtualFile "${path}" does not exist.`);
+      if (!parentFolder.items[name]) {
+        throw new Error(`"${path}" does not exist.`);
+      }
+      if (parentFolder.items[name].metaData.isSystem) {
+        throw new Error(`"${path}" is a system file and cannot be deleted.`);
       }
       delete parentFolder.items[name];
     });
@@ -92,19 +92,6 @@ export class VirtualFileSystem {
         );
       }
       parentFolder.items[name] = createVirtualFolder(name, metaData);
-    });
-  }
-
-  deleteFolder(path: string): VirtualFileSystem {
-    return produce(this, (draft: VirtualFileSystem) => {
-      const { parentFolder, name } = draft.getParentFolderAndName(path);
-      if (
-        !parentFolder.items[name] ||
-        parentFolder.items[name].type !== "folder"
-      ) {
-        throw new Error(`Folder "${path}" does not exist.`);
-      }
-      delete parentFolder.items[name];
     });
   }
 

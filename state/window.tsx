@@ -9,7 +9,13 @@ export type Program =
   | { type: "run" }
   | { type: "iframe"; programID: string }
   | { type: "paint" }
-  | { type: "help"; targetWindowID?: string };
+  | { type: "help"; targetWindowID?: string }
+  | {
+      type: "explorer";
+      currentPath?: string;
+      action?: (path: string) => void;
+      actionText?: string;
+    };
 
 export type WindowState = {
   status: "maximized" | "minimized" | "normal";

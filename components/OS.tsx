@@ -119,6 +119,16 @@ function StartMenu() {
       >
         Paint
       </button>
+      <button
+        onMouseDown={() => {
+          createWindow({
+            title: "Explorer",
+            program: { type: "explorer" },
+          });
+        }}
+      >
+        Explorer
+      </button>
     </div>
   );
 }

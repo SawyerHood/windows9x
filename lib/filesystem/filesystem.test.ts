@@ -48,14 +48,6 @@ describe("VirtualFileSystem", () => {
     );
   });
 
-  test("should delete a folder", () => {
-    vfs = vfs.createFolder("folder");
-    vfs = vfs.deleteFolder("folder");
-    expect(() => vfs.getFolder("folder")).toThrow(
-      'Folder "folder" does not exist.'
-    );
-  });
-
   test("should list files in a folder", () => {
     vfs = vfs.createFolder("folder");
     vfs = vfs.createFile("folder/file1.txt", "Content 1");
