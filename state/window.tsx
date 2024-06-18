@@ -7,7 +7,7 @@ import { programAtomFamily, programsAtom } from "./programs";
 export type Program =
   | { type: "welcome" }
   | { type: "run" }
-  | { type: "iframe"; programID: string }
+  | { type: "iframe"; programID: string; canSave?: boolean; canOpen?: boolean }
   | { type: "paint" }
   | { type: "help"; targetWindowID?: string }
   | {
@@ -285,8 +285,12 @@ export function reloadIframe(id: string) {
     payload: { id: program.id, code: undefined },
   });
 
-  const iframe = document.getElementById(getIframeID(id));
-  if (iframe && iframe instanceof HTMLIFrameElement) {
+  const iframe = getIframe(id);
+  if (iframe) {
     iframe.contentWindow?.location.reload();
   }
+}
+
+export function getIframe(id: string): HTMLIFrameElement | null {
+  return document.getElementById(getIframeID(id)) as HTMLIFrameElement | null;
 }

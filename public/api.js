@@ -45,4 +45,26 @@ window.chat = (messages, returnJson) => {
     });
   });
 };
+var onSaveCallback = null;
+window.registerOnSave = (callback) => {
+  onSaveCallback = callback;
+  window.parent.postMessage({ operation: "registerOnSave" }, "*");
+};
+var onOpenCallback = null;
+window.registerOnOpen = (callback) => {
+  onOpenCallback = callback;
+  window.parent.postMessage({ operation: "registerOnOpen" }, "*");
+};
+window.onmessage = (event) => {
+  if (event.data.operation === "save") {
+    const content = onSaveCallback?.();
+    if (content) {
+      window.parent.postMessage({ operation: "saveComplete", content }, "*");
+    }
+  }
+  if (event.data.operation === "open") {
+    const content = event.data.content;
+    onOpenCallback?.(content);
+  }
+};
 window.registry = new Registry;

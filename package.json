@@ -19,11 +19,11 @@
     "fs-extra": "^11.2.0",
     "immer": "^10.1.1",
     "jotai": "^2.8.0",
-    "next": "^15.0.0-rc.0",
+    "next": "^14.2.4",
     "openai": "^4.41.1",
     "openai-html-stream": "^1.0.0",
-    "react": "^19.0.0-rc-fb9a90fa48-20240614",
-    "react-dom": "^19.0.0-rc-fb9a90fa48-20240614",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-markdown": "^9.0.1"
   },
   "devDependencies": {

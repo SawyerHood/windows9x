@@ -41,6 +41,9 @@ function MenuBarButton({
   openMenuLabel: string | null;
   setOpenMenuLabel: (label: string | null) => void;
 }) {
+  const closeMenu = () => {
+    setOpenMenuLabel(null);
+  };
   return (
     <div className={styles.menuBarButtonContainer}>
       <button
@@ -56,19 +59,31 @@ function MenuBarButton({
         {optionGroup.label}
       </button>
       {openMenuLabel === optionGroup.label && (
-        <MenuBarDropdown optionGroup={optionGroup} />
+        <MenuBarDropdown optionGroup={optionGroup} closeMenu={closeMenu} />
       )}
     </div>
   );
 }
 
-function MenuBarDropdown({ optionGroup }: { optionGroup: OptionGroup }) {
+function MenuBarDropdown({
+  optionGroup,
+  closeMenu,
+}: {
+  optionGroup: OptionGroup;
+  closeMenu: () => void;
+}) {
   return (
     <div className={cx(styles.menuBarDropdown, "window")}>
       {optionGroup.items.map(
         (item) =>
           item && (
-            <button key={item.label} onClick={item.onClick}>
+            <button
+              key={item.label}
+              onClick={() => {
+                item.onClick();
+                closeMenu();
+              }}
+            >
               {item.label}
             </button>
           )

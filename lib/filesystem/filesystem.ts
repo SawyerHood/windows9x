@@ -39,6 +39,18 @@ export class VirtualFileSystem {
     this.root = root || createVirtualFolder("");
   }
 
+  createOrUpdateFile(
+    path: string,
+    content: string = "",
+    metaData: Record<string, any> = {}
+  ): VirtualFileSystem {
+    try {
+      return this.updateFile(path, content, metaData);
+    } catch (error) {
+      return this.createFile(path, content, metaData);
+    }
+  }
+
   createFile(
     path: string,
     content: string = "",
@@ -58,12 +70,12 @@ export class VirtualFileSystem {
   updateFile(
     path: string,
     content: string,
-    metaData: Record<string, any> = {}
+    metaData?: Record<string, any>
   ): VirtualFileSystem {
     return produce(this, (draft: VirtualFileSystem) => {
       const file = draft.getFile(path);
       file.content = content;
-      file.metaData = metaData;
+      file.metaData = metaData ?? file.metaData;
     });
   }
 
@@ -112,6 +124,11 @@ export class VirtualFileSystem {
     return Object.keys(folder.items).filter(
       (key) => folder.items[key].type === "folder"
     );
+  }
+
+  getItem(path: string): VirtualItem | null {
+    const { parentFolder, name } = this.getParentFolderAndName(path);
+    return parentFolder.items[name] ?? null;
   }
 
   private getFile(path: string): VirtualFile {

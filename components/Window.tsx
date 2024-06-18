@@ -12,6 +12,7 @@ import { focusedWindowAtom } from "@/state/focusedWindow";
 import { windowsListAtom } from "@/state/windowsList";
 import {
   MIN_WINDOW_SIZE,
+  getIframe,
   reloadIframe,
   windowAtomFamily,
 } from "@/state/window";
@@ -21,6 +22,7 @@ import { MouseEventHandler, MouseEvent as ReactMouseEvent } from "react";
 import Image from "next/image";
 import { MenuBar } from "./MenuBar";
 import { createWindow } from "@/lib/createWindow";
+import { WindowMenuBar } from "./WindowMenuBar";
 
 const isResizingAtom = atom(false);
 
@@ -136,29 +138,7 @@ export function Window({ id }: { id: string }) {
           flexDirection: "column",
         }}
       >
-        {state.program.type === "iframe" ? (
-          <MenuBar
-            options={[
-              {
-                label: "File",
-                items: [
-                  state.program.type === "iframe"
-                    ? {
-                        label: "Reload",
-                        onClick: () => reloadIframe(id),
-                      }
-                    : null,
-                  {
-                    label: "Close",
-                    onClick: () => {
-                      windowsDispatch({ type: "REMOVE", payload: id });
-                    },
-                  },
-                ],
-              },
-            ]}
-          />
-        ) : null}
+        <WindowMenuBar id={id} />
         <WindowBody state={state} />
       </div>
       {/* right side */}

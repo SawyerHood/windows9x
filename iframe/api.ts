@@ -43,12 +43,40 @@ class Registry {
     "*"
   );
   return new Promise((resolve, reject) => {
-    window.addEventListener("message", (event) => {
+    const messageHandler = (event: MessageEvent) => {
       if (event.data.id === id) {
+        window.removeEventListener("message", messageHandler);
         resolve(event.data.value);
       }
-    });
+    };
+    window.addEventListener("message", messageHandler);
   });
+};
+
+let onSaveCallback: (() => string) | null = null;
+(window as any).registerOnSave = (callback: () => string) => {
+  onSaveCallback = callback;
+  window.parent.postMessage({ operation: "registerOnSave" }, "*");
+};
+
+let onOpenCallback: ((content: string) => void) | null = null;
+(window as any).registerOnOpen = (callback: (content: string) => void) => {
+  onOpenCallback = callback;
+  window.parent.postMessage({ operation: "registerOnOpen" }, "*");
+};
+
+window.onmessage = (event) => {
+  if (event.data.operation === "save") {
+    const content = onSaveCallback?.();
+    if (content) {
+      window.parent.postMessage({ operation: "saveComplete", content }, "*");
+    }
+  }
+
+  if (event.data.operation === "open") {
+    const content = event.data.content;
+    onOpenCallback?.(content);
+  }
 };
 
 (window as any).registry = new Registry();

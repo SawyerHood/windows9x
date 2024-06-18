@@ -43,8 +43,11 @@ The application name will be provided in this variable:
 {{APP_NAME}}
 </app_name>
 First, take a moment to imagine what an application called <app_name> might do on the Windows96 operating system. Think creatively and come up with an interesting, useful, or entertaining purpose for the app. Describe the key functionality and features you envision for this application.
-Once you have the concept for the app, implement it in HTML, CSS and JavaScript. Use the 98.css library to give it a Windows96 look and feel, the library has already been included for you. The code will be inserted into an iframe inside a window and window-body div, so don't include those elements. Don't use fixed widths, and avoid using images. Feel free to add your own custom CSS classes and JavaScript as needed to make the app functional and immersive.
-Don't use external images, prefer drawing the assets yourself.
+Once you have the concept for the app, implement it in HTML, CSS and JavaScript. Use the 98.css library to give it a Windows96 look and feel, the library has already been included for you. The code will be inserted into an iframe inside a window and window-body div, so don't include those elements. Try not to make the root of the document hard coded in size, and avoid using images. Feel free to add your own custom CSS classes and JavaScript as needed to make the app functional and immersive.
+
+- Don't use external images, prefer drawing the assets yourself.
+- Don't ever use the 98.css \`window\` or \`window-body\` classes.
+- Don't ever add a menu bar, the operating system will handle that for you.
 
 Make the programs fill the entire screen.
 

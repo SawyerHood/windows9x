@@ -34,15 +34,21 @@ export function Explorer({ id }: { id: string }) {
   }, [currentPath]);
 
   const handleDoubleClick = (path: string) => {
-    try {
-      fileSystem.getFolder(path);
-    } catch {
-      return;
+    const item = fileSystem.getItem(path);
+    if (item?.type === "folder") {
+      dispatch({
+        type: "UPDATE_PROGRAM",
+        payload: { type: "explorer", currentPath: path },
+      });
     }
-    dispatch({
-      type: "UPDATE_PROGRAM",
-      payload: { type: "explorer", currentPath: path },
-    });
+
+    if (item?.type === "file" && action) {
+      action(path);
+      windowListDispatch({
+        type: "REMOVE",
+        payload: id,
+      });
+    }
   };
 
   const handlePathChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,6 +116,11 @@ export function Explorer({ id }: { id: string }) {
     }
   };
 
+  const handleClick = (path: string) => {
+    setSelectedItem(path);
+    setNewFileName(path.split("/").pop() || "");
+  };
+
   const renderItems = (items: Record<string, VirtualItem>, path: string) => {
     return Object.keys(items).map((key) => {
       const item = items[key];
@@ -119,7 +130,7 @@ export function Explorer({ id }: { id: string }) {
           key={key}
           onDoubleClick={() => handleDoubleClick(itemPath)}
           className={cx({ highlighted: selectedItem === itemPath })}
-          onClick={() => setSelectedItem(itemPath)}
+          onClick={() => handleClick(itemPath)}
           onContextMenu={createContextMenu([
             {
               label: "Delete",

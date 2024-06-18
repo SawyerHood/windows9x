@@ -1,6 +1,11 @@
 "use client";
 import { getDefaultStore, useAtom, useAtomValue, useSetAtom } from "jotai";
-import { getIframeID, windowAtomFamily } from "@/state/window";
+import {
+  getIframe,
+  getIframeID,
+  reloadIframe,
+  windowAtomFamily,
+} from "@/state/window";
 import { useEffect, useRef } from "react";
 import { programAtomFamily, programsAtom } from "@/state/programs";
 import assert from "assert";
@@ -13,6 +18,7 @@ export function Iframe({ id }: { id: string }) {
   const dispatchPrograms = useSetAtom(programsAtom);
   const startedRef = useRef(false);
   const registry = useAtomValue(registryAtom);
+  const lastLoadedCode = useRef<string | null>(null);
 
   assert(state.program.type === "iframe", "Program is not an iframe");
 
@@ -65,12 +71,11 @@ export function Iframe({ id }: { id: string }) {
       }
 
       // Assuming the message contains the operation type and key-value data
-      const { operation, key, value, id, messages, returnJson } = event.data;
+      const { operation, key, value, id, messages, returnJson, content } =
+        event.data;
 
       const store = getDefaultStore();
       const registry = store.get(registryAtom);
-
-      debugger;
 
       switch (operation) {
         case "get": {
@@ -109,6 +114,25 @@ export function Iframe({ id }: { id: string }) {
           });
           break;
         }
+        case "registerOnSave": {
+          dispatch({
+            type: "UPDATE_PROGRAM",
+            payload: { type: "iframe", canSave: true },
+          });
+          break;
+        }
+        case "registerOnOpen": {
+          dispatch({
+            type: "UPDATE_PROGRAM",
+            payload: { type: "iframe", canOpen: true },
+          });
+          break;
+        }
+        case "saveComplete": {
+          // Handled in Window.tsx
+          break;
+        }
+
         default:
           console.error("Unsupported operation");
       }
@@ -116,12 +140,13 @@ export function Iframe({ id }: { id: string }) {
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [ref]);
+  }, [dispatch, ref]);
 
   return (
     <iframe
       ref={ref}
       id={getIframeID(id)}
+      sandbox={!program?.code ? "allow-same-origin" : undefined}
       src={!program?.code ? url : undefined}
       srcDoc={program?.code ?? undefined}
       style={{ width: "100%", flexGrow: 1, border: "none" }}
@@ -137,6 +162,7 @@ export function Iframe({ id }: { id: string }) {
         if (ref.current) {
           const outerHTML =
             ref.current.contentDocument?.documentElement.outerHTML;
+          lastLoadedCode.current = outerHTML ?? null;
           assert(outerHTML, "Outer HTML of iframe content is undefined");
           assert(state.program.type === "iframe", "Program is not an iframe");
           dispatchPrograms({
