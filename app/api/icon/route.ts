@@ -31,11 +31,6 @@ function generateUniqueID() {
   );
 }
 
-async function toDataURL(blob: Blob) {
-  const buffer = Buffer.from(await blob.arrayBuffer());
-  return "data:" + blob.type + ";base64," + buffer.toString("base64");
-}
-
 const imageDescriptionPrompt = `You are a master icon designer for Microsoft in the 90s. A user will give you the name of an exe and you will describe an icon for it. Return an object or symbol that should be used as an icon. Return only the object or symbol`;
 
 async function genImagePrompt(name: string) {

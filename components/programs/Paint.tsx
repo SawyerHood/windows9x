@@ -55,11 +55,6 @@ export function Paint({ id }: { id: string }) {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   };
 
-  const getJpegBase64 = () => {
-    const canvas = canvasRef.current!;
-    return canvas.toDataURL();
-  };
-
   return (
     <>
       <div className="field-row" style={{ justifyContent: "flex-end" }}>

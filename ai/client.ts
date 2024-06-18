@@ -57,7 +57,8 @@ const createClient = (mode: Provider) => {
 export const MODEL = getModel(MODE);
 
 export const CHEAP_MODEL = getCheapModel(MODE);
-const logger = initLogger({
+
+initLogger({
   projectName: "windows96",
   apiKey: process.env.BRAINTRUST_API_KEY,
 });

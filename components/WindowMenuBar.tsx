@@ -6,7 +6,7 @@ import { createWindow } from "@/lib/createWindow";
 import { fileSystemAtom } from "@/state/filesystem";
 
 export function WindowMenuBar({ id }: { id: string }) {
-  const [state, dispatch] = useAtom(windowAtomFamily(id));
+  const [state] = useAtom(windowAtomFamily(id));
   const windowsDispatch = useSetAtom(windowsListAtom);
   const [fileSystem, setFileSystem] = useAtom(fileSystemAtom);
 

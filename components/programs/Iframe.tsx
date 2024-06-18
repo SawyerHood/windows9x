@@ -1,11 +1,6 @@
 "use client";
 import { getDefaultStore, useAtom, useAtomValue, useSetAtom } from "jotai";
-import {
-  getIframe,
-  getIframeID,
-  reloadIframe,
-  windowAtomFamily,
-} from "@/state/window";
+import { getIframeID, windowAtomFamily } from "@/state/window";
 import { useEffect, useRef } from "react";
 import { programAtomFamily, programsAtom } from "@/state/programs";
 import assert from "assert";
@@ -71,8 +66,7 @@ export function Iframe({ id }: { id: string }) {
       }
 
       // Assuming the message contains the operation type and key-value data
-      const { operation, key, value, id, messages, returnJson, content } =
-        event.data;
+      const { operation, key, value, id, returnJson } = event.data;
 
       const store = getDefaultStore();
       const registry = store.get(registryAtom);

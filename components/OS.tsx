@@ -3,7 +3,7 @@
 import styles from "./OS.module.css";
 import cx from "classnames";
 import { getDefaultStore, useAtom, useAtomValue, useSetAtom } from "jotai";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { focusedWindowAtom } from "@/state/focusedWindow";
 import { windowsListAtom } from "@/state/windowsList";
 import { windowAtomFamily } from "@/state/window";
@@ -15,7 +15,7 @@ import { DESKTOP_URL_KEY, registryAtom } from "@/state/registry";
 import { ContextMenu } from "./ContextMenu";
 
 export function OS() {
-  const [windows, dispatch] = useAtom(windowsListAtom);
+  const [windows] = useAtom(windowsListAtom);
   const setFocusedWindow = useSetAtom(focusedWindowAtom);
   const registry = useAtomValue(registryAtom);
 

@@ -1,4 +1,4 @@
-import { CHEAP_MODEL, MODEL, openai } from "@/ai/client";
+import { MODEL, openai } from "@/ai/client";
 import { ChatCompletionCreateParamsStreaming } from "openai/resources/index.mjs";
 import { streamHtml } from "openai-html-stream";
 import { getApiText } from "@/lib/apiText";

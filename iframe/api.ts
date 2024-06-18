@@ -4,7 +4,7 @@ class Registry {
   async get(key: string): Promise<any> {
     const id = currId++;
     window.parent.postMessage({ operation: "get", key, id }, "*");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       window.addEventListener("message", (event) => {
         console.log("message", event.data);
         if (event.data.id === id) {
@@ -26,7 +26,7 @@ class Registry {
   async listKeys(): Promise<string[]> {
     const id = currId++;
     window.parent.postMessage({ operation: "listKeys", id }, "*");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       window.addEventListener("message", (event) => {
         if (event.data.id === id) {
           resolve(event.data.value);
@@ -42,7 +42,7 @@ class Registry {
     { operation: "chat", value: messages, id, returnJson },
     "*"
   );
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     const messageHandler = (event: MessageEvent) => {
       if (event.data.id === id) {
         window.removeEventListener("message", messageHandler);

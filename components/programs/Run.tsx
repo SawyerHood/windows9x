@@ -1,14 +1,12 @@
 "use client";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useSetAtom } from "jotai";
 import { windowsListAtom } from "@/state/windowsList";
 import { createWindow } from "../../lib/createWindow";
-import { BUILTIN_REGISTRY_KEYS, registryAtom } from "@/state/registry";
 import { ProgramEntry, programsAtom } from "@/state/programs";
 
 export function Run({ id }: { id: string }) {
   const windowsDispatch = useSetAtom(windowsListAtom);
   const programsDispatch = useSetAtom(programsAtom);
-  const registry = useAtomValue(registryAtom);
   return (
     <form
       style={{ display: "flex", flexDirection: "column", gap: 8 }}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { fileSystemAtom } from "@/state/filesystem";
 
 import { VirtualItem, VirtualFileSystem } from "@/lib/filesystem/filesystem";

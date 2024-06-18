@@ -10,17 +10,11 @@ import {
 } from "jotai";
 import { focusedWindowAtom } from "@/state/focusedWindow";
 import { windowsListAtom } from "@/state/windowsList";
-import {
-  MIN_WINDOW_SIZE,
-  getIframe,
-  reloadIframe,
-  windowAtomFamily,
-} from "@/state/window";
+import { MIN_WINDOW_SIZE, windowAtomFamily } from "@/state/window";
 import { WindowBody } from "./WindowBody";
 import styles from "./Window.module.css";
 import { MouseEventHandler, MouseEvent as ReactMouseEvent } from "react";
 import Image from "next/image";
-import { MenuBar } from "./MenuBar";
 import { createWindow } from "@/lib/createWindow";
 import { WindowMenuBar } from "./WindowMenuBar";
 
@@ -61,7 +55,7 @@ export function Window({ id }: { id: string }) {
           inactive: focusedWindow !== id,
         })}
         onMouseDown={createResizeEvent(
-          (e: MouseEvent, delta: { x: number; y: number }) => {
+          (_e: MouseEvent, delta: { x: number; y: number }) => {
             dispatch({
               type: "MOVE",
               payload: { dx: delta.x, dy: delta.y },
@@ -152,7 +146,7 @@ export function Window({ id }: { id: string }) {
           cursor: "ew-resize",
         }}
         onMouseDown={createResizeEvent(
-          (e: MouseEvent, delta: { x: number; y: number }) => {
+          (_e: MouseEvent, delta: { x: number; y: number }) => {
             dispatch({
               type: "RESIZE",
               payload: { side: "right", dx: delta.x, dy: delta.y },
@@ -171,7 +165,7 @@ export function Window({ id }: { id: string }) {
           cursor: "ew-resize",
         }}
         onMouseDown={createResizeEvent(
-          (e: MouseEvent, delta: { x: number; y: number }) => {
+          (_e: MouseEvent, delta: { x: number; y: number }) => {
             dispatch({
               type: "RESIZE",
               payload: { side: "left", dx: delta.x, dy: delta.y },
@@ -190,7 +184,7 @@ export function Window({ id }: { id: string }) {
           cursor: "ns-resize",
         }}
         onMouseDown={createResizeEvent(
-          (e: MouseEvent, delta: { x: number; y: number }) => {
+          (_e: MouseEvent, delta: { x: number; y: number }) => {
             dispatch({
               type: "RESIZE",
               payload: { side: "bottom", dx: delta.x, dy: delta.y },
@@ -209,7 +203,7 @@ export function Window({ id }: { id: string }) {
           cursor: "ns-resize",
         }}
         onMouseDown={createResizeEvent(
-          (e: MouseEvent, delta: { x: number; y: number }) => {
+          (_e: MouseEvent, delta: { x: number; y: number }) => {
             dispatch({
               type: "RESIZE",
               payload: { side: "top", dx: delta.x, dy: delta.y },
@@ -228,7 +222,7 @@ export function Window({ id }: { id: string }) {
           cursor: "nwse-resize",
         }}
         onMouseDown={createResizeEvent(
-          (e: MouseEvent, delta: { x: number; y: number }) => {
+          (_e: MouseEvent, delta: { x: number; y: number }) => {
             dispatch({
               type: "RESIZE",
               payload: { side: "top-left", dx: delta.x, dy: delta.y },
@@ -247,7 +241,7 @@ export function Window({ id }: { id: string }) {
           cursor: "nesw-resize",
         }}
         onMouseDown={createResizeEvent(
-          (e: MouseEvent, delta: { x: number; y: number }) => {
+          (_e: MouseEvent, delta: { x: number; y: number }) => {
             dispatch({
               type: "RESIZE",
               payload: { side: "top-right", dx: delta.x, dy: delta.y },
@@ -266,7 +260,7 @@ export function Window({ id }: { id: string }) {
           cursor: "nesw-resize",
         }}
         onMouseDown={createResizeEvent(
-          (e: MouseEvent, delta: { x: number; y: number }) => {
+          (_e: MouseEvent, delta: { x: number; y: number }) => {
             dispatch({
               type: "RESIZE",
               payload: { side: "bottom-left", dx: delta.x, dy: delta.y },
@@ -285,7 +279,7 @@ export function Window({ id }: { id: string }) {
           cursor: "nwse-resize",
         }}
         onMouseDown={createResizeEvent(
-          (e: MouseEvent, delta: { x: number; y: number }) => {
+          (_e: MouseEvent, delta: { x: number; y: number }) => {
             dispatch({
               type: "RESIZE",
               payload: {
