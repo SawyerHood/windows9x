@@ -42,4 +42,22 @@
   display: flex;
   align-items: center;
   gap: 4px;
+
+  & button {
+    padding: 4px;
+    min-width: inherit;
+    box-shadow: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex-direction: column;
+
+    & img {
+      width: 24px;
+      height: 24px;
+    }
+  }
 }

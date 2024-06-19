@@ -11,6 +11,9 @@ import { windowsListAtom } from "@/state/windowsList";
 import styles from "./Explorer.module.css";
 import cx from "classnames";
 import { useCreateContextMenu } from "@/state/contextMenu";
+import up from "@/components/assets/up.ico";
+import newFolder from "@/components/assets/newDir.png";
+import Image from "next/image";
 
 export function Explorer({ id }: { id: string }) {
   const createContextMenu = useCreateContextMenu();
@@ -151,8 +154,14 @@ export function Explorer({ id }: { id: string }) {
   return (
     <div className={styles.explorer}>
       <div className={styles.actions}>
-        <button onClick={handleNavigateUp}>Up</button>
-        <button onClick={handleNewFolder}>New Folder</button>
+        <button onClick={handleNavigateUp}>
+          <Image src={up} alt="Up" />
+          <span>Up</span>
+        </button>
+        <button onClick={handleNewFolder}>
+          <Image src={newFolder} alt="New Folder" />
+          <span>New Folder</span>
+        </button>
       </div>
       <div className={styles.pathBar}>
         <label>Address:</label>
