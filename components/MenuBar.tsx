@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import styles from "./MenuBar.module.css";
 import cx from "classnames";
 
@@ -41,11 +41,34 @@ function MenuBarButton({
   openMenuLabel: string | null;
   setOpenMenuLabel: (label: string | null) => void;
 }) {
-  const closeMenu = () => {
+  const closeMenu = useCallback(() => {
     setOpenMenuLabel(null);
-  };
+  }, [setOpenMenuLabel]);
+
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleMouseDown = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        closeMenu();
+      }
+    };
+
+    const handleBlur = () => {
+      closeMenu();
+    };
+
+    window.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("blur", handleBlur);
+
+    return () => {
+      window.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("blur", handleBlur);
+    };
+  }, [closeMenu]);
+
   return (
-    <div className={styles.menuBarButtonContainer}>
+    <div className={styles.menuBarButtonContainer} ref={ref}>
       <button
         className={cx(styles.menuBarButton, {
           [styles.isOpen]: openMenuLabel === optionGroup.label,
