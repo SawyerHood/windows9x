@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAtom, useSetAtom } from "jotai";
 import { fileSystemAtom } from "@/state/filesystem";
 
-import { VirtualItem, VirtualFileSystem } from "@/lib/filesystem/filesystem";
+import { VirtualItem } from "@/lib/filesystem/filesystem";
 import { windowAtomFamily } from "@/state/window";
 import { windowsListAtom } from "@/state/windowsList";
 
