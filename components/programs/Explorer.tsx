@@ -145,9 +145,7 @@ export function Explorer({ id }: { id: string }) {
     });
   };
 
-  const currentFolder = (fileSystem as VirtualFileSystem).getFolder(
-    currentPath
-  );
+  const currentFolder = fileSystem.getFolder(currentPath);
   const currentItems = currentFolder ? currentFolder.items : {};
 
   return (

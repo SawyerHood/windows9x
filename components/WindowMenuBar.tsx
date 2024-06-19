@@ -1,14 +1,15 @@
-import { useAtom, useSetAtom } from "jotai";
+import { getDefaultStore, useAtom, useSetAtom } from "jotai";
 import { MenuBar } from "./MenuBar";
 import { getIframe, reloadIframe, windowAtomFamily } from "@/state/window";
 import { windowsListAtom } from "@/state/windowsList";
 import { createWindow } from "@/lib/createWindow";
 import { fileSystemAtom } from "@/state/filesystem";
+import { getParentPath, lastVisitedPathAtom } from "@/state/lastVisitedPath";
 
 export function WindowMenuBar({ id }: { id: string }) {
   const [state] = useAtom(windowAtomFamily(id));
   const windowsDispatch = useSetAtom(windowsListAtom);
-  const [fileSystem, setFileSystem] = useAtom(fileSystemAtom);
+  const [_, setFileSystem] = useAtom(fileSystemAtom);
 
   if (state.program.type !== "iframe") return null;
 
@@ -28,6 +29,7 @@ export function WindowMenuBar({ id }: { id: string }) {
               ? {
                   label: "Save",
                   onClick: () => {
+                    const store = getDefaultStore();
                     const iframe = getIframe(id)!;
                     const handleSaveComplete = (event: MessageEvent) => {
                       if (event.data.operation === "saveComplete") {
@@ -37,14 +39,24 @@ export function WindowMenuBar({ id }: { id: string }) {
                         );
 
                         const content = event.data.content;
+                        const lastVisitedPath = store.get(lastVisitedPathAtom);
+                        const fs = store.get(fileSystemAtom);
                         createWindow({
                           title: "Save",
                           program: {
                             type: "explorer",
+                            currentPath:
+                              lastVisitedPath && fs.exists(lastVisitedPath)
+                                ? lastVisitedPath
+                                : undefined,
                             actionText: "Save",
                             action: (path) => {
                               setFileSystem((fs) =>
                                 fs.createOrUpdateFile(path, content)
+                              );
+                              store.set(
+                                lastVisitedPathAtom,
+                                getParentPath(path)
                               );
                             },
                           },
@@ -64,14 +76,23 @@ export function WindowMenuBar({ id }: { id: string }) {
               ? {
                   label: "Open",
                   onClick: () => {
+                    const store = getDefaultStore();
+                    const lastVisitedPath = store.get(lastVisitedPathAtom);
+                    const fs = store.get(fileSystemAtom);
                     createWindow({
                       title: "Open",
                       program: {
                         type: "explorer",
                         actionText: "Open",
+                        currentPath:
+                          lastVisitedPath && fs.exists(lastVisitedPath)
+                            ? lastVisitedPath
+                            : undefined,
                         action: (path) => {
-                          const file = fileSystem.readFile(path);
+                          const fs = store.get(fileSystemAtom);
+                          const file = fs.readFile(path);
                           const iframe = getIframe(id)!;
+                          store.set(lastVisitedPathAtom, getParentPath(path));
                           iframe.contentWindow?.postMessage({
                             operation: "open",
                             content: file,

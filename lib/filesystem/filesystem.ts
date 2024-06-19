@@ -144,6 +144,14 @@ export class VirtualFileSystem {
     return currentFolder;
   }
 
+  exists(path: string): boolean {
+    try {
+      return this.getItem(path) !== null;
+    } catch (error) {
+      return false;
+    }
+  }
+
   private getParentFolderAndName(path: string): {
     parentFolder: VirtualFolder;
     name: string;
