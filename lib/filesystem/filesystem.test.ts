@@ -29,7 +29,7 @@ describe("VirtualFileSystem", () => {
 
   test("should delete a file", () => {
     vfs = vfs.createFile("test.txt", "Hello, World!");
-    vfs = vfs.deleteFile("test.txt");
+    vfs = vfs.delete("test.txt");
     expect(() => vfs.readFile("test.txt")).toThrow(
       'VirtualFile "test.txt" does not exist.'
     );
@@ -37,7 +37,7 @@ describe("VirtualFileSystem", () => {
 
   test("should create a folder", () => {
     vfs = vfs.createFolder("folder");
-    const folders = vfs.listFolders();
+    const folders = vfs.listItems().map((item) => item.name);
     expect(folders).toContain("folder");
   });
 
@@ -52,7 +52,7 @@ describe("VirtualFileSystem", () => {
     vfs = vfs.createFolder("folder");
     vfs = vfs.createFile("folder/file1.txt", "Content 1");
     vfs = vfs.createFile("folder/file2.txt", "Content 2");
-    const files = vfs.listFiles("folder");
+    const files = vfs.listItems("folder").map((item) => item.name);
     expect(files).toEqual(["file1.txt", "file2.txt"]);
   });
 
@@ -60,7 +60,7 @@ describe("VirtualFileSystem", () => {
     vfs = vfs.createFolder("folder");
     vfs = vfs.createFolder("folder/subfolder1");
     vfs = vfs.createFolder("folder/subfolder2");
-    const folders = vfs.listFolders("folder");
+    const folders = vfs.listItems("folder").map((item) => item.name);
     expect(folders).toEqual(["subfolder1", "subfolder2"]);
   });
 
@@ -137,8 +137,8 @@ describe("VirtualFileSystem", () => {
       },
     };
     const vfs = VirtualFileSystem.fromJSON(json);
-    const folders = vfs.listFolders();
-    const files = vfs.listFiles("folder");
+    const folders = vfs.listItems().map((item) => item.name);
+    const files = vfs.listItems("folder").map((item) => item.name);
     expect(folders).toContain("folder");
     expect(files).toEqual(["file1.txt", "file2.txt"]);
     // No onWrite calls expected during deserialization

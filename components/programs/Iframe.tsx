@@ -13,11 +13,14 @@ export function Iframe({ id }: { id: string }) {
   const dispatchPrograms = useSetAtom(programsAtom);
   const startedRef = useRef(false);
   const registry = useAtomValue(registryAtom);
-  const lastLoadedCode = useRef<string | null>(null);
 
   assert(state.program.type === "iframe", "Program is not an iframe");
 
   const program = useAtomValue(programAtomFamily(state.program.programID));
+
+  console.log(program);
+  console.log(program?.code?.length);
+  console.log(!!program?.code);
   const { icon } = state;
 
   const programID = state.program.programID;
@@ -142,7 +145,7 @@ export function Iframe({ id }: { id: string }) {
       id={getIframeID(id)}
       sandbox={!program?.code ? "allow-same-origin" : undefined}
       src={!program?.code ? url : undefined}
-      srcDoc={program?.code ?? undefined}
+      srcDoc={program?.code || undefined}
       style={{ width: "100%", flexGrow: 1, border: "none" }}
       allowTransparency
       onLoad={() => {
@@ -156,7 +159,6 @@ export function Iframe({ id }: { id: string }) {
         if (ref.current) {
           const outerHTML =
             ref.current.contentDocument?.documentElement.outerHTML;
-          lastLoadedCode.current = outerHTML ?? null;
           assert(outerHTML, "Outer HTML of iframe content is undefined");
           assert(state.program.type === "iframe", "Program is not an iframe");
           dispatchPrograms({

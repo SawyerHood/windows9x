@@ -102,7 +102,7 @@ export function Explorer({ id }: { id: string }) {
 
   const handleNewFolderSubmit = () => {
     if (newFileName.trim() === "") {
-      alert("Folder name cannot be empty");
+      setIsCreatingFolder(false);
       return;
     }
     try {
@@ -134,7 +134,7 @@ export function Explorer({ id }: { id: string }) {
           onContextMenu={createContextMenu([
             {
               label: "Delete",
-              onClick: () => setFileSystem(fileSystem.deleteFile(itemPath)),
+              onClick: () => setFileSystem(fileSystem.delete(itemPath)),
             },
           ])}
         >

@@ -79,7 +79,7 @@ export class VirtualFileSystem {
     });
   }
 
-  deleteFile(path: string): VirtualFileSystem {
+  delete(path: string): VirtualFileSystem {
     return produce(this, (draft: VirtualFileSystem) => {
       const { parentFolder, name } = draft.getParentFolderAndName(path);
       if (!parentFolder.items[name]) {
@@ -112,18 +112,9 @@ export class VirtualFileSystem {
     return file.content;
   }
 
-  listFiles(path: string = ""): string[] {
+  listItems(path: string = ""): VirtualItem[] {
     const folder = this.getFolder(path);
-    return Object.keys(folder.items).filter(
-      (key) => folder.items[key].type === "file"
-    );
-  }
-
-  listFolders(path: string = ""): string[] {
-    const folder = this.getFolder(path);
-    return Object.keys(folder.items).filter(
-      (key) => folder.items[key].type === "folder"
-    );
+    return Object.values(folder.items);
   }
 
   getItem(path: string): VirtualItem | null {

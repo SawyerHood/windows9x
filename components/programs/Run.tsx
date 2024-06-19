@@ -31,7 +31,7 @@ export function Run({ id }: { id: string }) {
           }
 
           const program: ProgramEntry = {
-            id: crypto.randomUUID(),
+            id: name,
             prompt: programDescription,
             name,
           };
