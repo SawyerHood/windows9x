@@ -30,6 +30,8 @@ You can either answer questions about the program or rewrite it to fix the user'
 `;
 };
 
+const betweenHtmlRegex = /```html([\s\S]*)```/;
+
 export function Help({ id }: { id: string }) {
   const helpWindow = useAtomValue(windowAtomFamily(id));
   const windowsListDispatch = useSetAtom(windowsListAtom);
@@ -82,7 +84,7 @@ export function Help({ id }: { id: string }) {
 
     const data = await response.json();
 
-    const newHtml = data.match(/```html([\s\S]*?)```/);
+    const newHtml = data.match(betweenHtmlRegex);
 
     if (newHtml) {
       programsDispatch({
@@ -161,7 +163,7 @@ const Message = ({ msg }: { msg: { role: string; content: string } }) => (
     >
       <Markdown>
         {msg.role === "assistant"
-          ? msg.content.replace(/```html([\s\S]*?)```/, "**App updated**")
+          ? msg.content.replace(betweenHtmlRegex, "**App updated**")
           : msg.content}
       </Markdown>
     </div>

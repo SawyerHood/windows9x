@@ -1,6 +1,11 @@
 import { MODEL, openai } from "@/ai/client";
+import isLive from "@/lib/isLive";
 
 export async function POST(req: Request) {
+  if (!isLive) {
+    return new Response(JSON.stringify({ error: "Not live" }), { status: 400 });
+  }
+
   const { messages, returnJson } = await req.json();
 
   console.log(messages);

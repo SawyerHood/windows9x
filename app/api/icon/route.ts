@@ -1,10 +1,14 @@
 import { CHEAP_MODEL, openai } from "@/ai/client";
 import { removeBackground } from "@/ai/removeBackground";
+import isLive from "@/lib/isLive";
 import { put } from "@/lib/put";
 
 const REMOVE_BG = false;
 
 export async function POST(req: Request) {
+  if (!isLive) {
+    return new Response(JSON.stringify({ error: "Not live" }), { status: 400 });
+  }
   const body = await req.json();
   const prompt = body.name;
   const imagePrompt = await genImagePrompt(prompt);

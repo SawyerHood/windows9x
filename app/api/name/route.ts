@@ -1,7 +1,13 @@
 import { MODEL, openai } from "@/ai/client";
 import { extractXMLTag } from "@/lib/extractXMLTag";
 
+import isLive from "@/lib/isLive";
+
 export async function POST(req: Request) {
+  if (!isLive) {
+    return new Response(JSON.stringify({ error: "Not live" }), { status: 400 });
+  }
+
   const { desc } = await req.json();
 
   const response = await openai.chat.completions.create({

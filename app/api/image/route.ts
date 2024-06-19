@@ -1,7 +1,12 @@
 import { MODEL, openai } from "@/ai/client";
+import isLive from "@/lib/isLive";
 import { ChatCompletionCreateParamsStreaming } from "openai/resources/index.mjs";
 
 export function GET(req: Request) {
+  if (!isLive) {
+    return new Response(JSON.stringify({ error: "Not live" }), { status: 400 });
+  }
+
   const url = new URL(req.url);
   let image = url.searchParams.get("image")!;
   if (!image) {

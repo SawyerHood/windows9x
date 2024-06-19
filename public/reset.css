@@ -11,7 +11,7 @@ body {
   user-select: none;
   background: none transparent !important;
   font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
-  -webkit-font-smoothing: none;
+  /* -webkit-font-smoothing: none; */
 }
 
 body * {

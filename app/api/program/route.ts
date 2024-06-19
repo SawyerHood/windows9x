@@ -3,7 +3,13 @@ import { ChatCompletionCreateParamsStreaming } from "openai/resources/index.mjs"
 import { streamHtml } from "openai-html-stream";
 import { getApiText } from "@/lib/apiText";
 
+import isLive from "@/lib/isLive";
+
 export async function GET(req: Request) {
+  if (!isLive) {
+    return new Response(JSON.stringify({ error: "Not live" }), { status: 400 });
+  }
+
   const url = new URL(req.url);
   const desc = url.searchParams.get("description");
   const keys = JSON.parse(url.searchParams.get("keys") ?? "[]");
