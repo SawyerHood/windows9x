@@ -18,9 +18,6 @@ export function Iframe({ id }: { id: string }) {
 
   const program = useAtomValue(programAtomFamily(state.program.programID));
 
-  console.log(program);
-  console.log(program?.code?.length);
-  console.log(!!program?.code);
   const { icon } = state;
 
   const programID = state.program.programID;
