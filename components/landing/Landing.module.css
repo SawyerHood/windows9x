@@ -41,6 +41,16 @@
     width: 100%;
   }
 
+  & :global(.window) {
+    transform: scale(1.2);
+  }
+
+  @media (max-width: 768px) {
+    & :global(.window) {
+      transform: none;
+    }
+  }
+
   & :global(.window-body) {
     display: flex;
     flex-direction: row;
@@ -87,10 +97,11 @@
 
 .columns {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 224px 1fr;
 }
 
 .sidebar {
+  font-size: 1rem;
   background-color: black;
   color: white;
   padding: var(--sidebar-padding);
