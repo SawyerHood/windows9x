@@ -92,7 +92,7 @@ function StartMenu() {
       <button
         onMouseDown={() => {
           createWindow({
-            title: "Welcome to Windows 96",
+            title: "Welcome to Windows 9X",
             program: { type: "welcome" },
           });
         }}

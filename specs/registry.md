@@ -4,7 +4,7 @@ It would also be a great first step for giving generated applications the abilit
 The registry is essentially a key value store for the windows operating system. For the purpose of this project it can be flat.
 The key can be any string and the value is a json serializable object.
 
-These are the major components we need to support the registry inside of windows96:
+These are the major components we need to support the registry inside of windows9X:
 
 1. We need to add a new file called state/registry
 2. This should export an atom that we can use to read and write to the registry and is stored to local storage

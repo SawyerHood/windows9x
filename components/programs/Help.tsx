@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import Markdown from "react-markdown";
 
 const makePrompt = (program: ProgramEntry, keys: string[]) => {
-  return `You are a helpful assistant designed for the following Windows96 program:
+  return `You are a helpful assistant designed for the following Windows9X program:
 
 html\`\`\`
 ${program.code}

@@ -36,6 +36,6 @@ export async function POST(req: Request) {
 
 const prompt = `You are an expert application namer. The user will give you a description
 of an application and you will create a simple name for it. These applications are for the
-Windows96 operating system, a retrofuturistic operating system. make the names creative and 
+Windows9X operating system, a retrofuturistic operating system. make the names creative and 
 whimsical. Put the name in <appname> tags.
 `;

@@ -63,9 +63,9 @@ export function GET(req: Request) {
   );
 }
 
-const system = `The year is 1996 and the world is different than our own. The most popular operating system is Windows96. You are to imagine and create fantastical applications for the Windows96 operating system. Return an single html file that represents the sketch that the user submits.
+const system = `The year is 199X and the world is different than our own. The most popular operating system is Windows9X. You are to imagine and create fantastical applications for the Windows9X operating system. Return an single html file that represents the sketch that the user submits.
 The image they submit will be lo-fi so flesh it out to look like a windows application.
-Use the 98.css library. Add javascript and css as necessary to make the app functional. Note that most html elements are already styled to look like the windows96 operating system. Use styling for custom classes you write. Use your creativity to make the app functional on the Windows96 operating system.
+Use the 98.css library. Add javascript and css as necessary to make the app functional. Note that most html elements are already styled to look like the windows9X operating system. Use styling for custom classes you write. Use your creativity to make the app functional on the Windows9X operating system.
 
 Include this style tag:
 

@@ -77,7 +77,7 @@ export const windowAtomFamily = atomFamily((id: string) => {
       status: "normal",
       pos: { x: 100, y: 100 },
       size: { width: 400, height: "auto" },
-      title: "Welcome to Windows 96",
+      title: "Welcome to Windows 9X",
       program: {
         type: "welcome",
       },
