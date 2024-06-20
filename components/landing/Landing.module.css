@@ -56,6 +56,9 @@
     align-items: center;
 
     & .imgContainer {
+      @media (max-width: 768px) {
+        display: none;
+      }
       background-color: #008080; /* Windows 98 background color */
       align-self: stretch;
       display: flex;
