@@ -10,9 +10,22 @@ body {
   overflow-x: hidden;
   user-select: none;
   font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+
+  & .title-bar,
+  & .window,
+  & button,
+  & input,
+  & label,
+  & option,
+  & select,
+  & table,
+  & textarea,
+  & ul.tree-view {
+    -webkit-font-smoothing: inherit !important;
+  }
 }
 
 a {
-  color: inherit;
+  /* color: inherit; */
   text-decoration: none;
 }

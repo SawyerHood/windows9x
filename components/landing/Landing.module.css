@@ -25,15 +25,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: Inter !important;
 
   & h2 {
     font-size: 1.3rem;
-    font-family: Inter !important;
   }
 
   & p {
-    font-size: 0.85rem;
+    font-size: 1rem;
   }
 
   & :global(.window) {
