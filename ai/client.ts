@@ -2,12 +2,12 @@ import { initLogger, wrapOpenAI } from "braintrust";
 import OpenAI from "openai";
 
 type Provider = "openrouter" | "braintrust" | "groq" | "openai";
-const MODE: Provider = "openai" as const;
+const MODE: Provider = "braintrust" as const;
 
 const getModel = (mode: Provider) => {
   switch (mode) {
     case "braintrust":
-      return "claude-3-opus-20240229";
+      return "claude-3-5-sonnet-20240620";
     case "openrouter":
       return "fireworks/mixtral-8x22b-instruct-preview";
     case "groq":

@@ -1,7 +1,7 @@
 export const getApiText = (keys: string[]) => `\`\`\`typescript
 declare global {
-  // Chat lets you use an LLM to generate a response. If returnJson is true, the response will be in JSON format.
-  var chat: (messages: { role: "user" | "assistant" | "system"; content: string }[], returnJson?: boolean) => Promise<string>;
+  // Chat lets you use an LLM to generate a response. 
+  var chat: (messages: { role: "user" | "assistant" | "system"; content: string }[]) => Promise<string>;
   var registry: Registry;
 
   // If the application supports saving and opening files, register a callback to be called when the user saves/opens the file.

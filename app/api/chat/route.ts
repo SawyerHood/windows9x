@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     model: MODEL,
     messages: [...messages],
     max_tokens: 4000,
-    response_format: returnJson ? { type: "json_object" } : { type: "text" },
+    // response_format: returnJson ? { type: "json_object" } : { type: "text" },
   });
 
   console.log(response);
