@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Windows9x
 
-## Getting Started
+Windows9X is the operating system of future's past. What if Windows 98 could generate any application that you wanted on the fly?
 
-First, run the development server:
+## Demos
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+> Go to `Start > Run` and enter a description of the application that you want to run. We then prompt an LLM to generate the application in the style of a Windows 98 application.
+
+> Creating a notepad that reads and writes to a file
+
+> Creating a program that can edit apps manually
+
+> Creating a program that will let you generate websites
+
+> Creating a chatgpt in the style of windows
+
+> Creating a natural language SQL prompter
+
+## Getting started
+
+1. Install [bun](https://bun.sh/docs/installation)
+2. Run `bun install`
+3. Run `bun run dev`
+4. Navigate to `http://localhost:3000`
+
+## How does this work?
+
+When you enter a description of an application, an LLM is prompted to generate an HTML file that looks like a windows 98 application. This is done by injecting 98.css into the page as we stream in the result. This is rendered inside of an iframe that is rendered inside of a window.
+
+In addition applications have access to a limited OS API that allows for saving/reading files, reading/writing from the registry, and prompting an LLM.
+
+## OS API
+
+This is the api that applications have access to in case it helps with prompting:
+
+```typescript
+declare global {
+  // Chat lets you use an LLM to generate a response.
+  var chat: (
+    messages: { role: "user" | "assistant" | "system"; content: string }[]
+  ) => Promise<string>;
+  var registry: Registry;
+
+  // If the application supports saving and opening files, register a callback to be called when the user saves/opens the file.
+  // The format of the file is any plain text format that your application can read. If these are registered the OS will create
+  // the file picker for you. The operating system will create the file menu for you.
+
+  // The callback should return the new content of the file
+  // Used like this:
+  // registerOnSave(() => {
+  //   return "new content";
+  // });
+  var registerOnSave: (callback: () => string) => void;
+
+  // Register a callback to be called when the user opens the file
+  // The callback should return the content of the file
+  // Used like this:
+  // registerOnOpen((content) => {
+  //   console.log(content);
+  // });
+  var registerOnOpen: (callback: (content: string) => void) => void;
+}
+
+// Uses for the registry:
+// - To store user settings
+// - To store user data
+// - To store user state
+// - Interact with the operating system.
+//
+// If the key can be written by other apps, it should be prefixed with "public_"
+interface Registry {
+  get(key: string): Promise<any>;
+  set(key: string, value: any): Promise<void>;
+  delete(key: string): Promise<void>;
+  listKeys(): Promise<string[]>;
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Thanks
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+I want to thank the following people:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- [Scratch](https://x.com/DrBriefsScratch) - Inspired me by getting Windows 98 to run inside of a VM inside of Websim.
+- [Nate](https://x.com/nateparrott) - Nate and I independently started building the same project. Nate gave me the idea of "chatting with the developer" to change the program.
+- [Jordan](https://x.com/jdan) - Make 98.css which is the basis that makes this look like Windows 98.
