@@ -109,7 +109,7 @@ function StartMenu() {
       >
         Run
       </button>
-      <button
+      {/* <button
         onMouseDown={() => {
           createWindow({
             title: "Paint",
@@ -118,7 +118,7 @@ function StartMenu() {
         }}
       >
         Paint
-      </button>
+      </button> */}
       <button
         onMouseDown={() => {
           createWindow({
