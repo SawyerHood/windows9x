@@ -1,20 +1,26 @@
 # Windows9x
 
-Windows9X is the operating system of future's past. What if Windows 98 could generate any application that you wanted on the fly?
+Windows9X is the operating system of future's past. What if Windows 98 could generate any application that you wanted on the fly? You enter the description of a program you want inside of the run dialog and the OS creates that for you on the fly.
 
 ## Demos
 
-> Go to `Start > Run` and enter a description of the application that you want to run. We then prompt an LLM to generate the application in the style of a Windows 98 application.
+Here are a few examples of applications that can be created:
 
 > Creating a notepad that reads and writes to a file
 
-> Creating a program that can edit apps manually
+https://github.com/SawyerHood/windows9x/assets/2380669/19c91f20-cdf5-47f9-b6fc-b7a606b9d7b3
 
-> Creating a program that will let you generate websites
+> Everything in Windows9X is a file you can generate a program to generate another program
 
-> Creating a chatgpt in the style of windows
+https://github.com/SawyerHood/windows9x/assets/2380669/cb6f5189-9276-4526-a517-7d84b3331ba7
+
+> Here is an example of an application that is generated that in turn can generate websites.
+
+https://github.com/SawyerHood/windows9x/assets/2380669/7a9a0a32-d52d-4901-8f33-d7e148e8bee3
 
 > Creating a natural language SQL prompter
+
+https://github.com/SawyerHood/windows9x/assets/2380669/ab404aa7-7018-4d07-96b4-4678ca388d10
 
 ## Getting started
 
