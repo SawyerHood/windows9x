@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: "Not live" }), { status: 400 });
   }
 
-  const { messages, returnJson } = await req.json();
+  const { messages } = await req.json();
 
   console.log(messages);
 
