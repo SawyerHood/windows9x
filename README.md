@@ -1,6 +1,6 @@
 # Windows9x
 
-Windows9X is the operating system of future's past. What if Windows 98 could generate any application that you wanted on the fly? You enter the description of a program you want inside of the run dialog and the OS creates that for you on the fly.
+Windows9X is the operating system of future's past. What if Windows 98 could generate any application that you wanted on the fly? You enter the description of a program you want inside of the run dialog and the OS creates that for you on the fly. This is an experiemnt in end user programming and seeing what it could be like if an OS could write applications for you as you needed them.
 
 https://github.com/SawyerHood/windows9x/assets/2380669/19c91f20-cdf5-47f9-b6fc-b7a606b9d7b3
 
