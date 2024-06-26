@@ -1,0 +1,27 @@
+/* XP Theme Styles */
+body.xp-theme {
+  background-color: #C0C0C0;
+}
+
+.window.xp-theme, .title-bar.xp-theme {
+  border: 2px solid #0A246A;
+  background-color: #C0C0C0;
+}
+
+.title-bar.xp-theme {
+  background-color: #0A246A;
+  color: white;
+}
+
+.button.xp-theme {
+  border: 1px solid #0A246A;
+  background-color: #C0C0C0;
+  color: black;
+}
+
+.button.xp-theme:hover {
+  border-color: #1C64F2;
+  background-color: #E8E8E8;
+}
+
+/* Ensure the theme is distinct but harmonious with the existing `98.css` styles */

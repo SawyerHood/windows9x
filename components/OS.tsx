@@ -3,7 +3,7 @@
 import styles from "./OS.module.css";
 import cx from "classnames";
 import { getDefaultStore, useAtom, useAtomValue, useSetAtom } from "jotai";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { focusedWindowAtom } from "@/state/focusedWindow";
 import { windowsListAtom } from "@/state/windowsList";
 import { windowAtomFamily } from "@/state/window";
@@ -14,10 +14,18 @@ import { Desktop } from "./Desktop";
 import { DESKTOP_URL_KEY, registryAtom } from "@/state/registry";
 import { ContextMenu } from "./ContextMenu";
 
+// Import the XP theme CSS file conditionally based on the current theme state
+import dynamic from "next/dynamic";
+
+const XPTheme = dynamic(() => import("../app/xp-theme.css"), {
+  ssr: false,
+});
+
 export function OS() {
   const [windows] = useAtom(windowsListAtom);
   const setFocusedWindow = useSetAtom(focusedWindowAtom);
   const registry = useAtomValue(registryAtom);
+  const [theme, setTheme] = useState("Windows9X"); // State variable to hold the current theme
 
   const publicDesktopUrl = registry[DESKTOP_URL_KEY] ?? "/bg.jpg";
 
@@ -40,6 +48,14 @@ export function OS() {
       window.removeEventListener("mousedown", onMouseDown);
     };
   }, [windows, setFocusedWindow]);
+
+  // Conditionally apply the XP theme based on the current theme state
+  useEffect(() => {
+    if (theme === "XP") {
+      XPTheme;
+    }
+  }, [theme]);
+
   return (
     <div
       style={{
@@ -60,13 +76,13 @@ export function OS() {
         <Window key={id} id={id} />
       ))}
 
-      <TaskBar />
+      <TaskBar theme={theme} setTheme={setTheme} />
       <ContextMenu />
     </div>
   );
 }
 
-function TaskBar() {
+function TaskBar({ theme, setTheme }) {
   const windows = useAtomValue(windowsListAtom);
   const [startMenuOpen, setStartMenuOpen] = useAtom(startMenuOpenAtom);
   return (
@@ -82,6 +98,12 @@ function TaskBar() {
       {windows.map((id) => (
         <WindowTaskBarItem key={id} id={id} />
       ))}
+      <button
+        className={styles.themeSwitcher}
+        onClick={() => setTheme(theme === "Windows9X" ? "XP" : "Windows9X")}
+      >
+        {theme === "Windows9X" ? "Switch to XP" : "Switch to 9X"}
+      </button>
     </div>
   );
 }
@@ -109,16 +131,6 @@ function StartMenu() {
       >
         Run
       </button>
-      {/* <button
-        onMouseDown={() => {
-          createWindow({
-            title: "Paint",
-            program: { type: "paint" },
-          });
-        }}
-      >
-        Paint
-      </button> */}
       <button
         onMouseDown={() => {
           createWindow({
