@@ -1,4 +1,4 @@
-import { CHEAP_MODEL, openai } from "@/ai/client";
+import { MODEL, openai } from "@/ai/client";
 import { removeBackground } from "@/ai/removeBackground";
 import isLive from "@/lib/isLive";
 import { put } from "@/lib/put";
@@ -39,7 +39,7 @@ const imageDescriptionPrompt = `You are a master icon designer for Microsoft in 
 
 async function genImagePrompt(name: string) {
   const result = await openai.chat.completions.create({
-    model: CHEAP_MODEL,
+    model: MODEL,
     messages: [
       { role: "system", content: imageDescriptionPrompt },
       { role: "user", content: name },

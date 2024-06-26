@@ -6,6 +6,18 @@ https://github.com/SawyerHood/windows9x/assets/2380669/19c91f20-cdf5-47f9-b6fc-b
 
 ## Getting started
 
+Create a `.env` file with one of the following in the root directory:
+
+```
+ANTHROPIC_API_KEY=<your-anthropic-api-key>
+```
+
+or
+
+```
+OPENAI_API_KEY=<your-openai-api-key>
+```
+
 1. Install [bun](https://bun.sh/docs/installation)
 2. Run `bun install`
 3. Run `bun run dev`
