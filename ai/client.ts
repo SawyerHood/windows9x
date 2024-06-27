@@ -12,7 +12,7 @@ const MODE: Provider = process.env.BRAINTRUST_API_KEY
   ? "openai"
   : "openai"; // Default to OpenAI if no key is found
 
-const getModel = (mode: Provider) => {
+export const getModel = (mode: Provider) => {
   switch (mode) {
     case "anthropic":
     case "braintrust":
@@ -48,7 +48,29 @@ const createClient = (mode: Provider) => {
   }
 };
 
-export const MODEL = getModel(MODE);
+export function getClientFromKey(apiKey: string): {
+  mode: Provider;
+  client: OpenAI;
+} {
+  if (apiKey.startsWith("sk-or")) {
+    return {
+      mode: "openrouter",
+      client: new OpenAI({
+        baseURL: "https://openrouter.ai/api/v1",
+        apiKey,
+      }),
+    };
+  }
+  return {
+    mode: "braintrust",
+    client: new OpenAI({
+      apiKey,
+      baseURL: "https://braintrustproxy.com/v1",
+    }),
+  };
+}
+
+export const DEFAULT_MODEL = getModel(MODE);
 
 // initLogger({
 //   projectName: "windows96",
@@ -57,4 +79,4 @@ export const MODEL = getModel(MODE);
 
 // export const openai = wrapOpenAI(createClient(MODE));
 
-export const openai = createClient(MODE);
+export const defaultClient = createClient(MODE);
