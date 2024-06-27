@@ -119,6 +119,16 @@ function StartMenu() {
       >
         Explorer
       </button>
+      <button
+        onMouseDown={() => {
+          createWindow({
+            title: "Settings",
+            program: { type: "settings" },
+          });
+        }}
+      >
+        Settings
+      </button>
     </div>
   );
 }

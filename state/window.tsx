@@ -9,6 +9,7 @@ export type Program =
   | { type: "run" }
   | { type: "iframe"; programID: string; canSave?: boolean; canOpen?: boolean }
   | { type: "help"; targetWindowID?: string }
+  | { type: "settings" }
   | {
       type: "explorer";
       currentPath?: string;
