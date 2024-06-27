@@ -2,7 +2,6 @@
 
 import { assertNever } from "@/lib/assertNever";
 import { WindowState } from "@/state/window";
-import { Paint } from "./programs/Paint";
 import { Iframe } from "./programs/Iframe";
 import { Welcome } from "./programs/Welcome";
 import { Run } from "./programs/Run";
@@ -17,8 +16,6 @@ export function WindowBody({ state }: { state: WindowState }) {
       return <Run id={state.id} />;
     case "iframe":
       return <Iframe id={state.id} />;
-    case "paint":
-      return <Paint id={state.id} />;
     case "help":
       return <Help id={state.id} />;
     case "explorer":

@@ -109,16 +109,6 @@ function StartMenu() {
       >
         Run
       </button>
-      {/* <button
-        onMouseDown={() => {
-          createWindow({
-            title: "Paint",
-            program: { type: "paint" },
-          });
-        }}
-      >
-        Paint
-      </button> */}
       <button
         onMouseDown={() => {
           createWindow({
