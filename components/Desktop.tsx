@@ -5,11 +5,13 @@ import window from "./assets/window.png";
 import Image from "next/image";
 import { createWindow } from "@/lib/createWindow";
 import { useCreateContextMenu } from "@/state/contextMenu";
+import { themeAtom } from "@/state/theme"; // Import theme state
 
 export const Desktop = () => {
   const { programs } = useAtomValue(programsAtom);
+  const theme = useAtomValue(themeAtom); // Use theme state to adjust styles conditionally
   return (
-    <div className={styles.desktop}>
+    <div className={`${styles.desktop} ${theme === 'XP' ? styles.xpTheme : ''}`}> // Apply XP theme styles conditionally
       {programs.map((program) => (
         <ProgramIcon key={program.name} program={program} />
       ))}
@@ -20,6 +22,7 @@ export const Desktop = () => {
 function ProgramIcon({ program }: { program: ProgramEntry }) {
   const createContextMenu = useCreateContextMenu();
   const dispatch = useSetAtom(programsAtom);
+  const theme = useAtomValue(themeAtom); // Use theme state to adjust styles conditionally
   const runProgram = () => {
     createWindow({
       title: program.name,
@@ -32,7 +35,7 @@ function ProgramIcon({ program }: { program: ProgramEntry }) {
   };
   return (
     <button
-      className={styles.programIcon}
+      className={`${styles.programIcon} ${theme === 'XP' ? styles.xpTheme : ''}`} // Apply XP theme styles conditionally
       onContextMenu={createContextMenu([
         { label: "Run", onClick: runProgram },
         {
@@ -53,7 +56,7 @@ function ProgramIcon({ program }: { program: ProgramEntry }) {
         width={24}
         height={24}
       />
-      <div className={styles.programName}>{program.name}</div>
+      <div className={`${styles.programName} ${theme === 'XP' ? styles.xpTheme : ''}`}>{program.name}</div> // Apply XP theme styles conditionally
     </button>
   );
 }
