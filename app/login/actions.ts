@@ -5,44 +5,23 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 
-export async function login(formData: FormData) {
+export async function login() {
   const supabase = createClient();
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  };
-
-  const { error } = await supabase.auth.signInWithPassword(data);
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?source=login`,
+    },
+  });
 
   if (error) {
     redirect("/error");
   }
 
   revalidatePath("/", "layout");
-  redirect("/account");
-}
 
-export async function signup(formData: FormData) {
-  const supabase = createClient();
-
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  };
-
-  const { error } = await supabase.auth.signUp(data);
-
-  console.log(error);
-
-  if (error) {
-    redirect("/error");
+  if (data.url) {
+    redirect(data.url); // use the redirect API for your server framework
   }
-
-  revalidatePath("/", "layout");
-  redirect("/account");
 }
