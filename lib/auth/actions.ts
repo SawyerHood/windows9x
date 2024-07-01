@@ -27,7 +27,6 @@ export async function login() {
 }
 
 export async function logout() {
-  console.log("logout");
   const supabase = createClient();
 
   await supabase.auth.signOut();
