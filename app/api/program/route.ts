@@ -6,10 +6,18 @@ import isLive from "@/lib/isLive";
 import { getSettingsFromGetRequest } from "@/lib/getSettingsFromRequest";
 import { createClientFromSettings, getModel } from "@/ai/client";
 import { Settings } from "@/state/settings";
+import { getUser } from "@/lib/auth/getUser";
 
 export async function GET(req: Request) {
   if (!isLive) {
     return new Response(JSON.stringify({ error: "Not live" }), { status: 400 });
+  }
+
+  const user = await getUser();
+  if (!user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+    });
   }
 
   const url = new URL(req.url);

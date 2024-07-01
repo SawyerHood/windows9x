@@ -1,5 +1,6 @@
 import { createClientFromSettings, getModel } from "@/ai/client";
 import { removeBackground } from "@/ai/removeBackground";
+import { getUser } from "@/lib/auth/getUser";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
 import isLive from "@/lib/isLive";
 import { put } from "@/lib/put";
@@ -11,6 +12,14 @@ export async function POST(req: Request) {
   if (!isLive) {
     return new Response(JSON.stringify({ error: "Not live" }), { status: 400 });
   }
+
+  const user = await getUser();
+  if (!user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+    });
+  }
+
   const body = await req.json();
   const settings = await getSettingsFromJSON(body);
   const prompt = body.name;

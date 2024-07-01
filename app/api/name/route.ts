@@ -1,4 +1,5 @@
 import { createClientFromSettings, getModel } from "@/ai/client";
+import { getUser } from "@/lib/auth/getUser";
 import { extractXMLTag } from "@/lib/extractXMLTag";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
 
@@ -7,6 +8,13 @@ import isLive from "@/lib/isLive";
 export async function POST(req: Request) {
   if (!isLive) {
     return new Response(JSON.stringify({ error: "Not live" }), { status: 400 });
+  }
+
+  const user = await getUser();
+  if (!user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+    });
   }
 
   const body = await req.json();
