@@ -30,7 +30,7 @@ export async function logout() {
   console.log("logout");
   const supabase = createClient();
 
-  const { error } = await supabase.auth.signOut();
+  await supabase.auth.signOut();
   revalidatePath("/", "layout");
   redirect("/");
 }
