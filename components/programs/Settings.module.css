@@ -1,0 +1,18 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.submit {
+  margin-left: auto;
+  margin-top: auto;
+}
+
+.input {
+  flex-grow: 1;
+}
+
+.label {
+  white-space: nowrap;
+}

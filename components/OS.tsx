@@ -112,22 +112,22 @@ function StartMenu() {
       <button
         onMouseDown={() => {
           createWindow({
-            title: "Paint",
-            program: { type: "paint" },
-          });
-        }}
-      >
-        Paint
-      </button>
-      <button
-        onMouseDown={() => {
-          createWindow({
             title: "Explorer",
             program: { type: "explorer" },
           });
         }}
       >
         Explorer
+      </button>
+      <button
+        onMouseDown={() => {
+          createWindow({
+            title: "Settings",
+            program: { type: "settings" },
+          });
+        }}
+      >
+        Settings
       </button>
     </div>
   );

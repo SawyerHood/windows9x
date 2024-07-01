@@ -1,7 +1,9 @@
-import { CHEAP_MODEL, openai } from "@/ai/client";
+import { createClientFromSettings, getModel } from "@/ai/client";
 import { removeBackground } from "@/ai/removeBackground";
+import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
 import isLive from "@/lib/isLive";
 import { put } from "@/lib/put";
+import { Settings } from "@/state/settings";
 
 const REMOVE_BG = false;
 
@@ -10,8 +12,9 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: "Not live" }), { status: 400 });
   }
   const body = await req.json();
+  const settings = await getSettingsFromJSON(body);
   const prompt = body.name;
-  const imagePrompt = await genImagePrompt(prompt);
+  const imagePrompt = await genImagePrompt(prompt, settings);
   if (!imagePrompt) {
     return new Response("", { status: 500 });
   }
@@ -37,9 +40,10 @@ function generateUniqueID() {
 
 const imageDescriptionPrompt = `You are a master icon designer for Microsoft in the 90s. A user will give you the name of an exe and you will describe an icon for it. Return an object or symbol that should be used as an icon. Return only the object or symbol`;
 
-async function genImagePrompt(name: string) {
-  const result = await openai.chat.completions.create({
-    model: CHEAP_MODEL,
+async function genImagePrompt(name: string, settings: Settings) {
+  const { client, mode } = createClientFromSettings(settings);
+  const result = await client.chat.completions.create({
+    model: getModel(mode),
     messages: [
       { role: "system", content: imageDescriptionPrompt },
       { role: "user", content: name },

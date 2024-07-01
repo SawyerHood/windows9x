@@ -8,8 +8,8 @@ export type Program =
   | { type: "welcome" }
   | { type: "run" }
   | { type: "iframe"; programID: string; canSave?: boolean; canOpen?: boolean }
-  | { type: "paint" }
   | { type: "help"; targetWindowID?: string }
+  | { type: "settings" }
   | {
       type: "explorer";
       currentPath?: string;

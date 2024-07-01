@@ -1,5 +1,6 @@
-import { MODEL, openai } from "@/ai/client";
+import { createClientFromSettings, getModel } from "@/ai/client";
 import { extractXMLTag } from "@/lib/extractXMLTag";
+import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
 
 import isLive from "@/lib/isLive";
 
@@ -8,10 +9,14 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: "Not live" }), { status: 400 });
   }
 
-  const { desc } = await req.json();
+  const body = await req.json();
+  const { desc } = body;
 
-  const response = await openai.chat.completions.create({
-    model: MODEL,
+  const settings = await getSettingsFromJSON(body);
+  const { client, mode } = createClientFromSettings(settings);
+
+  const response = await client.chat.completions.create({
+    model: getModel(mode),
     messages: [
       {
         role: "system",

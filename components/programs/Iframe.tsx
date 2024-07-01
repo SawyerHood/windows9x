@@ -6,6 +6,7 @@ import { programAtomFamily, programsAtom } from "@/state/programs";
 import assert from "assert";
 import { registryAtom } from "@/state/registry";
 import { getURLForProgram } from "@/lib/getURLForProgram";
+import { getSettings } from "@/lib/getSettings";
 
 export function Iframe({ id }: { id: string }) {
   const [state, dispatch] = useAtom(windowAtomFamily(id));
@@ -34,7 +35,7 @@ export function Iframe({ id }: { id: string }) {
       startedRef.current = true;
       const res = await fetch(`/api/icon?name=${state.title}`, {
         method: "POST",
-        body: JSON.stringify({ name: state.title }),
+        body: JSON.stringify({ name: state.title, settings: getSettings() }),
       });
 
       if (!res.ok) {
@@ -99,7 +100,11 @@ export function Iframe({ id }: { id: string }) {
         case "chat": {
           const result = await fetch(`/api/chat`, {
             method: "POST",
-            body: JSON.stringify({ messages: value, returnJson }),
+            body: JSON.stringify({
+              messages: value,
+              returnJson,
+              settings: getSettings(),
+            }),
           });
           event.source!.postMessage({
             operation: "result",

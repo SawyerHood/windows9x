@@ -1,32 +1,28 @@
-import { initLogger, wrapOpenAI } from "braintrust";
+// import { initLogger, wrapOpenAI } from "braintrust";
+import type { Settings } from "@/state/settings";
+import { initLogger } from "braintrust";
 import OpenAI from "openai";
 
-type Provider = "openrouter" | "braintrust" | "groq" | "openai";
-const MODE: Provider = "braintrust" as const;
+type Provider = "openrouter" | "braintrust" | "openai" | "anthropic";
+const MODE: Provider = process.env.BRAINTRUST_API_KEY
+  ? "braintrust"
+  : process.env.ANTHROPIC_API_KEY
+  ? "anthropic"
+  : process.env.OPEN_ROUTER_KEY
+  ? "openrouter"
+  : process.env.OPENAI_API_KEY
+  ? "openai"
+  : "openai"; // Default to OpenAI if no key is found
 
-const getModel = (mode: Provider) => {
+export const getModel = (mode: Provider) => {
   switch (mode) {
+    case "anthropic":
     case "braintrust":
       return "claude-3-5-sonnet-20240620";
     case "openrouter":
-      return "fireworks/mixtral-8x22b-instruct-preview";
-    case "groq":
-      return "llama3-70b-8192";
+      return "anthropic/claude-3.5-sonnet";
     case "openai":
       return "gpt-4o";
-  }
-};
-
-const getCheapModel = (mode: Provider) => {
-  switch (mode) {
-    case "openrouter":
-      return "fireworks/mixtral-8x22b-instruct-preview";
-    case "braintrust":
-      return "claude-3-haiku-20240307";
-    case "groq":
-      return "llama3-8b-8192";
-    case "openai":
-      return "gpt-3.5-turbo";
   }
 };
 
@@ -37,15 +33,15 @@ const createClient = (mode: Provider) => {
         baseURL: "https://openrouter.ai/api/v1",
         apiKey: process.env.OPEN_ROUTER_KEY,
       });
+    case "anthropic":
+      return new OpenAI({
+        baseURL: "https://braintrustproxy.com/v1",
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
     case "braintrust":
       return new OpenAI({
         baseURL: "https://braintrustproxy.com/v1",
         apiKey: process.env.BRAINTRUST_API_KEY,
-      });
-    case "groq":
-      return new OpenAI({
-        baseURL: "https://api.groq.com/openai/v1",
-        apiKey: process.env.GROQ_API_KEY,
       });
     case "openai":
       return new OpenAI({
@@ -54,13 +50,46 @@ const createClient = (mode: Provider) => {
   }
 };
 
-export const MODEL = getModel(MODE);
+export function getClientFromKey(apiKey: string): {
+  mode: Provider;
+  client: OpenAI;
+} {
+  if (apiKey.startsWith("sk-or")) {
+    return {
+      mode: "openrouter",
+      client: new OpenAI({
+        baseURL: "https://openrouter.ai/api/v1",
+        apiKey,
+      }),
+    };
+  }
+  return {
+    mode: "braintrust",
+    client: new OpenAI({
+      apiKey,
+      baseURL: "https://braintrustproxy.com/v1",
+    }),
+  };
+}
 
-export const CHEAP_MODEL = getCheapModel(MODE);
+export const DEFAULT_MODEL = getModel(MODE);
 
 initLogger({
   projectName: "windows96",
   apiKey: process.env.BRAINTRUST_API_KEY,
 });
 
-export const openai = wrapOpenAI(createClient(MODE));
+export const getDefaultClient = () => createClient(MODE);
+
+export function createClientFromSettings(settings: Settings): {
+  mode: Provider;
+  client: OpenAI;
+} {
+  if (!settings.apiKey) {
+    return {
+      mode: MODE,
+      client: getDefaultClient(),
+    };
+  }
+  return getClientFromKey(settings.apiKey);
+}

@@ -1,27 +1,33 @@
-import { MODEL, openai } from "@/ai/client";
+import { createClientFromSettings, getModel } from "@/ai/client";
+import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
 import isLive from "@/lib/isLive";
+import { log } from "@/lib/log";
 
 export async function POST(req: Request) {
   if (!isLive) {
     return new Response(JSON.stringify({ error: "Not live" }), { status: 400 });
   }
 
-  const { messages, returnJson } = await req.json();
+  const body = await req.json();
+  const { messages } = body;
 
-  console.log(messages);
+  const settings = await getSettingsFromJSON(req);
 
-  const response = await openai.chat.completions.create({
-    model: MODEL,
+  log(messages);
+
+  const { client, mode } = createClientFromSettings(settings);
+
+  const response = await client.chat.completions.create({
+    model: getModel(mode),
     messages: [...messages],
     max_tokens: 4000,
-    // response_format: returnJson ? { type: "json_object" } : { type: "text" },
   });
 
-  console.log(response);
+  log(response);
 
   const content = response.choices[0].message.content;
 
-  console.log(content);
+  log(content);
 
   return new Response(JSON.stringify(content), { status: 200 });
 }

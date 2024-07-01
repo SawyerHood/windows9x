@@ -14,6 +14,7 @@ import { getRegistryKeys } from "@/lib/getRegistryKeys";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import Markdown from "react-markdown";
+import { getSettings } from "@/lib/getSettings";
 
 const makePrompt = (program: ProgramEntry, keys: string[]) => {
   return `You are a helpful assistant designed for the following Windows9X program:
@@ -79,7 +80,10 @@ export function Help({ id }: { id: string }) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ messages: [...messages, newMessage] }),
+      body: JSON.stringify({
+        messages: [...messages, newMessage],
+        settings: getSettings(),
+      }),
     });
 
     const data = await response.json();
