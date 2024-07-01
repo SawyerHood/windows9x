@@ -1,19 +1,14 @@
-// import { put as vercelPut } from "@vercel/blob";
+import { createClient } from "./supabase/server";
 
 export async function put(path: string, blob: Blob) {
-  //   if (IS_LOCAL && process.env.NODE_ENV === "development") {
-  const fs = await import("fs-extra");
+  const supabase = createClient();
 
-  const buffer = await blob.arrayBuffer();
-  const data = Buffer.from(buffer);
-  await fs.outputFile(`${process.cwd()}/public/blob/${path}`, data);
+  const { error } = await supabase.storage.from("icons").upload(path, blob);
 
-  return `http://localhost:3000/blob/${path}`;
-  //   }
+  if (error) {
+    throw error;
+  }
 
-  //   return (
-  //     await vercelPut(path, blob, {
-  //       access: "public",
-  //     })
-  //   ).url;
+  return (await supabase.storage.from("icons").getPublicUrl(path)).data
+    .publicUrl;
 }
