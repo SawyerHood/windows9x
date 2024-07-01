@@ -22,13 +22,13 @@
   display: flex;
   flex-direction: column;
 
-  & > button {
+  & button {
     box-shadow: none;
     padding: 16px;
     text-align: left;
   }
 
-  & > button:hover {
+  & button:hover {
     background-color: darkblue;
     color: white;
   }

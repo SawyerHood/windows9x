@@ -25,3 +25,12 @@ export async function login() {
     redirect(data.url); // use the redirect API for your server framework
   }
 }
+
+export async function logout() {
+  console.log("logout");
+  const supabase = createClient();
+
+  const { error } = await supabase.auth.signOut();
+  revalidatePath("/", "layout");
+  redirect("/");
+}

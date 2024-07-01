@@ -13,6 +13,7 @@ import { startMenuOpenAtom } from "@/state/startMenu";
 import { Desktop } from "./Desktop";
 import { DESKTOP_URL_KEY, registryAtom } from "@/state/registry";
 import { ContextMenu } from "./ContextMenu";
+import { useActions } from "@/lib/actions/ActionsProvider";
 
 export function OS() {
   const [windows] = useAtom(windowsListAtom);
@@ -87,6 +88,7 @@ function TaskBar() {
 }
 
 function StartMenu() {
+  const { logout } = useActions();
   return (
     <div className={cx("window", styles.startMenu)}>
       <button
@@ -129,6 +131,17 @@ function StartMenu() {
       >
         Settings
       </button>
+      <form style={{ display: "contents" }}>
+        <button
+          formAction={logout}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
+          Logout
+        </button>
+      </form>
     </div>
   );
 }
