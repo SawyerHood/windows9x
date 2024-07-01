@@ -1,4 +1,6 @@
 // import { initLogger, wrapOpenAI } from "braintrust";
+import type { Settings } from "@/state/settings";
+import { initLogger } from "braintrust";
 import OpenAI from "openai";
 
 type Provider = "openrouter" | "braintrust" | "openai" | "anthropic";
@@ -72,11 +74,22 @@ export function getClientFromKey(apiKey: string): {
 
 export const DEFAULT_MODEL = getModel(MODE);
 
-// initLogger({
-//   projectName: "windows96",
-//   apiKey: process.env.BRAINTRUST_API_KEY,
-// });
+initLogger({
+  projectName: "windows96",
+  apiKey: process.env.BRAINTRUST_API_KEY,
+});
 
-// export const openai = wrapOpenAI(createClient(MODE));
+export const getDefaultClient = () => createClient(MODE);
 
-export const defaultClient = createClient(MODE);
+export function createClientFromSettings(settings: Settings): {
+  mode: Provider;
+  client: OpenAI;
+} {
+  if (!settings.apiKey) {
+    return {
+      mode: MODE,
+      client: getDefaultClient(),
+    };
+  }
+  return getClientFromKey(settings.apiKey);
+}

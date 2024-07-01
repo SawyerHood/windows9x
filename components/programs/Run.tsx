@@ -4,6 +4,7 @@ import { windowsListAtom } from "@/state/windowsList";
 import { createWindow } from "../../lib/createWindow";
 import { ProgramEntry, programsAtom } from "@/state/programs";
 import { useState } from "react";
+import { getSettings } from "@/lib/getSettings";
 
 export function Run({ id }: { id: string }) {
   const windowsDispatch = useSetAtom(windowsListAtom);
@@ -24,7 +25,10 @@ export function Run({ id }: { id: string }) {
           if (name.length > 20) {
             const nameResp = await fetch("/api/name", {
               method: "POST",
-              body: JSON.stringify({ desc: programDescription }),
+              body: JSON.stringify({
+                desc: programDescription,
+                settings: getSettings(),
+              }),
             });
 
             name = (await nameResp.json()).name;

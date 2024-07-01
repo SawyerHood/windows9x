@@ -1,9 +1,11 @@
-import { MODEL, openai } from "@/ai/client";
 import { ChatCompletionCreateParamsStreaming } from "openai/resources/index.mjs";
 import { streamHtml } from "openai-html-stream";
 import { getApiText } from "@/lib/apiText";
 
 import isLive from "@/lib/isLive";
+import { getSettingsFromGetRequest } from "@/lib/getSettingsFromRequest";
+import { createClientFromSettings, getModel } from "@/ai/client";
+import { Settings } from "@/state/settings";
 
 export async function GET(req: Request) {
   if (!isLive) {
@@ -11,6 +13,8 @@ export async function GET(req: Request) {
   }
 
   const url = new URL(req.url);
+  const settings = await getSettingsFromGetRequest(req);
+
   const desc = url.searchParams.get("description");
   const keys = JSON.parse(url.searchParams.get("keys") ?? "[]");
   if (!desc) {
@@ -19,7 +23,7 @@ export async function GET(req: Request) {
     });
   }
 
-  const programStream = await createProgramStream(desc, keys);
+  const programStream = await createProgramStream(desc, keys, settings);
   return new Response(
     streamHtml(programStream, {
       injectIntoHead: `<script src="/api.js"></script>
@@ -67,7 +71,13 @@ ${getApiText(keys)}
 `;
 }
 
-async function createProgramStream(desc: string, keys: string[]) {
+async function createProgramStream(
+  desc: string,
+  keys: string[],
+  settings: Settings
+) {
+  const { client, mode } = createClientFromSettings(settings);
+
   const params = {
     messages: [
       {
@@ -79,13 +89,13 @@ async function createProgramStream(desc: string, keys: string[]) {
         content: `<app_name>${desc}</app_name>`,
       },
     ],
-    model: MODEL,
+    model: getModel(mode),
     temperature: 1,
     max_tokens: 4000,
     stream: true,
   };
 
-  const stream = await openai.chat.completions.create(
+  const stream = await client.chat.completions.create(
     params as ChatCompletionCreateParamsStreaming
   );
 

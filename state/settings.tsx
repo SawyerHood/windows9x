@@ -1,6 +1,6 @@
 import { atomWithStorage } from "jotai/utils";
 
-type Settings = {
+export type Settings = {
   apiKey: string | null;
 };
 
