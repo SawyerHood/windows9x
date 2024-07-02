@@ -17,11 +17,11 @@ or
 ```
 OPENAI_API_KEY=<your-openai-api-key>
 ```
-
-1. Install [bun](https://bun.sh/docs/installation)
-2. Run `bun install`
-3. Run `bun run dev`
-4. Navigate to `http://localhost:3000`
+1. Install [node](https://nodejs.org/en) v21 or greater
+2. Install [bun](https://bun.sh/docs/installation)
+3. Run `bun install`
+4. Run `bun run dev`
+5. Navigate to `http://localhost:3000`
 
 ## How does this work?
 
