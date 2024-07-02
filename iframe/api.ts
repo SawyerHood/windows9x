@@ -6,7 +6,6 @@ class Registry {
     window.parent.postMessage({ operation: "get", key, id }, "*");
     return new Promise((resolve, _reject) => {
       window.addEventListener("message", (event) => {
-        console.log("message", event.data);
         if (event.data.id === id) {
           resolve(event.data.value);
         }

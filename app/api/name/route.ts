@@ -4,6 +4,7 @@ import { extractXMLTag } from "@/lib/extractXMLTag";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
 
 import isLive from "@/lib/isLive";
+import { log } from "@/lib/log";
 
 export async function POST(req: Request) {
   if (!isLive) {
@@ -11,6 +12,7 @@ export async function POST(req: Request) {
   }
 
   const user = await getUser();
+
   if (!user) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
@@ -38,7 +40,7 @@ export async function POST(req: Request) {
     max_tokens: 4000,
   });
 
-  console.log(response);
+  log(response);
 
   const content = response.choices[0].message.content;
 

@@ -4,7 +4,7 @@ import { useState } from "react";
 
 export default function CountDown() {
   const calculateTimeLeft = () => {
-    const difference = +new Date(`2024-07-05`) - +new Date();
+    const difference = +new Date(`2024-07-09`) - +new Date();
     let timeLeft = {
       days: 0,
     };

@@ -7,7 +7,6 @@ class Registry {
     window.parent.postMessage({ operation: "get", key, id }, "*");
     return new Promise((resolve, reject) => {
       window.addEventListener("message", (event) => {
-        console.log("message", event.data);
         if (event.data.id === id) {
           resolve(event.data.value);
         }
@@ -36,7 +35,10 @@ class Registry {
 }
 window.chat = (messages, returnJson) => {
   const id = currId++;
-  window.parent.postMessage({ operation: "chat", value: messages, id, returnJson }, "*");
+  window.parent.postMessage(
+    { operation: "chat", value: messages, id, returnJson },
+    "*"
+  );
   return new Promise((resolve, reject) => {
     window.addEventListener("message", (event) => {
       if (event.data.id === id) {
@@ -67,4 +69,4 @@ window.onmessage = (event) => {
     onOpenCallback?.(content);
   }
 };
-window.registry = new Registry;
+window.registry = new Registry();

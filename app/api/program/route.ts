@@ -7,6 +7,7 @@ import { getSettingsFromGetRequest } from "@/lib/getSettingsFromRequest";
 import { createClientFromSettings, getModel } from "@/ai/client";
 import { Settings } from "@/state/settings";
 import { getUser } from "@/lib/auth/getUser";
+import { log } from "@/lib/log";
 
 export async function GET(req: Request) {
   if (!isLive) {
@@ -54,7 +55,7 @@ href="https://unpkg.com/98.css"
 }
 
 function makeSystem(keys: string[]) {
-  console.log(keys);
+  log(keys);
   return `You will be creating a fantastical application for the Windows9X operating system, an alternate reality version of Windows from 199X. I will provide you with the name of an application exe file, and your job is to imagine what that application would do and generate the code to implement it.
 The application name will be provided in this variable:
 <app_name>
