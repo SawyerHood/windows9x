@@ -8,7 +8,7 @@ export type WindowsListAction =
   | { type: "REMOVE"; payload: string };
 
 export const windowsListAtom = atomWithReducer(
-  ["window1"],
+  [],
   (state: WindowsListState, action: WindowsListAction): WindowsListState => {
     switch (action.type) {
       case "ADD":

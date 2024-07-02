@@ -15,6 +15,7 @@ import { DESKTOP_URL_KEY, registryAtom } from "@/state/registry";
 import { ContextMenu } from "./ContextMenu";
 import { useActions } from "@/lib/actions/ActionsProvider";
 import Image from "next/image";
+import { initState } from "@/lib/initState";
 
 export function OS() {
   const [windows] = useAtom(windowsListAtom);
@@ -42,6 +43,11 @@ export function OS() {
       window.removeEventListener("mousedown", onMouseDown);
     };
   }, [windows, setFocusedWindow]);
+
+  useEffect(() => {
+    initState();
+  }, []);
+
   return (
     <div
       style={{
