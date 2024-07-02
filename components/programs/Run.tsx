@@ -63,8 +63,8 @@ export function Run({ id }: { id: string }) {
         create it for you.
       </p>
       <div className="field-row">
-        <label htmlFor="program-description">Open: </label>
         <textarea
+          placeholder="Describe the program you want to run"
           id="program-description"
           rows={2}
           style={{
