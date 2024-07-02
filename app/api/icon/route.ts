@@ -1,4 +1,5 @@
 import { createClientFromSettings, getModel } from "@/ai/client";
+import { generateIcon } from "@/ai/image";
 import { removeBackground } from "@/ai/removeBackground";
 import { getUser } from "@/lib/auth/getUser";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
   if (!imagePrompt) {
     return new Response("", { status: 500 });
   }
-  let image = await genCloudflareImage(imagePrompt);
+  let image = await generateIcon(imagePrompt);
   if (!image) {
     return new Response("", { status: 500 });
   }
@@ -47,7 +48,7 @@ function generateUniqueID() {
   );
 }
 
-const imageDescriptionPrompt = `You are a master icon designer for Microsoft in the 90s. A user will give you the name of an exe and you will describe an icon for it. Return an object or symbol that should be used as an icon. Return only the object or symbol`;
+const imageDescriptionPrompt = `You will be given the name of an application. Return a description of the icon that can be fed into stable diffusion to generate an icon for the application. Return only the description, do not return any other text.`;
 
 async function genImagePrompt(name: string, settings: Settings) {
   const { client, mode } = createClientFromSettings(settings);
@@ -59,30 +60,30 @@ async function genImagePrompt(name: string, settings: Settings) {
     ],
   });
 
-  return result.choices[0].message.content + ", icon, 32x32, 16 colors";
+  return result.choices[0].message.content;
 }
 
-async function genCloudflareImage(prompt: string): Promise<Blob | null> {
-  const options = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "image/jpeg",
-      Authorization: `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
-    },
-    body: JSON.stringify({ prompt }),
-  };
+// async function genCloudflareImage(prompt: string): Promise<Blob | null> {
+//   const options = {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Accept: "image/jpeg",
+//       Authorization: `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
+//     },
+//     body: JSON.stringify({ prompt }),
+//   };
 
-  const resp = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/bytedance/stable-diffusion-xl-lightning`,
-    options
-  );
+//   const resp = await fetch(
+//     `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/bytedance/stable-diffusion-xl-lightning`,
+//     options
+//   );
 
-  if (!resp.ok) {
-    console.error("Error generating image", await resp.text());
-    console.error("resp", resp);
-    return null;
-  }
+//   if (!resp.ok) {
+//     console.error("Error generating image", await resp.text());
+//     console.error("resp", resp);
+//     return null;
+//   }
 
-  return await resp.blob();
-}
+//   return await resp.blob();
+// }
