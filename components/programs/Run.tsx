@@ -66,11 +66,10 @@ export function Run({ id }: { id: string }) {
         <label htmlFor="program-description">Open: </label>
         <textarea
           id="program-description"
-          rows={3}
+          rows={2}
           style={{
             width: "100%",
             resize: "vertical",
-            minHeight: "60px",
             maxHeight: "200px",
           }}
           name="program-description"
