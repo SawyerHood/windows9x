@@ -10,13 +10,13 @@
   align-items: stretch;
   gap: 4px;
   z-index: 2;
-  height: 32px;
+  height: var(--taskbar-height);
 }
 
 .startMenu {
   position: absolute;
   left: 0;
-  bottom: 32px;
+  bottom: var(--taskbar-height);
   z-index: 1;
   width: 200px;
   display: flex;

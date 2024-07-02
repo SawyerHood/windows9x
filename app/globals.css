@@ -29,3 +29,7 @@ a {
   /* color: inherit; */
   text-decoration: none;
 }
+
+:root {
+  --taskbar-height: 32px;
+}

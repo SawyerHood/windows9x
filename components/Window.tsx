@@ -37,7 +37,10 @@ export function Window({ id }: { id: string }) {
         top: state.loading ? state.pos.y : 0,
         left: state.loading ? state.pos.x : 0,
         width: state.status === "maximized" ? "100%" : state.size.width,
-        height: state.status === "maximized" ? "100%" : state.size.height,
+        height:
+          state.status === "maximized"
+            ? "calc(100% - var(--taskbar-height))"
+            : state.size.height,
         transform:
           state.status === "maximized"
             ? "none"
