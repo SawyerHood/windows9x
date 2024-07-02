@@ -3,7 +3,7 @@ import type { Settings } from "@/state/settings";
 import { initLogger } from "braintrust";
 import OpenAI from "openai";
 
-type Provider = "openrouter" | "braintrust" | "openai" | "anthropic";
+type Provider = "openrouter" | "braintrust" | "openai" | "anthropic" | "discord.rocks";
 const MODE: Provider = process.env.BRAINTRUST_API_KEY
   ? "braintrust"
   : process.env.ANTHROPIC_API_KEY
@@ -12,6 +12,8 @@ const MODE: Provider = process.env.BRAINTRUST_API_KEY
   ? "openrouter"
   : process.env.OPENAI_API_KEY
   ? "openai"
+  : process.env.DISCORD_ROCKS_API_KEY
+  ? "discord.rocks"
   : "openai"; // Default to OpenAI if no key is found
 
 export const getModel = (mode: Provider) => {
@@ -23,6 +25,8 @@ export const getModel = (mode: Provider) => {
       return "anthropic/claude-3.5-sonnet";
     case "openai":
       return "gpt-4o";
+    case "discord.rocks":
+      return "claude-3-opus-20240229"; // Default model for discord.rocks
   }
 };
 
@@ -47,6 +51,11 @@ const createClient = (mode: Provider) => {
       return new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
       });
+    case "discord.rocks":
+      return new OpenAI({
+        baseURL: "https://api.discord.rocks/v1",
+        apiKey: process.env.DISCORD_ROCKS_API_KEY,
+      });
   }
 };
 
@@ -59,6 +68,14 @@ export function getClientFromKey(apiKey: string): {
       mode: "openrouter",
       client: new OpenAI({
         baseURL: "https://openrouter.ai/api/v1",
+        apiKey,
+      }),
+    };
+  } else if (apiKey.startsWith("dr-")) {
+    return {
+      mode: "discord.rocks",
+      client: new OpenAI({
+        baseURL: "https://api.discord.rocks/v1",
         apiKey,
       }),
     };
