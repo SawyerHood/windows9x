@@ -1,13 +1,10 @@
 import { createClientFromSettings, getModel } from "@/ai/client";
 import { generateIcon } from "@/ai/image";
-import { removeBackground } from "@/ai/removeBackground";
 import { getUser } from "@/lib/auth/getUser";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
 import isLive from "@/lib/isLive";
 import { put } from "@/lib/put";
 import { Settings } from "@/state/settings";
-
-const REMOVE_BG = false;
 
 export async function POST(req: Request) {
   if (!isLive) {
@@ -28,15 +25,11 @@ export async function POST(req: Request) {
   if (!imagePrompt) {
     return new Response("", { status: 500 });
   }
-  let image = await generateIcon(imagePrompt);
+  const image = await generateIcon(imagePrompt);
   if (!image) {
     return new Response("", { status: 500 });
   }
 
-  if (REMOVE_BG) {
-    const noBg = await removeBackground(image);
-    image = noBg;
-  }
   const path = await put(`icons/${generateUniqueID()}.png`, image);
   return new Response(path, { status: 200 });
 }
