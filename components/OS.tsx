@@ -14,6 +14,7 @@ import { Desktop } from "./Desktop";
 import { DESKTOP_URL_KEY, registryAtom } from "@/state/registry";
 import { ContextMenu } from "./ContextMenu";
 import { useActions } from "@/lib/actions/ActionsProvider";
+import Image from "next/image";
 
 export function OS() {
   const [windows] = useAtom(windowsListAtom);
@@ -170,9 +171,16 @@ function WindowTaskBarItem({ id }: { id: string }) {
         overflow: "hidden",
         textOverflow: "ellipsis",
         maxWidth: "256px",
+        display: "flex",
+        alignItems: "center",
+        gap: "4px",
+        paddingLeft: state.icon ? "8px" : undefined,
       }}
     >
-      {state.title}
+      {state.icon && (
+        <Image src={state.icon} alt={state.title} width={16} height={16} />
+      )}
+      <span>{state.title}</span>
     </button>
   );
 }
