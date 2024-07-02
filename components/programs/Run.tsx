@@ -64,11 +64,16 @@ export function Run({ id }: { id: string }) {
       </p>
       <div className="field-row">
         <label htmlFor="program-description">Open: </label>
-        <input
+        <textarea
           id="program-description"
+          rows={3}
+          style={{
+            width: "100%",
+            resize: "vertical",
+            minHeight: "60px",
+            maxHeight: "200px",
+          }}
           name="program-description"
-          type="text"
-          style={{ width: "100%" }}
           spellCheck={false}
           autoComplete="off"
           autoFocus
