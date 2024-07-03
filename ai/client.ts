@@ -84,12 +84,17 @@ export const getDefaultClient = () => createClient(MODE);
 export function createClientFromSettings(settings: Settings): {
   mode: Provider;
   client: OpenAI;
+  usedOwnKey: boolean;
 } {
   if (!settings.apiKey) {
     return {
       mode: MODE,
       client: getDefaultClient(),
+      usedOwnKey: false,
     };
   }
-  return getClientFromKey(settings.apiKey);
+  return {
+    ...getClientFromKey(settings.apiKey),
+    usedOwnKey: true,
+  };
 }

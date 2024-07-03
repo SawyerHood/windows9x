@@ -1,5 +1,6 @@
 import { createClientFromSettings, getModel } from "@/ai/client";
 import { getUser } from "@/lib/auth/getUser";
+import { capture } from "@/lib/capture";
 import { extractXMLTag } from "@/lib/extractXMLTag";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
 
@@ -23,7 +24,12 @@ export async function POST(req: Request) {
   const { desc } = body;
 
   const settings = await getSettingsFromJSON(body);
-  const { client, mode } = createClientFromSettings(settings);
+  const { client, mode, usedOwnKey } = createClientFromSettings(settings);
+
+  await capture({
+    type: "name",
+    usedOwnKey,
+  });
 
   const response = await client.chat.completions.create({
     model: getModel(mode),

@@ -1,6 +1,7 @@
 import { createClientFromSettings, getModel } from "@/ai/client";
 import { generateIcon } from "@/ai/image";
 import { getUser } from "@/lib/auth/getUser";
+import { capture } from "@/lib/capture";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
 import isLive from "@/lib/isLive";
 import { put } from "@/lib/put";
@@ -44,7 +45,11 @@ function generateUniqueID() {
 const imageDescriptionPrompt = `You will be given the name of an application. Return a description of the icon that can be fed into stable diffusion to generate an icon for the application. Return only the description, do not return any other text.`;
 
 async function genImagePrompt(name: string, settings: Settings) {
-  const { client, mode } = createClientFromSettings(settings);
+  const { client, mode, usedOwnKey } = createClientFromSettings(settings);
+  await capture({
+    type: "icon",
+    usedOwnKey,
+  });
   const result = await client.chat.completions.create({
     model: getModel(mode),
     messages: [

@@ -8,6 +8,7 @@ import { createClientFromSettings, getModel } from "@/ai/client";
 import { Settings } from "@/state/settings";
 import { getUser } from "@/lib/auth/getUser";
 import { log } from "@/lib/log";
+import { capture } from "@/lib/capture";
 
 export async function GET(req: Request) {
   if (!isLive) {
@@ -85,7 +86,12 @@ async function createProgramStream(
   keys: string[],
   settings: Settings
 ) {
-  const { client, mode } = createClientFromSettings(settings);
+  const { client, mode, usedOwnKey } = createClientFromSettings(settings);
+
+  await capture({
+    type: "program",
+    usedOwnKey,
+  });
 
   const params = {
     messages: [

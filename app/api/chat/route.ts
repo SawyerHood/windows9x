@@ -1,5 +1,6 @@
 import { createClientFromSettings, getModel } from "@/ai/client";
 import { getUser } from "@/lib/auth/getUser";
+import { capture } from "@/lib/capture";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
 import isLive from "@/lib/isLive";
 import { log } from "@/lib/log";
@@ -24,7 +25,12 @@ export async function POST(req: Request) {
 
   log(messages);
 
-  const { client, mode } = createClientFromSettings(settings);
+  const { client, mode, usedOwnKey } = createClientFromSettings(settings);
+
+  await capture({
+    type: "chat",
+    usedOwnKey,
+  });
 
   const response = await client.chat.completions.create({
     model: getModel(mode),
