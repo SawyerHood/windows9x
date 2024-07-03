@@ -16,6 +16,7 @@ import { ContextMenu } from "./ContextMenu";
 import { useActions } from "@/lib/actions/ActionsProvider";
 import Image from "next/image";
 import { initState } from "@/lib/initState";
+import { WIDTH } from "./programs/Welcome";
 
 export function OS() {
   const [windows] = useAtom(windowsListAtom);
@@ -106,6 +107,7 @@ function StartMenu() {
           createWindow({
             title: "Welcome to Windows 9X",
             program: { type: "welcome" },
+            size: { width: WIDTH, height: "auto" },
           });
         }}
       >

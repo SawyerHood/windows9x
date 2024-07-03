@@ -1,0 +1,82 @@
+.welcomeContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  padding: 20px;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.contentWrapper {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.sidebar {
+  width: 200px;
+  border-right: 1px solid #ccc;
+  padding-right: 20px;
+}
+
+.sidebarTitle {
+  font-size: 1rem;
+  background-color: black;
+  color: white;
+  padding: 4px;
+}
+
+.sidebarList {
+  list-style-type: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+
+  & li {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1rem;
+    border-left: 4px solid transparent;
+    padding: 4px;
+    border: 1px solid grey;
+  }
+}
+
+.selected {
+  font-weight: bold;
+}
+
+.mainContent {
+  flex: 1;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  font-size: 1.2rem;
+
+  & ul {
+    padding-left: 20px;
+  }
+}
+
+.logo {
+  position: relative;
+  image-rendering: pixelated;
+  max-width: 180px;
+  object-fit: contain;
+  filter: invert(1);
+  height: 86px;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+}
