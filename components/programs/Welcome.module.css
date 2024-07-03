@@ -46,6 +46,7 @@
     border-left: 4px solid transparent;
     padding: 4px;
     border: 1px solid grey;
+    cursor: pointer;
   }
 }
 
