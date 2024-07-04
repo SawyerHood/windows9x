@@ -12,6 +12,7 @@ import styles from "./Explorer.module.css";
 import cx from "classnames";
 import { useCreateContextMenu } from "@/state/contextMenu";
 import up from "@/components/assets/up.ico";
+import paste from "@/components/assets/paste.ico";
 import newFolder from "@/components/assets/newDir.png";
 import Image from "next/image";
 
@@ -316,6 +317,7 @@ export function Explorer({ id }: { id: string }) {
           <span>New Folder</span>
         </button>
         <button onClick={handlePaste}>
+          <Image src={paste} alt="Paste" />
           <span>Paste</span>
         </button>
       </div>
