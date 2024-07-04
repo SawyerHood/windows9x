@@ -1,6 +1,5 @@
-// import { initLogger, wrapOpenAI } from "braintrust";
 import type { Settings } from "@/state/settings";
-import { initLogger } from "braintrust";
+import { initLogger, wrapOpenAI } from "braintrust";
 import OpenAI from "openai";
 
 type Provider = "openrouter" | "braintrust" | "openai" | "anthropic";
@@ -89,12 +88,13 @@ export function createClientFromSettings(settings: Settings): {
   if (!settings.apiKey) {
     return {
       mode: MODE,
-      client: getDefaultClient(),
+      client: wrapOpenAI(getDefaultClient()),
       usedOwnKey: false,
     };
   }
   return {
     ...getClientFromKey(settings.apiKey),
+    client: wrapOpenAI(getClientFromKey(settings.apiKey).client),
     usedOwnKey: true,
   };
 }
