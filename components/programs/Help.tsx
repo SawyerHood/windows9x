@@ -15,6 +15,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import Markdown from "react-markdown";
 import { getSettings } from "@/lib/getSettings";
+import styles from "./Help.module.css";
 
 const makePrompt = (program: ProgramEntry, keys: string[]) => {
   return `You are a helpful assistant designed for the following Windows9X program:
@@ -69,52 +70,52 @@ export function Help({ id }: { id: string }) {
     () => [{ role: "system", content: makePrompt(program!, keys) }]
   );
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const sendMessage = async () => {
     const newMessage = { role: "user", content: input };
     setMessages([...messages, newMessage]);
     setInput("");
+    setIsLoading(true);
 
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        messages: [...messages, newMessage],
-        settings: getSettings(),
-      }),
-    });
-
-    const data = await response.json();
-
-    const newHtml = data.match(betweenHtmlRegex);
-
-    if (newHtml) {
-      programsDispatch({
-        type: "UPDATE_PROGRAM",
-        payload: { id: programID, code: newHtml[1] },
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: [...messages, newMessage],
+          settings: getSettings(),
+        }),
       });
-    }
 
-    setMessages([
-      ...messages,
-      newMessage,
-      { role: "assistant", content: data },
-    ]);
+      const data = await response.json();
+
+      const newHtml = data.match(betweenHtmlRegex);
+
+      if (newHtml) {
+        programsDispatch({
+          type: "UPDATE_PROGRAM",
+          payload: { id: programID, code: newHtml[1] },
+        });
+      }
+
+      setMessages([
+        ...messages,
+        newMessage,
+        { role: "assistant", content: data },
+      ]);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <>
-      <div
-        className="chat-box"
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "10px",
-          border: "1px solid #000",
-        }}
-      >
+      <div className={styles.chatBox}>
         <Message
           msg={{
             role: "system",
@@ -127,22 +128,30 @@ export function Help({ id }: { id: string }) {
           .map((msg, index) => (
             <Message key={index} msg={msg} />
           ))}
+        {isLoading && (
+          <div className={styles.loadingIndicator}>
+            <span>L</span>
+            <span>O</span>
+            <span>A</span>
+            <span>D</span>
+            <span>I</span>
+            <span>N</span>
+            <span>G</span>
+            <span>.</span>
+            <span>.</span>
+            <span>.</span>
+          </div>
+        )}
       </div>
-      <div
-        className="chat-input"
-        style={{ display: "flex", marginTop: "10px" }}
-      >
+      <div className={styles.chatInput}>
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          style={{ flex: 1, padding: "5px", border: "1px solid #000" }}
+          onKeyDown={(e) => e.key === "Enter" && !isLoading && sendMessage()}
+          disabled={isLoading}
         />
-        <button
-          onClick={sendMessage}
-          style={{ marginLeft: "5px", padding: "5px 10px" }}
-        >
+        <button onClick={sendMessage} disabled={isLoading}>
           Send
         </button>
       </div>
@@ -151,21 +160,13 @@ export function Help({ id }: { id: string }) {
 }
 
 const Message = ({ msg }: { msg: { role: string; content: string } }) => (
-  <div
-    style={{
-      margin: "5px 0",
-    }}
-  >
+  <div>
     <div
-      className={`chat-message ${msg.role}`}
-      style={{
-        display: "inline-block",
-        padding: "5px 10px",
-        borderRadius: "5px",
-        background: msg.role === "user" ? "#acf" : "#eaeaea",
-      }}
+      className={`${styles.chatMessage} ${
+        msg.role === "user" ? styles.user : styles.assistant
+      }`}
     >
-      <Markdown>
+      <Markdown className={styles.markdown}>
         {msg.role === "assistant"
           ? msg.content.replace(betweenHtmlRegex, "**App updated**")
           : msg.content}
