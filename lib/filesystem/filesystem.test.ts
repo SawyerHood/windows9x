@@ -143,4 +143,29 @@ describe("VirtualFileSystem", () => {
     expect(files).toEqual(["file1.txt", "file2.txt"]);
     // No onWrite calls expected during deserialization
   });
+
+  test("should rename an item", () => {
+    vfs = vfs.createFile("oldfile.txt", "Content");
+    vfs = vfs.renameItem("oldfile.txt", "newfile.txt");
+
+    expect(() => vfs.readFile("oldfile.txt")).toThrow(
+      'VirtualFile "oldfile.txt" does not exist.'
+    );
+    expect(vfs.readFile("newfile.txt")).toBe("Content");
+  });
+
+  test("should throw error when renaming a non-existent item", () => {
+    expect(() => vfs.renameItem("nonexistent.txt", "newname.txt")).toThrow(
+      '"nonexistent.txt" does not exist.'
+    );
+  });
+
+  test("should throw error when renaming to an existing name", () => {
+    vfs = vfs.createFile("file1.txt", "Content 1");
+    vfs = vfs.createFile("file2.txt", "Content 2");
+
+    expect(() => vfs.renameItem("file1.txt", "file2.txt")).toThrow(
+      'An item with the name "file2.txt" already exists in the same folder.'
+    );
+  });
 });

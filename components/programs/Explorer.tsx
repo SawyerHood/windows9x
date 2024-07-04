@@ -24,6 +24,7 @@ export function Explorer({ id }: { id: string }) {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [newFileName, setNewFileName] = useState<string>("");
   const [isCreatingFolder, setIsCreatingFolder] = useState<boolean>(false);
+  const [isRenaming, setIsRenaming] = useState<boolean>(false);
 
   if (state.program.type !== "explorer") {
     throw new Error("Program is not explorer");
@@ -124,6 +125,32 @@ export function Explorer({ id }: { id: string }) {
     setNewFileName(path.split("/").pop() || "");
   };
 
+  const handleRename = (oldPath: string) => {
+    setIsRenaming(true);
+    setSelectedItem(oldPath);
+    setNewFileName(oldPath.split("/").pop() || "");
+  };
+
+  const handleRenameSubmit = () => {
+    if (
+      newFileName.trim() === "" ||
+      newFileName === selectedItem?.split("/").pop()
+    ) {
+      setIsRenaming(false);
+      return;
+    }
+    try {
+      const oldPath = selectedItem!;
+      const newPath = `${currentPath}/${newFileName}`;
+      const updatedFileSystem = fileSystem.renameItem(oldPath, newFileName);
+      setFileSystem(updatedFileSystem);
+      setIsRenaming(false);
+      setSelectedItem(newPath);
+    } catch (error) {
+      alert("Failed to rename item");
+    }
+  };
+
   const renderItems = (items: Record<string, VirtualItem>, path: string) => {
     return Object.keys(items).map((key) => {
       const item = items[key];
@@ -139,10 +166,31 @@ export function Explorer({ id }: { id: string }) {
               label: "Delete",
               onClick: () => setFileSystem(fileSystem.delete(itemPath)),
             },
+            {
+              label: "Rename",
+              onClick: () => handleRename(itemPath),
+            },
           ])}
         >
           <td>{item.type === "folder" ? "📁" : "📄"}</td>
-          <td>{item.name}</td>
+          <td>
+            {isRenaming && selectedItem === itemPath ? (
+              <input
+                type="text"
+                value={newFileName}
+                onChange={handleFileNameChange}
+                onBlur={handleRenameSubmit}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleRenameSubmit();
+                  }
+                }}
+                autoFocus
+              />
+            ) : (
+              item.name
+            )}
+          </td>
         </tr>
       );
     });

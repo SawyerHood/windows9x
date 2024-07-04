@@ -165,6 +165,25 @@ export class VirtualFileSystem {
     return { parentFolder, name };
   }
 
+  renameItem(oldPath: string, newName: string): VirtualFileSystem {
+    return produce(this, (draft: VirtualFileSystem) => {
+      const { parentFolder, name: oldName } =
+        draft.getParentFolderAndName(oldPath);
+      const item = parentFolder.items[oldName];
+      if (!item) {
+        throw new Error(`"${oldPath}" does not exist.`);
+      }
+      if (parentFolder.items[newName]) {
+        throw new Error(
+          `An item with the name "${newName}" already exists in the same folder.`
+        );
+      }
+      delete parentFolder.items[oldName];
+      item.name = newName;
+      parentFolder.items[newName] = item;
+    });
+  }
+
   toJSON(): VirtualFolder {
     return this.root;
   }
