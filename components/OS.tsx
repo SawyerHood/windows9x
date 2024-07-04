@@ -26,7 +26,7 @@ export function OS() {
   const publicDesktopUrl = registry[DESKTOP_URL_KEY] ?? "/bg.jpg";
 
   useEffect(() => {
-    const onMouseDown = (e: MouseEvent) => {
+    const onMouseDown = (e: MouseEvent | TouchEvent) => {
       const target = e.target as HTMLElement;
       getDefaultStore().set(startMenuOpenAtom, false);
       const windowID = windows.find((windowId) => {
