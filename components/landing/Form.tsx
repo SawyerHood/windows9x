@@ -18,7 +18,7 @@ export function Form({
     <form action={formAction}>
       <div className="field-row">
         <label htmlFor="email">Email:</label>
-        <input type="email" id="email" name="email" />
+        <input type="text" id="email" name="email" />
       </div>
       <button type="submit">Sign Up</button>
       {state.type === "error" && <p style={{ color: "red" }}>{state.error}</p>}
