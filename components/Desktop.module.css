@@ -41,3 +41,21 @@
   text-align: center;
   overflow: hidden;
 }
+
+@media (max-width: 768px) {
+  .desktop {
+    grid-template-columns: repeat(auto-fill, 80px);
+    grid-template-rows: repeat(auto-fill, 80px);
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .programIcon img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .programName {
+    font-size: 10px;
+  }
+}

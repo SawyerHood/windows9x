@@ -10,6 +10,7 @@ body {
   overflow-x: hidden;
   user-select: none;
   font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+  touch-action: none;
 
   & .title-bar,
   & .window,

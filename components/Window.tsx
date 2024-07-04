@@ -65,6 +65,14 @@ export function Window({ id }: { id: string }) {
             });
           }
         )}
+        onTouchStart={createResizeEvent(
+          (_e: TouchEvent, delta: { x: number; y: number }) => {
+            dispatch({
+              type: "MOVE",
+              payload: { dx: delta.x, dy: delta.y },
+            });
+          }
+        )}
       >
         <div
           className={styles.title}
@@ -156,6 +164,14 @@ export function Window({ id }: { id: string }) {
             });
           }
         )}
+        onTouchStart={createResizeEvent(
+          (_e: TouchEvent, delta: { x: number; y: number }) => {
+            dispatch({
+              type: "RESIZE",
+              payload: { side: "right", dx: delta.x, dy: delta.y },
+            });
+          }
+        )}
       ></div>
       {/* left side */}
       <div
@@ -169,6 +185,14 @@ export function Window({ id }: { id: string }) {
         }}
         onMouseDown={createResizeEvent(
           (_e: MouseEvent, delta: { x: number; y: number }) => {
+            dispatch({
+              type: "RESIZE",
+              payload: { side: "left", dx: delta.x, dy: delta.y },
+            });
+          }
+        )}
+        onTouchStart={createResizeEvent(
+          (_e: TouchEvent, delta: { x: number; y: number }) => {
             dispatch({
               type: "RESIZE",
               payload: { side: "left", dx: delta.x, dy: delta.y },
@@ -194,6 +218,14 @@ export function Window({ id }: { id: string }) {
             });
           }
         )}
+        onTouchStart={createResizeEvent(
+          (_e: TouchEvent, delta: { x: number; y: number }) => {
+            dispatch({
+              type: "RESIZE",
+              payload: { side: "bottom", dx: delta.x, dy: delta.y },
+            });
+          }
+        )}
       ></div>
       {/* top side */}
       <div
@@ -207,6 +239,14 @@ export function Window({ id }: { id: string }) {
         }}
         onMouseDown={createResizeEvent(
           (_e: MouseEvent, delta: { x: number; y: number }) => {
+            dispatch({
+              type: "RESIZE",
+              payload: { side: "top", dx: delta.x, dy: delta.y },
+            });
+          }
+        )}
+        onTouchStart={createResizeEvent(
+          (_e: TouchEvent, delta: { x: number; y: number }) => {
             dispatch({
               type: "RESIZE",
               payload: { side: "top", dx: delta.x, dy: delta.y },
@@ -232,6 +272,14 @@ export function Window({ id }: { id: string }) {
             });
           }
         )}
+        onTouchStart={createResizeEvent(
+          (_e: TouchEvent, delta: { x: number; y: number }) => {
+            dispatch({
+              type: "RESIZE",
+              payload: { side: "top-left", dx: delta.x, dy: delta.y },
+            });
+          }
+        )}
       ></div>
       {/* top right */}
       <div
@@ -251,6 +299,14 @@ export function Window({ id }: { id: string }) {
             });
           }
         )}
+        onTouchStart={createResizeEvent(
+          (_e: TouchEvent, delta: { x: number; y: number }) => {
+            dispatch({
+              type: "RESIZE",
+              payload: { side: "top-right", dx: delta.x, dy: delta.y },
+            });
+          }
+        )}
       ></div>
       {/* bottom left */}
       <div
@@ -264,6 +320,14 @@ export function Window({ id }: { id: string }) {
         }}
         onMouseDown={createResizeEvent(
           (_e: MouseEvent, delta: { x: number; y: number }) => {
+            dispatch({
+              type: "RESIZE",
+              payload: { side: "bottom-left", dx: delta.x, dy: delta.y },
+            });
+          }
+        )}
+        onTouchStart={createResizeEvent(
+          (_e: TouchEvent, delta: { x: number; y: number }) => {
             dispatch({
               type: "RESIZE",
               payload: { side: "bottom-left", dx: delta.x, dy: delta.y },
@@ -293,30 +357,57 @@ export function Window({ id }: { id: string }) {
             });
           }
         )}
+        onTouchStart={createResizeEvent(
+          (_e: TouchEvent, delta: { x: number; y: number }) => {
+            dispatch({
+              type: "RESIZE",
+              payload: {
+                side: "bottom-right",
+                dx: delta.x,
+                dy: delta.y,
+              },
+            });
+          }
+        )}
       ></div>
     </div>
   );
 }
 
 function createResizeEvent<T>(
-  cb: (e: MouseEvent, delta: { x: number; y: number }) => void
+  cb: (e: MouseEvent | TouchEvent, delta: { x: number; y: number }) => void
 ): MouseEventHandler<T> {
-  return (e: ReactMouseEvent<T>) => {
+  return (e: ReactMouseEvent<T> | React.TouchEvent<T>) => {
     let last = { x: e.clientX, y: e.clientY };
-    const handleMouseMove = (e: MouseEvent) => {
-      const delta = { x: e.clientX - last.x, y: e.clientY - last.y };
+    if (e.type === "touchstart") {
+      const touch = (e as React.TouchEvent<T>).touches[0];
+      last = { x: touch.clientX, y: touch.clientY };
+    }
+    const handleMouseMove = (e: MouseEvent | TouchEvent) => {
+      let delta = { x: 0, y: 0 };
+      if (e.type === "mousemove") {
+        delta = { x: (e as MouseEvent).clientX - last.x, y: (e as MouseEvent).clientY - last.y };
+        last = { x: (e as MouseEvent).clientX, y: (e as MouseEvent).clientY };
+      } else if (e.type === "touchmove") {
+        const touch = (e as TouchEvent).touches[0];
+        delta = { x: touch.clientX - last.x, y: touch.clientY - last.y };
+        last = { x: touch.clientX, y: touch.clientY };
+      }
       cb(e, delta);
-      last = { x: e.clientX, y: e.clientY };
     };
     getDefaultStore().set(isResizingAtom, true);
     const handleMouseUp = () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
       window.removeEventListener("blur", handleMouseUp);
+      window.removeEventListener("touchmove", handleMouseMove);
+      window.removeEventListener("touchend", handleMouseUp);
       getDefaultStore().set(isResizingAtom, false);
     };
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
     window.addEventListener("blur", handleMouseUp);
+    window.addEventListener("touchmove", handleMouseMove);
+    window.addEventListener("touchend", handleMouseUp);
   };
 }

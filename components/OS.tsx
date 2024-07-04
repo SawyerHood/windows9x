@@ -40,8 +40,10 @@ export function OS() {
       }
     };
     window.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("touchstart", onMouseDown); // Add touch event listener for moving windows
     return () => {
       window.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("touchstart", onMouseDown); // Remove touch event listener for moving windows
     };
   }, [windows, setFocusedWindow]);
 
