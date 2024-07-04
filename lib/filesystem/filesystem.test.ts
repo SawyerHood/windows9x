@@ -1,4 +1,9 @@
-import { VirtualFileSystem, VirtualFolder } from "./filesystem";
+import {
+  VirtualFileSystem,
+  VirtualFolder,
+  createVirtualFile,
+  createVirtualFolder,
+} from "./filesystem";
 
 describe("VirtualFileSystem", () => {
   let vfs: VirtualFileSystem;
@@ -167,5 +172,32 @@ describe("VirtualFileSystem", () => {
     expect(() => vfs.renameItem("file1.txt", "file2.txt")).toThrow(
       'An item with the name "file2.txt" already exists in the same folder.'
     );
+  });
+
+  test("should insert an item", () => {
+    vfs = vfs.createFolder("folder1");
+    vfs = vfs.createFolder("folder1/subfolder");
+    vfs = vfs.createFile("folder1/file1.txt", "Content 1");
+
+    const newFile = createVirtualFile("newfile.txt", "New content");
+    vfs = vfs.insertItem("folder1/newfile.txt", newFile);
+
+    expect(vfs.readFile("folder1/newfile.txt")).toBe("New content");
+
+    const newFolder = createVirtualFolder("newfolder");
+    vfs = vfs.insertItem("folder1/subfolder/newfolder", newFolder);
+
+    expect(vfs.listItems("folder1/subfolder")).toContainEqual(
+      expect.objectContaining({
+        type: "folder",
+        name: "newfolder",
+      })
+    );
+
+    expect(() => vfs.insertItem("folder1/newfile.txt", newFile)).toThrow(
+      'An item with the name "newfile.txt" already exists in the path "folder1/newfile.txt".'
+    );
+
+    expect(() => vfs.insertItem("folder1/nonexistent", newFile)).toThrow();
   });
 });

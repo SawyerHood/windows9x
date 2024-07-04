@@ -184,6 +184,23 @@ export class VirtualFileSystem {
     });
   }
 
+  insertItem(path: string, item: VirtualItem): VirtualFileSystem {
+    return produce(this, (draft: VirtualFileSystem) => {
+      const { parentFolder, name } = draft.getParentFolderAndName(path);
+      if (name !== item.name) {
+        throw new Error(
+          `The name of the item "${item.name}" does not match the end of the path "${path}".`
+        );
+      }
+      if (parentFolder.items[name]) {
+        throw new Error(
+          `An item with the name "${name}" already exists in the path "${path}".`
+        );
+      }
+      parentFolder.items[name] = item;
+    });
+  }
+
   toJSON(): VirtualFolder {
     return this.root;
   }

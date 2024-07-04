@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAtom, useSetAtom } from "jotai";
 import { fileSystemAtom } from "@/state/filesystem";
 
@@ -151,6 +151,103 @@ export function Explorer({ id }: { id: string }) {
     }
   };
 
+  const handleCopy = useCallback(
+    async (path: string) => {
+      try {
+        const item = fileSystem.getItem(path);
+        if (item) {
+          await navigator.clipboard.writeText(
+            JSON.stringify({ action: "copy", item })
+          );
+        }
+      } catch (error) {
+        console.error("Failed to copy to clipboard:", error);
+      }
+    },
+    [fileSystem]
+  );
+
+  const handleCut = useCallback(
+    async (path: string) => {
+      try {
+        const item = fileSystem.getItem(path);
+        if (item) {
+          await navigator.clipboard.writeText(
+            JSON.stringify({ action: "cut", item })
+          );
+          setFileSystem(fileSystem.delete(path));
+        }
+      } catch (error) {
+        console.error("Failed to cut to clipboard:", error);
+      }
+    },
+    [fileSystem, setFileSystem]
+  );
+
+  const handlePaste = useCallback(async () => {
+    try {
+      const clipboardContent = await navigator.clipboard.readText();
+      const { action, item } = JSON.parse(clipboardContent);
+
+      if (!item) {
+        alert("No valid item in clipboard");
+        return;
+      }
+
+      let newPath = `${currentPath}/${item.name}`;
+      let counter = 1;
+
+      while (fileSystem.getItem(newPath)) {
+        const nameParts = item.name.split(".");
+        if (nameParts.length > 1) {
+          const extension = nameParts.pop();
+          newPath = `${currentPath}/${nameParts.join(
+            "."
+          )}_${counter}.${extension}`;
+        } else {
+          newPath = `${currentPath}/${item.name}_${counter}`;
+        }
+        counter++;
+      }
+
+      let updatedFileSystem;
+      if (action === "copy" || action === "cut") {
+        updatedFileSystem = fileSystem.insertItem(newPath, {
+          ...item,
+          name: newPath.split("/").pop(),
+        });
+      }
+
+      if (updatedFileSystem) {
+        setFileSystem(updatedFileSystem);
+      }
+    } catch (error) {
+      console.error("Failed to paste from clipboard:", error);
+      alert("Failed to paste item");
+    }
+  }, [currentPath, fileSystem, setFileSystem]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key.toLowerCase()) {
+          case "c":
+            if (selectedItem) handleCopy(selectedItem);
+            break;
+          case "x":
+            if (selectedItem) handleCut(selectedItem);
+            break;
+          case "v":
+            handlePaste();
+            break;
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedItem, handleCopy, handleCut, handlePaste]);
+
   const renderItems = (items: Record<string, VirtualItem>, path: string) => {
     return Object.keys(items).map((key) => {
       const item = items[key];
@@ -169,6 +266,14 @@ export function Explorer({ id }: { id: string }) {
             {
               label: "Rename",
               onClick: () => handleRename(itemPath),
+            },
+            {
+              label: "Copy",
+              onClick: () => handleCopy(itemPath),
+            },
+            {
+              label: "Cut",
+              onClick: () => handleCut(itemPath),
             },
           ])}
         >
@@ -209,6 +314,9 @@ export function Explorer({ id }: { id: string }) {
         <button onClick={handleNewFolder}>
           <Image src={newFolder} alt="New Folder" />
           <span>New Folder</span>
+        </button>
+        <button onClick={handlePaste}>
+          <span>Paste</span>
         </button>
       </div>
       <div className={styles.pathBar}>
