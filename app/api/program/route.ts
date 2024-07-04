@@ -2,7 +2,6 @@ import { ChatCompletionCreateParamsStreaming } from "openai/resources/index.mjs"
 import { streamHtml } from "openai-html-stream";
 import { getApiText } from "@/lib/apiText";
 
-import isLive from "@/lib/isLive";
 import { getSettingsFromGetRequest } from "@/lib/getSettingsFromRequest";
 import { createClientFromSettings, getModel } from "@/ai/client";
 import { Settings } from "@/state/settings";
@@ -11,10 +10,6 @@ import { log } from "@/lib/log";
 import { capture } from "@/lib/capture";
 
 export async function GET(req: Request) {
-  if (!isLive) {
-    return new Response(JSON.stringify({ error: "Not live" }), { status: 400 });
-  }
-
   const user = await getUser();
   if (!user) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {

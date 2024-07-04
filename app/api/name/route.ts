@@ -4,14 +4,9 @@ import { capture } from "@/lib/capture";
 import { extractXMLTag } from "@/lib/extractXMLTag";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
 
-import isLive from "@/lib/isLive";
 import { log } from "@/lib/log";
 
 export async function POST(req: Request) {
-  if (!isLive) {
-    return new Response(JSON.stringify({ error: "Not live" }), { status: 400 });
-  }
-
   const user = await getUser();
 
   if (!user) {

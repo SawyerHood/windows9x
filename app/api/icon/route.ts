@@ -3,15 +3,10 @@ import { generateIcon } from "@/ai/image";
 import { getUser } from "@/lib/auth/getUser";
 import { capture } from "@/lib/capture";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
-import isLive from "@/lib/isLive";
 import { put } from "@/lib/put";
 import { Settings } from "@/state/settings";
 
 export async function POST(req: Request) {
-  if (!isLive) {
-    return new Response(JSON.stringify({ error: "Not live" }), { status: 400 });
-  }
-
   const user = await getUser();
   if (!user) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
