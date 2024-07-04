@@ -13,7 +13,7 @@ import { windowsListAtom } from "@/state/windowsList";
 import { MIN_WINDOW_SIZE, windowAtomFamily } from "@/state/window";
 import { WindowBody } from "./WindowBody";
 import styles from "./Window.module.css";
-import { MouseEventHandler, MouseEvent as ReactMouseEvent } from "react";
+import { MouseEventHandler, TouchEventHandler } from "react";
 import Image from "next/image";
 import { createWindow } from "@/lib/createWindow";
 import { WindowMenuBar } from "./WindowMenuBar";
@@ -57,22 +57,12 @@ export function Window({ id }: { id: string }) {
         className={cx("title-bar", {
           inactive: focusedWindow !== id,
         })}
-        onMouseDown={createResizeEvent(
-          (_e: MouseEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "MOVE",
-              payload: { dx: delta.x, dy: delta.y },
-            });
-          }
-        )}
-        onTouchStart={createResizeEvent(
-          (_e: TouchEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "MOVE",
-              payload: { dx: delta.x, dy: delta.y },
-            });
-          }
-        )}
+        {...createResizeEvent((_e, delta) => {
+          dispatch({
+            type: "MOVE",
+            payload: { dx: delta.x, dy: delta.y },
+          });
+        })}
       >
         <div
           className={styles.title}
@@ -156,22 +146,12 @@ export function Window({ id }: { id: string }) {
           width: 7,
           cursor: "ew-resize",
         }}
-        onMouseDown={createResizeEvent(
-          (_e: MouseEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "right", dx: delta.x, dy: delta.y },
-            });
-          }
-        )}
-        onTouchStart={createResizeEvent(
-          (_e: TouchEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "right", dx: delta.x, dy: delta.y },
-            });
-          }
-        )}
+        {...createResizeEvent((_e, delta) => {
+          dispatch({
+            type: "RESIZE",
+            payload: { side: "right", dx: delta.x, dy: delta.y },
+          });
+        })}
       ></div>
       {/* left side */}
       <div
@@ -183,22 +163,12 @@ export function Window({ id }: { id: string }) {
           width: 7,
           cursor: "ew-resize",
         }}
-        onMouseDown={createResizeEvent(
-          (_e: MouseEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "left", dx: delta.x, dy: delta.y },
-            });
-          }
-        )}
-        onTouchStart={createResizeEvent(
-          (_e: TouchEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "left", dx: delta.x, dy: delta.y },
-            });
-          }
-        )}
+        {...createResizeEvent((_e, delta) => {
+          dispatch({
+            type: "RESIZE",
+            payload: { side: "left", dx: delta.x, dy: delta.y },
+          });
+        })}
       ></div>
       {/* bottom side */}
       <div
@@ -210,22 +180,12 @@ export function Window({ id }: { id: string }) {
           height: 7,
           cursor: "ns-resize",
         }}
-        onMouseDown={createResizeEvent(
-          (_e: MouseEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "bottom", dx: delta.x, dy: delta.y },
-            });
-          }
-        )}
-        onTouchStart={createResizeEvent(
-          (_e: TouchEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "bottom", dx: delta.x, dy: delta.y },
-            });
-          }
-        )}
+        {...createResizeEvent((_e, delta) => {
+          dispatch({
+            type: "RESIZE",
+            payload: { side: "bottom", dx: delta.x, dy: delta.y },
+          });
+        })}
       ></div>
       {/* top side */}
       <div
@@ -237,22 +197,12 @@ export function Window({ id }: { id: string }) {
           height: 7,
           cursor: "ns-resize",
         }}
-        onMouseDown={createResizeEvent(
-          (_e: MouseEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "top", dx: delta.x, dy: delta.y },
-            });
-          }
-        )}
-        onTouchStart={createResizeEvent(
-          (_e: TouchEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "top", dx: delta.x, dy: delta.y },
-            });
-          }
-        )}
+        {...createResizeEvent((_e, delta) => {
+          dispatch({
+            type: "RESIZE",
+            payload: { side: "top", dx: delta.x, dy: delta.y },
+          });
+        })}
       ></div>
       {/* top left */}
       <div
@@ -264,22 +214,12 @@ export function Window({ id }: { id: string }) {
           height: 7,
           cursor: "nwse-resize",
         }}
-        onMouseDown={createResizeEvent(
-          (_e: MouseEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "top-left", dx: delta.x, dy: delta.y },
-            });
-          }
-        )}
-        onTouchStart={createResizeEvent(
-          (_e: TouchEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "top-left", dx: delta.x, dy: delta.y },
-            });
-          }
-        )}
+        {...createResizeEvent((_e, delta) => {
+          dispatch({
+            type: "RESIZE",
+            payload: { side: "top-left", dx: delta.x, dy: delta.y },
+          });
+        })}
       ></div>
       {/* top right */}
       <div
@@ -291,22 +231,12 @@ export function Window({ id }: { id: string }) {
           height: 7,
           cursor: "nesw-resize",
         }}
-        onMouseDown={createResizeEvent(
-          (_e: MouseEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "top-right", dx: delta.x, dy: delta.y },
-            });
-          }
-        )}
-        onTouchStart={createResizeEvent(
-          (_e: TouchEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "top-right", dx: delta.x, dy: delta.y },
-            });
-          }
-        )}
+        {...createResizeEvent((_e, delta) => {
+          dispatch({
+            type: "RESIZE",
+            payload: { side: "top-right", dx: delta.x, dy: delta.y },
+          });
+        })}
       ></div>
       {/* bottom left */}
       <div
@@ -318,22 +248,12 @@ export function Window({ id }: { id: string }) {
           height: 7,
           cursor: "nesw-resize",
         }}
-        onMouseDown={createResizeEvent(
-          (_e: MouseEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "bottom-left", dx: delta.x, dy: delta.y },
-            });
-          }
-        )}
-        onTouchStart={createResizeEvent(
-          (_e: TouchEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "RESIZE",
-              payload: { side: "bottom-left", dx: delta.x, dy: delta.y },
-            });
-          }
-        )}
+        {...createResizeEvent((_e, delta) => {
+          dispatch({
+            type: "RESIZE",
+            payload: { side: "bottom-left", dx: delta.x, dy: delta.y },
+          });
+        })}
       ></div>
       {/* bottom right */}
       <div
@@ -345,30 +265,16 @@ export function Window({ id }: { id: string }) {
           height: 7,
           cursor: "nwse-resize",
         }}
-        onMouseDown={createResizeEvent(
-          (_e: MouseEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "RESIZE",
-              payload: {
-                side: "bottom-right",
-                dx: delta.x,
-                dy: delta.y,
-              },
-            });
-          }
-        )}
-        onTouchStart={createResizeEvent(
-          (_e: TouchEvent, delta: { x: number; y: number }) => {
-            dispatch({
-              type: "RESIZE",
-              payload: {
-                side: "bottom-right",
-                dx: delta.x,
-                dy: delta.y,
-              },
-            });
-          }
-        )}
+        {...createResizeEvent((_e, delta) => {
+          dispatch({
+            type: "RESIZE",
+            payload: {
+              side: "bottom-right",
+              dx: delta.x,
+              dy: delta.y,
+            },
+          });
+        })}
       ></div>
     </div>
   );
@@ -376,38 +282,49 @@ export function Window({ id }: { id: string }) {
 
 function createResizeEvent<T>(
   cb: (e: MouseEvent | TouchEvent, delta: { x: number; y: number }) => void
-): MouseEventHandler<T> {
-  return (e: ReactMouseEvent<T> | React.TouchEvent<T>) => {
-    let last = { x: e.clientX, y: e.clientY };
-    if (e.type === "touchstart") {
-      const touch = (e as React.TouchEvent<T>).touches[0];
+): { onMouseDown: MouseEventHandler<T>; onTouchStart: TouchEventHandler<T> } {
+  const handleStart = (e: MouseEvent | TouchEvent) => {
+    let last = { x: 0, y: 0 };
+    if ("clientX" in e) {
+      last = { x: e.clientX, y: e.clientY };
+    } else if ("touches" in e) {
+      const touch = e.touches[0];
       last = { x: touch.clientX, y: touch.clientY };
     }
-    const handleMouseMove = (e: MouseEvent | TouchEvent) => {
+
+    const handleMove = (e: MouseEvent | TouchEvent) => {
       let delta = { x: 0, y: 0 };
-      if (e.type === "mousemove") {
-        delta = { x: (e as MouseEvent).clientX - last.x, y: (e as MouseEvent).clientY - last.y };
-        last = { x: (e as MouseEvent).clientX, y: (e as MouseEvent).clientY };
-      } else if (e.type === "touchmove") {
-        const touch = (e as TouchEvent).touches[0];
+      if ("clientX" in e) {
+        delta = { x: e.clientX - last.x, y: e.clientY - last.y };
+        last = { x: e.clientX, y: e.clientY };
+      } else if ("touches" in e) {
+        const touch = e.touches[0];
         delta = { x: touch.clientX - last.x, y: touch.clientY - last.y };
         last = { x: touch.clientX, y: touch.clientY };
       }
       cb(e, delta);
     };
+
     getDefaultStore().set(isResizingAtom, true);
-    const handleMouseUp = () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-      window.removeEventListener("blur", handleMouseUp);
-      window.removeEventListener("touchmove", handleMouseMove);
-      window.removeEventListener("touchend", handleMouseUp);
+
+    const handleEnd = () => {
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseup", handleEnd);
+      window.removeEventListener("blur", handleEnd);
+      window.removeEventListener("touchmove", handleMove);
+      window.removeEventListener("touchend", handleEnd);
       getDefaultStore().set(isResizingAtom, false);
     };
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-    window.addEventListener("blur", handleMouseUp);
-    window.addEventListener("touchmove", handleMouseMove);
-    window.addEventListener("touchend", handleMouseUp);
+
+    window.addEventListener("mousemove", handleMove);
+    window.addEventListener("mouseup", handleEnd);
+    window.addEventListener("blur", handleEnd);
+    window.addEventListener("touchmove", handleMove);
+    window.addEventListener("touchend", handleEnd);
+  };
+
+  return {
+    onMouseDown: handleStart as any,
+    onTouchStart: handleStart as any,
   };
 }
