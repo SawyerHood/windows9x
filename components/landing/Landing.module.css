@@ -2,7 +2,7 @@
   display: grid;
   grid-template-rows: auto 1fr;
   font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
-  height: 100vh; /* Make container fill the entire page vertically */
+  height: 100dvh; /* Make container fill the entire page vertically */
 
   --sidebar-padding: 10px;
 }
