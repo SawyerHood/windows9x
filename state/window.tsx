@@ -100,7 +100,37 @@ function clampSize(size: WindowState["size"]): WindowState["size"] {
   };
 }
 
-function windowReducer(state: WindowState, action: WindowAction): WindowState {
+function enforceInvariants(state: WindowState): WindowState {
+  const windowWidth =
+    typeof window !== "undefined" ? window.innerWidth : Infinity;
+  const windowHeight =
+    typeof window !== "undefined" ? window.innerHeight : Infinity;
+
+  const halfWindowWidth = state.size.width / 2;
+  const halfWindowHeight =
+    state.size.height === "auto"
+      ? MIN_WINDOW_SIZE.height / 2
+      : state.size.height / 2;
+
+  return {
+    ...state,
+    pos: {
+      x: Math.min(
+        Math.max(state.pos.x, -halfWindowWidth),
+        windowWidth - halfWindowWidth
+      ),
+      y: Math.min(
+        Math.max(state.pos.y, -halfWindowHeight),
+        windowHeight - halfWindowHeight
+      ),
+    },
+  };
+}
+
+function windowReducerInner(
+  state: WindowState,
+  action: WindowAction
+): WindowState {
   switch (action.type) {
     case "TOGGLE_MAXIMIZE":
       return {
@@ -147,6 +177,10 @@ function windowReducer(state: WindowState, action: WindowAction): WindowState {
   }
 
   return state;
+}
+
+function windowReducer(state: WindowState, action: WindowAction): WindowState {
+  return enforceInvariants(windowReducerInner(state, action));
 }
 
 function handleResize(state: WindowState, action: WindowAction) {
