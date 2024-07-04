@@ -102,68 +102,58 @@ function TaskBar() {
 
 function StartMenu() {
   const { logout } = useActions();
+
+  const entries: { label: string; cb: () => void }[] = [
+    {
+      label: "Welcome",
+      cb: () => {
+        createWindow({
+          title: "Welcome to Windows 9X",
+          program: { type: "welcome" },
+          size: { width: WIDTH, height: "auto" },
+        });
+      },
+    },
+    {
+      label: "Run",
+      cb: () => {
+        createWindow({
+          title: "Run",
+          program: { type: "run" },
+        });
+      },
+    },
+    {
+      label: "Explorer",
+      cb: () => {
+        createWindow({
+          title: "Explorer",
+          program: { type: "explorer" },
+        });
+      },
+    },
+    {
+      label: "Settings",
+      cb: () => {
+        createWindow({
+          title: "Settings",
+          program: { type: "settings" },
+        });
+      },
+    },
+  ];
+
   return (
     <div className={cx("window", styles.startMenu)}>
-      <button
-        onMouseDown={() => {
-          createWindow({
-            title: "Welcome to Windows 9X",
-            program: { type: "welcome" },
-            size: { width: WIDTH, height: "auto" },
-          });
-        }}
-        onTouchStart={() => {
-          createWindow({
-            title: "Welcome to Windows 9X",
-            program: { type: "welcome" },
-            size: { width: WIDTH, height: "auto" },
-          });
-        }}
-      >
-        Welcome
-      </button>
-      <button
-        onMouseDown={() => {
-          createWindow({
-            title: "Run",
-            program: { type: "run" },
-          });
-        }}
-      >
-        Run
-      </button>
-      <button
-        onMouseDown={() => {
-          createWindow({
-            title: "Explorer",
-            program: { type: "explorer" },
-          });
-        }}
-        onTouchStart={() => {
-          createWindow({
-            title: "Explorer",
-            program: { type: "explorer" },
-          });
-        }}
-      >
-        Explorer
-      </button>
-      <button
-        onMouseDown={() => {
-          createWindow({
-            title: "Settings",
-            program: { type: "settings" },
-          });
-        }}
-        onTouchStart={() => {
-          createWindow({
-            title: "Settings",
-            program: { type: "settings" },
-          });
-        }}
-      >
-        Settings
-      </button>
+      {entries.map((entry) => (
+        <button
+          key={entry.label}
+          onMouseDown={entry.cb}
+          onTouchStart={entry.cb}
+        >
+          {entry.label}
+        </button>
+      ))}
       <form style={{ display: "contents" }}>
         <button
           formAction={logout}
