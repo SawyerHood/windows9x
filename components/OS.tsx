@@ -112,6 +112,13 @@ function StartMenu() {
             size: { width: WIDTH, height: "auto" },
           });
         }}
+        onTouchStart={() => {
+          createWindow({
+            title: "Welcome to Windows 9X",
+            program: { type: "welcome" },
+            size: { width: WIDTH, height: "auto" },
+          });
+        }}
       >
         Welcome
       </button>
@@ -132,11 +139,23 @@ function StartMenu() {
             program: { type: "explorer" },
           });
         }}
+        onTouchStart={() => {
+          createWindow({
+            title: "Explorer",
+            program: { type: "explorer" },
+          });
+        }}
       >
         Explorer
       </button>
       <button
         onMouseDown={() => {
+          createWindow({
+            title: "Settings",
+            program: { type: "settings" },
+          });
+        }}
+        onTouchStart={() => {
           createWindow({
             title: "Settings",
             program: { type: "settings" },
@@ -149,6 +168,10 @@ function StartMenu() {
         <button
           formAction={logout}
           onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onTouchStart={(e) => {
             e.preventDefault();
             e.stopPropagation();
           }}
