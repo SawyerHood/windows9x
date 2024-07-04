@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import posthog from "posthog-js";
+import { PostHog } from "posthog-node";
 
 type Event = {
   type: "chat" | "icon" | "name" | "program";
@@ -10,8 +10,13 @@ export async function capture(event: Event) {
   const supabase = createClient();
   const user = await supabase.auth.getUser();
   const { type, ...props } = event;
-  posthog.capture(type, {
-    ...props,
-    userId: user.data.user?.id ?? null,
+  const posthog = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+    host: process.env.NEXT_PUBLIC_POSTHOG_HOST!,
   });
+  posthog.capture({
+    event: type,
+    properties: props,
+    distinctId: user.data.user?.id ?? "null",
+  });
+  await posthog.shutdown();
 }
