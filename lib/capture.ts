@@ -7,6 +7,10 @@ type Event = {
 };
 
 export async function capture(event: Event) {
+  if (process.env.LOCAL_MODE) {
+    return;
+  }
+
   const supabase = createClient();
   const user = await supabase.auth.getUser();
   const { type, ...props } = event;

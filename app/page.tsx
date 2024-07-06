@@ -9,7 +9,7 @@ export default async function Home() {
 
   return (
     <ActionsProvider actions={{ login, logout }}>
-      {user ? <OS /> : <Landing />}
+      {user || process.env.LOCAL_MODE ? <OS /> : <Landing />}
     </ActionsProvider>
   );
 }

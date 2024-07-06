@@ -5,12 +5,14 @@ import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
 import { log } from "@/lib/log";
 
 export async function POST(req: Request) {
-  const user = await getUser();
+  if (!process.env.LOCAL_MODE) {
+    const user = await getUser();
 
-  if (!user) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-    });
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+      });
+    }
   }
 
   const body = await req.json();

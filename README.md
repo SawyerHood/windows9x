@@ -18,6 +18,12 @@ or
 OPENAI_API_KEY=<your-openai-api-key>
 ```
 
+To run the application locally without 3rd party services, set the `LOCAL_MODE` environment variable to `true` in your `.env` file:
+
+```
+LOCAL_MODE=true
+```
+
 1. Install [node](https://nodejs.org/en) v21 or greater
 2. Install [bun](https://bun.sh/docs/installation)
 3. Run `bun install`

@@ -7,11 +7,13 @@ import { put } from "@/lib/put";
 import { Settings } from "@/state/settings";
 
 export async function POST(req: Request) {
-  const user = await getUser();
-  if (!user) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-    });
+  if (!process.env.LOCAL_MODE) {
+    const user = await getUser();
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+      });
+    }
   }
 
   const body = await req.json();

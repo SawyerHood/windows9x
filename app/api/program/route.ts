@@ -10,11 +10,13 @@ import { log } from "@/lib/log";
 import { capture } from "@/lib/capture";
 
 export async function GET(req: Request) {
-  const user = await getUser();
-  if (!user) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-    });
+  if (!process.env.LOCAL_MODE) {
+    const user = await getUser();
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+      });
+    }
   }
 
   const url = new URL(req.url);
