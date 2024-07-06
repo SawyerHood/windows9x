@@ -6,23 +6,16 @@ https://github.com/SawyerHood/windows9x/assets/2380669/19c91f20-cdf5-47f9-b6fc-b
 
 ## Getting started
 
-Create a `.env` file with one of the following in the root directory:
+Create a `.env` file with the following in the root directory:
 
 ```
 ANTHROPIC_API_KEY=<your-anthropic-api-key>
-```
-
-or
-
-```
-OPENAI_API_KEY=<your-openai-api-key>
-```
-
-To run the application locally without 3rd party services, set the `LOCAL_MODE` environment variable to `true` in your `.env` file:
-
-```
 LOCAL_MODE=true
+# Optional Replicate API key for icon generation
+REPLICATE_API_TOKEN=<your-replicate-api-token>
 ```
+
+> Note: LOCAL_MODE disables the use of 3rd party services other than your modal provider.
 
 1. Install [node](https://nodejs.org/en) v21 or greater
 2. Install [bun](https://bun.sh/docs/installation)
