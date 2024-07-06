@@ -73,10 +73,19 @@ export function getClientFromKey(apiKey: string): {
 
 export const DEFAULT_MODEL = getModel(MODE);
 
-initLogger({
-  projectName: "windows96",
-  apiKey: process.env.BRAINTRUST_API_KEY,
-});
+if (!process.env.LOCAL_MODE) {
+  initLogger({
+    projectName: "windows96",
+    apiKey: process.env.BRAINTRUST_API_KEY,
+  });
+}
+
+function maybeWrapOpenAI(client: OpenAI): OpenAI {
+  if (process.env.LOCAL_MODE) {
+    return client;
+  }
+  return wrapOpenAI(client);
+}
 
 export const getDefaultClient = () => createClient(MODE);
 
@@ -88,13 +97,13 @@ export function createClientFromSettings(settings: Settings): {
   if (!settings.apiKey) {
     return {
       mode: MODE,
-      client: wrapOpenAI(getDefaultClient()),
+      client: maybeWrapOpenAI(getDefaultClient()),
       usedOwnKey: false,
     };
   }
   return {
     ...getClientFromKey(settings.apiKey),
-    client: wrapOpenAI(getClientFromKey(settings.apiKey).client),
+    client: maybeWrapOpenAI(getClientFromKey(settings.apiKey).client),
     usedOwnKey: true,
   };
 }
