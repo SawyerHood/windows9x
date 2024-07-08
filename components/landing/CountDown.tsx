@@ -4,14 +4,14 @@ import { useState } from "react";
 
 export default function CountDown() {
   const calculateTimeLeft = () => {
-    const difference = +new Date(`2024-07-09`) - +new Date();
+    const difference = +new Date(`2024-07-11`) - +new Date();
     let timeLeft = {
       days: 0,
     };
 
     if (difference > 0) {
       timeLeft = {
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        days: Math.ceil(difference / (1000 * 60 * 60 * 24)),
       };
     }
 
