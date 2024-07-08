@@ -1,4 +1,4 @@
-import { createClientFromSettings, getModel } from "@/ai/client";
+import { createClientFromSettings, getCheapestModel } from "@/ai/client";
 import { generateIcon } from "@/ai/image";
 import { getUser } from "@/lib/auth/getUser";
 import { capture } from "@/lib/capture";
@@ -48,7 +48,7 @@ async function genImagePrompt(name: string, settings: Settings) {
     usedOwnKey,
   });
   const result = await client.chat.completions.create({
-    model: getModel(mode),
+    model: getCheapestModel(mode),
     messages: [
       { role: "system", content: imageDescriptionPrompt },
       { role: "user", content: name },
