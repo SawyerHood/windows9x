@@ -110,3 +110,15 @@ INSERT INTO public.tokens (user_id)
 SELECT id
 FROM auth.users
 WHERE id NOT IN (SELECT user_id FROM public.tokens);
+
+-- Grant supabase_auth_admin access to edit public schema
+GRANT USAGE ON SCHEMA public TO supabase_auth_admin;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO supabase_auth_admin;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO supabase_auth_admin;
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO supabase_auth_admin;
+
+-- Ensure future tables, sequences, and functions also grant privileges to supabase_auth_admin
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO supabase_auth_admin;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO supabase_auth_admin;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO supabase_auth_admin;
+

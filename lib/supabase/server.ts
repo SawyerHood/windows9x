@@ -1,10 +1,11 @@
+import { Database } from "@/generated/supabase/types";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 export function createClient() {
   const cookieStore = cookies();
 
-  return createServerClient(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -27,3 +28,5 @@ export function createClient() {
     }
   );
 }
+
+export type Client = ReturnType<typeof createClient>;

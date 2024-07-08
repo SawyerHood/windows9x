@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "98.css";
 import "./globals.css";
 import { CSPostHogProvider } from "@/lib/CSPosthogProvider";
+import { APIProvider } from "@/lib/api/APIProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,7 +20,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <CSPostHogProvider>
-        <body className={inter.className}>{children}</body>
+        <APIProvider>
+          <body className={inter.className}>{children}</body>
+        </APIProvider>
       </CSPostHogProvider>
     </html>
   );

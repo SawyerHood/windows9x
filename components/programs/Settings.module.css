@@ -2,6 +2,12 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+
+  & section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
 }
 
 .submit {
@@ -15,4 +21,8 @@
 
 .label {
   white-space: nowrap;
+}
+
+.highlight {
+  color: green;
 }

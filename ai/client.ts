@@ -25,6 +25,19 @@ export const getModel = (mode: Provider) => {
   }
 };
 
+export const getCheapestModel = (mode: Provider) => {
+  switch (mode) {
+    case "anthropic":
+    case "braintrust":
+      return "claude-3-haiku-20240307";
+
+    case "openrouter":
+      return "anthropic/claude-3-haiku";
+    case "openai":
+      return "gpt-4o";
+  }
+};
+
 const createClient = (mode: Provider) => {
   switch (mode) {
     case "openrouter":
