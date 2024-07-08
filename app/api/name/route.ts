@@ -1,4 +1,4 @@
-import { createClientFromSettings, getModel } from "@/ai/client";
+import { createClientFromSettings, getCheapestModel } from "@/ai/client";
 import { getUser } from "@/lib/auth/getUser";
 import { capture } from "@/lib/capture";
 import { extractXMLTag } from "@/lib/extractXMLTag";
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
   });
 
   const response = await client.chat.completions.create({
-    model: getModel(mode),
+    model: getCheapestModel(mode),
     messages: [
       {
         role: "system",
