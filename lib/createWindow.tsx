@@ -19,7 +19,7 @@ export function createWindow({
   size?: WindowState["size"];
   pos?: WindowState["pos"];
   icon?: string;
-}) {
+}): string {
   const id = generateRandomId();
   getDefaultStore().set(windowAtomFamily(id), {
     type: "INIT",
@@ -27,6 +27,7 @@ export function createWindow({
   });
   getDefaultStore().set(windowsListAtom, { type: "ADD", payload: id });
   getDefaultStore().set(focusedWindowAtom, id);
+  return id;
 }
 
 function generateRandomId() {
