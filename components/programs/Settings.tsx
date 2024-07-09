@@ -5,12 +5,11 @@ import { settingsAtom } from "@/state/settings";
 import { windowsListAtom } from "@/state/windowsList";
 import styles from "./Settings.module.css";
 import cx from "classnames";
-import { trpc } from "@/lib/api/client";
+import { ModelSection } from "../ModelSection";
 
 export function Settings({ id }: { id: string }) {
   const [settings, setSettings] = useAtom(settingsAtom);
   const windowsDispatch = useSetAtom(windowsListAtom);
-  const { data } = trpc.getTokens.useQuery();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -19,8 +18,8 @@ export function Settings({ id }: { id: string }) {
 
   return (
     <form onSubmit={handleSubmit} className={styles.body}>
-      <section>
-        <h4>Custom API Key</h4>
+      <fieldset>
+        <legend>Custom API Key</legend>
         <div className={cx("field-row")}>
           <label htmlFor="apiKey" className={styles.label}>
             API Key:
@@ -56,20 +55,8 @@ export function Settings({ id }: { id: string }) {
             API key. Sonnet 3.5 is the default model.
           </p>
         </div>
-      </section>
-      <hr></hr>
-      <section>
-        <h4>Remaining Tokens</h4>
-        <p>
-          Remaining Tokens:{" "}
-          <span className={styles.highlight}>{data?.tokens}</span>
-        </p>
-        <p className={styles.note}>
-          Note: Tokens are used for Sonnet 3.5 generations. You get 10 free
-          tokens every week for generations.
-        </p>
-      </section>
-
+      </fieldset>
+      <ModelSection />
       <button type="submit" className={styles.submit}>
         Save
       </button>

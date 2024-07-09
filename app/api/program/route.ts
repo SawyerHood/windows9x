@@ -14,7 +14,7 @@ import { insertGeneration } from "@/lib/usage/insertGeneration";
 
 export async function GET(req: Request) {
   const settings = await getSettingsFromGetRequest(req);
-  if (!process.env.LOCAL_MODE) {
+  if (!process.env.LOCAL_MODE && settings.model !== "cheap") {
     const user = await getUser();
     if (!user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {

@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       });
     }
 
-    if (!settings.apiKey) {
+    if (!settings.apiKey && settings.model !== "cheap") {
       const client = createClient();
       const hasTokens = await canGenerate(client, user);
 

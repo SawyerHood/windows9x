@@ -1,14 +1,16 @@
 "use client";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { windowsListAtom } from "@/state/windowsList";
 import { createWindow } from "../../lib/createWindow";
 import { ProgramEntry, programsAtom } from "@/state/programs";
 import { useState } from "react";
 import { getSettings } from "@/lib/getSettings";
+import { settingsAtom } from "@/state/settings";
 
 export function Run({ id }: { id: string }) {
   const windowsDispatch = useSetAtom(windowsListAtom);
   const programsDispatch = useSetAtom(programsAtom);
+  const settings = useAtomValue(settingsAtom);
   const [isLoading, setIsLoading] = useState(false);
   return (
     <form
@@ -58,10 +60,31 @@ export function Run({ id }: { id: string }) {
         }
       }}
     >
-      <p>
-        Type the description of the program you want to run and Windows will
-        create it for you.
-      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <p>
+          Type the description of the program you want to run and Windows will
+          create it for you.
+        </p>
+        <p>
+          You are currently using the{" "}
+          <strong>{settings.model === "best" ? "Quality" : "Fast"}</strong>{" "}
+          model. You can change this in the{" "}
+          <a
+            onClick={(e) => {
+              e.preventDefault();
+              createWindow({
+                title: "Settings",
+                program: {
+                  type: "settings",
+                },
+              });
+            }}
+          >
+            Settings
+          </a>
+          .
+        </p>
+      </div>
       <div className="field-row">
         <textarea
           placeholder="Describe the program you want to run"
