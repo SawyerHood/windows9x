@@ -79,7 +79,7 @@ export function Help({ id }: { id: string }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch("/api/help", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
