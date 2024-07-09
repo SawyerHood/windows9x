@@ -11,7 +11,7 @@ export function initState() {
     program: { type: "welcome" },
     pos: {
       x: window.innerWidth / 2 - WIDTH / 2,
-      y: 100,
+      y: 10,
     },
     size: { width: WIDTH, height: "auto" },
   });
