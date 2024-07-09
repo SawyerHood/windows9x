@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "98.css": "^0.1.20",
+    "@stripe/stripe-js": "^4.1.0",
     "@supabase/ssr": "^0.4.0",
     "@supabase/supabase-js": "^2.43.5",
     "@tanstack/react-query": "^5.50.1",
@@ -33,7 +34,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.1",
-    "replicate": "^0.30.2"
+    "replicate": "^0.30.2",
+    "stripe": "^16.2.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.6",

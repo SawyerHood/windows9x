@@ -11,13 +11,12 @@ export function Settings({ id }: { id: string }) {
   const [settings, setSettings] = useAtom(settingsAtom);
   const windowsDispatch = useSetAtom(windowsListAtom);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSave = () => {
     windowsDispatch({ type: "REMOVE", payload: id });
   };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.body}>
+    <div className={styles.body}>
       <fieldset>
         <legend>Custom API Key</legend>
         <div className={cx("field-row")}>
@@ -57,9 +56,9 @@ export function Settings({ id }: { id: string }) {
         </div>
       </fieldset>
       <ModelSection />
-      <button type="submit" className={styles.submit}>
+      <button onClick={onSave} className={styles.submit}>
         Save
       </button>
-    </form>
+    </div>
   );
 }

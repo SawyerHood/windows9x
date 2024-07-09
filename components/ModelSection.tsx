@@ -31,10 +31,18 @@ export function ModelSection() {
           {data?.tokens}
         </span>
       </p>
-      <p className="field-row">
-        Note: Tokens are used for the Quality model. You get 10 free tokens
-        every week for generations. You have unlimited uses for the Fast model.
-      </p>
+      <div className="field-row">
+        <p>
+          Note: Tokens are used for the Quality model. You get 10 free tokens
+          every week for generations. You have unlimited uses for the Fast
+          model.
+        </p>
+      </div>
+      <div className="field-row">
+        <form action="/api/checkout" method="post">
+          <button type="submit">Purchase Tokens</button>
+        </form>
+      </div>
     </fieldset>
   );
 }
