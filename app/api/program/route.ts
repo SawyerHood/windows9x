@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase/server";
 import { insertGeneration } from "@/lib/usage/insertGeneration";
 
 export async function GET(req: Request) {
+  const settings = await getSettingsFromGetRequest(req);
   if (!process.env.LOCAL_MODE) {
     const user = await getUser();
     if (!user) {
@@ -21,25 +22,26 @@ export async function GET(req: Request) {
       });
     }
 
-    const client = createClient();
-    const hasTokens = await canGenerate(client, user);
+    if (!settings.apiKey) {
+      const client = createClient();
+      const hasTokens = await canGenerate(client, user);
 
-    if (!hasTokens) {
-      return new Response(JSON.stringify({ error: "No generations left" }), {
-        status: 401,
+      if (!hasTokens) {
+        return new Response(JSON.stringify({ error: "No generations left" }), {
+          status: 401,
+        });
+      }
+
+      await insertGeneration({
+        client,
+        user,
+        tokensUsed: 1,
+        action: "program",
       });
     }
-
-    await insertGeneration({
-      client,
-      user,
-      tokensUsed: 1,
-      action: "program",
-    });
   }
 
   const url = new URL(req.url);
-  const settings = await getSettingsFromGetRequest(req);
 
   const desc = url.searchParams.get("description");
   const keys = JSON.parse(url.searchParams.get("keys") ?? "[]");
