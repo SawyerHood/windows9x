@@ -3,7 +3,7 @@ import { initLogger, wrapOpenAI } from "braintrust";
 import OpenAI from "openai";
 
 type Provider = "openrouter" | "braintrust" | "openai" | "anthropic";
-const MODE: Provider = process.env.BRAINTRUST_API_KEY
+const DEFAULT_MODE: Provider = process.env.BRAINTRUST_API_KEY
   ? "braintrust"
   : process.env.ANTHROPIC_API_KEY
   ? "anthropic"
@@ -13,7 +13,7 @@ const MODE: Provider = process.env.BRAINTRUST_API_KEY
   ? "openai"
   : "openai"; // Default to OpenAI if no key is found
 
-export const getModel = (mode: Provider) => {
+export const getBestModel = (mode: Provider) => {
   switch (mode) {
     case "anthropic":
     case "braintrust":
@@ -84,8 +84,6 @@ export function getClientFromKey(apiKey: string): {
   };
 }
 
-export const DEFAULT_MODEL = getModel(MODE);
-
 if (!process.env.LOCAL_MODE) {
   initLogger({
     projectName: "windows96",
@@ -100,23 +98,33 @@ function maybeWrapOpenAI(client: OpenAI): OpenAI {
   return wrapOpenAI(client);
 }
 
-export const getDefaultClient = () => createClient(MODE);
+export const getDefaultClient = () => createClient(DEFAULT_MODE);
 
 export function createClientFromSettings(settings: Settings): {
   mode: Provider;
   client: OpenAI;
   usedOwnKey: boolean;
+  preferredModel: string;
 } {
   if (!settings.apiKey) {
     return {
-      mode: MODE,
+      mode: DEFAULT_MODE,
       client: maybeWrapOpenAI(getDefaultClient()),
       usedOwnKey: false,
+      preferredModel:
+        settings.model === "cheap"
+          ? getCheapestModel(DEFAULT_MODE)
+          : getBestModel(DEFAULT_MODE),
     };
   }
+  const client = getClientFromKey(settings.apiKey);
   return {
-    ...getClientFromKey(settings.apiKey),
+    ...client,
     client: maybeWrapOpenAI(getClientFromKey(settings.apiKey).client),
     usedOwnKey: true,
+    preferredModel:
+      settings.model === "cheap"
+        ? getCheapestModel(client.mode)
+        : getBestModel(client.mode),
   };
 }

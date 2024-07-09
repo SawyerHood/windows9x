@@ -3,7 +3,7 @@ import { streamHtml } from "openai-html-stream";
 import { getApiText } from "@/lib/apiText";
 
 import { getSettingsFromGetRequest } from "@/lib/getSettingsFromRequest";
-import { createClientFromSettings, getModel } from "@/ai/client";
+import { createClientFromSettings } from "@/ai/client";
 import { Settings } from "@/state/settings";
 import { getUser } from "@/lib/auth/getUser";
 import { log } from "@/lib/log";
@@ -104,7 +104,8 @@ async function createProgramStream(
   keys: string[],
   settings: Settings
 ) {
-  const { client, mode, usedOwnKey } = createClientFromSettings(settings);
+  const { client, usedOwnKey, preferredModel } =
+    createClientFromSettings(settings);
 
   await capture({
     type: "program",
@@ -122,7 +123,7 @@ async function createProgramStream(
         content: `<app_name>${desc}</app_name>`,
       },
     ],
-    model: getModel(mode),
+    model: preferredModel,
     temperature: 1,
     max_tokens: 4000,
     stream: true,

@@ -21,9 +21,10 @@ export async function getSettingsFromJSON(json: any): Promise<Settings> {
   const settings = json.settings;
 
   if (!settings) {
-    return { apiKey: null };
+    return { apiKey: null, model: "best" };
   }
   return {
     apiKey: settings.apiKey,
+    model: settings.model === "cheap" ? "cheap" : "best",
   };
 }
