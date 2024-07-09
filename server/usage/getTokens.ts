@@ -1,5 +1,5 @@
 import { User } from "@supabase/supabase-js";
-import { Client } from "../supabase/server";
+import { Client } from "../../lib/supabase/server";
 
 export async function getTokens(client: Client, user: User) {
   const token = await client

@@ -4,8 +4,8 @@ import { capture } from "@/lib/capture";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
 import { log } from "@/lib/log";
 import { createClient } from "@/lib/supabase/server";
-import { canGenerate } from "@/lib/usage/canGenerate";
-import { insertGeneration } from "@/lib/usage/insertGeneration";
+import { canGenerate } from "@/server/usage/canGenerate";
+import { insertGeneration } from "@/server/usage/insertGeneration";
 
 export async function POST(req: Request) {
   const body = await req.json();

@@ -8,9 +8,9 @@ import { Settings } from "@/state/settings";
 import { getUser } from "@/lib/auth/getUser";
 import { log } from "@/lib/log";
 import { capture } from "@/lib/capture";
-import { canGenerate } from "@/lib/usage/canGenerate";
+import { canGenerate } from "@/server/usage/canGenerate";
 import { createClient } from "@/lib/supabase/server";
-import { insertGeneration } from "@/lib/usage/insertGeneration";
+import { insertGeneration } from "@/server/usage/insertGeneration";
 
 export async function GET(req: Request) {
   const settings = await getSettingsFromGetRequest(req);
