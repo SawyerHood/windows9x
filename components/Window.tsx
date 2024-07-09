@@ -95,6 +95,10 @@ export function Window({ id }: { id: string }) {
                 createWindow({
                   title: "Help",
                   program: { type: "help", targetWindowID: id },
+                  size: {
+                    width: 200,
+                    height: 300,
+                  },
                 })
               }
             ></button>
