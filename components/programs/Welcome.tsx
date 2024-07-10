@@ -139,13 +139,6 @@ const contentByKey = {
 export const WIDTH = 700;
 
 export function Welcome({ id: _id }: { id: string }) {
-  useEffect(() => {
-    const audio = new Audio("/start.mp3");
-    audio.play().catch((error) => {
-      console.error("Error playing start.mp3:", error);
-    });
-  }, []);
-
   const tableOfContentsEntries: TableOfContentsEntry[] = [
     { title: "Welcome", key: "welcome" },
     { title: "Filesystem", key: "filesystem" },
