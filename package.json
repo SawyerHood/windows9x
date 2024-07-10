@@ -9,7 +9,9 @@
     "lint": "next lint",
     "build-iframe": "bun build ./iframe/api.ts --outdir ./public",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "supabase-types": "supabase gen types typescript --local > generated/supabase/types.ts",
+    "forward-stripe": "stripe listen --skip-verify --forward-to localhost:3000/api/stripe/webhook"
   },
   "dependencies": {
     "98.css": "^0.1.20",

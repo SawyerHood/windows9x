@@ -9,8 +9,8 @@ CREATE TABLE public.tokens (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create usage_logs table
-CREATE TABLE public.usage_logs (
+-- Create generations table
+CREATE TABLE public.generations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     tokens_used INTEGER NOT NULL,
@@ -47,7 +47,7 @@ $$ LANGUAGE plpgsql;
 
 -- Create trigger to update tokens after usage
 CREATE TRIGGER after_usage_log_insert
-AFTER INSERT ON public.usage_logs
+AFTER INSERT ON public.generations
 FOR EACH ROW
 EXECUTE FUNCTION update_tokens();
 

@@ -13,7 +13,7 @@ export async function insertGeneration({
   action: string;
 }) {
   await client
-    .from("usage_logs")
+    .from("generations")
     .insert({
       user_id: user.id,
       tokens_used: tokensUsed,

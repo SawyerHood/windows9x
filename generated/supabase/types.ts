@@ -34,6 +34,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      generations: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          tokens_used: number
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          tokens_used: number
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          tokens_used?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tokens: {
         Row: {
           created_at: string | null
@@ -97,38 +129,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "transactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      usage_logs: {
-        Row: {
-          action: string
-          created_at: string | null
-          id: string
-          tokens_used: number
-          user_id: string
-        }
-        Insert: {
-          action: string
-          created_at?: string | null
-          id?: string
-          tokens_used: number
-          user_id: string
-        }
-        Update: {
-          action?: string
-          created_at?: string | null
-          id?: string
-          tokens_used?: number
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "usage_logs_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -429,10 +429,6 @@ export type Database = {
           metadata: Json
           updated_at: string
         }[]
-      }
-      operation: {
-        Args: Record<PropertyKey, never>
-        Returns: string
       }
       search: {
         Args: {
