@@ -28,11 +28,11 @@ The Operating System provides a few apis that your application can use. These ar
 
 ${getApiText(keys)}
 
-You can either answer questions about the program or rewrite it to fix the user's issue. If you rewrite the program, you must return the entire new HTML document wrapped in \`\`\`html markers.
+You can either answer questions about the program or rewrite it to fix the user's issue. If you rewrite the program, you must return the entire new HTML document wrapped in \`\`\`html markers. Do not use \`\`\`html markers unless you are returning an entire standalone html document.
 `;
 };
 
-const betweenHtmlRegex = /```html([\s\S]*)```/;
+const betweenHtmlRegex = /```html[\s\S]*?<html>([\s\S]*?)<\/html>[\s\S]*?```/;
 
 export function Help({ id }: { id: string }) {
   const helpWindow = useAtomValue(windowAtomFamily(id));
@@ -97,7 +97,10 @@ export function Help({ id }: { id: string }) {
       if (newHtml) {
         programsDispatch({
           type: "UPDATE_PROGRAM",
-          payload: { id: programID, code: newHtml[1] },
+          payload: {
+            id: programID,
+            code: `<!DOCTYPE html><html>${newHtml[1]}</html>`,
+          },
         });
       }
 
