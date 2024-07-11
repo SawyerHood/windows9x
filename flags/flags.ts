@@ -9,8 +9,12 @@ export function getFlagsForUser(user: { email?: string } | null): Flags {
 
   for (const [key, value] of Object.entries(config)) {
     flags[key] =
-      value.allowed?.includes(user?.email ?? "") ?? value.enabled ?? false;
+      (value.allowed?.includes(user?.email ?? "") ?? false) ||
+      value.enabled ||
+      false;
   }
+
+  console.log(flags);
 
   return flags as { [key in keyof typeof config]: boolean };
 }

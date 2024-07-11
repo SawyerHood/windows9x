@@ -3,7 +3,7 @@ import { PostHog } from "posthog-node";
 import { isLocal } from "./isLocal";
 
 type Event = {
-  type: "chat" | "icon" | "name" | "program";
+  type: "chat" | "icon" | "name" | "program" | "help";
   usedOwnKey: boolean;
 };
 

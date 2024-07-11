@@ -79,13 +79,6 @@ const contentByKey = {
           >
             <button>Twitter</button>
           </a>
-          <a
-            href="https://www.buymeacoffee.com/sawyerhood"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <button>Donate</button>
-          </a>
         </div>
       </>
     );

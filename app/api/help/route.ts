@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     createClientFromSettings(settings);
 
   await capture({
-    type: "chat",
+    type: "help",
     usedOwnKey,
   });
 
