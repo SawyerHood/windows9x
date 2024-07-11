@@ -13,7 +13,7 @@ export async function POST(): Promise<Response> {
   const session = await stripe.checkout.sessions.create({
     line_items: [
       {
-        price: "price_1PalZPEXiobhkdxMw5IUS8WP",
+        price: process.env.STRIPE_PRICE_ID,
         quantity: 1,
       },
     ],
