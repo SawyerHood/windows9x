@@ -1,0 +1,3 @@
+REVOKE ALL PRIVILEGES ON DATABASE "postgres" FROM "anon";
+REVOKE ALL PRIVILEGES ON DATABASE "postgres" FROM "authenticated";
+
