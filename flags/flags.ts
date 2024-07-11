@@ -14,8 +14,6 @@ export function getFlagsForUser(user: { email?: string } | null): Flags {
       false;
   }
 
-  console.log(flags);
-
   return flags as { [key in keyof typeof config]: boolean };
 }
 

@@ -14,7 +14,6 @@ export function Run({ id }: { id: string }) {
   const settings = useAtomValue(settingsAtom);
   const [isLoading, setIsLoading] = useState(false);
   const flags = useFlags();
-  console.log(flags);
   return (
     <form
       style={{ display: "flex", flexDirection: "column", gap: 8 }}
