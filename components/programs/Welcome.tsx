@@ -5,6 +5,7 @@ import Image from "next/image";
 import styles from "./Welcome.module.css";
 import sawyersoft from "@/components/landing/assets/sawyersoft.png";
 import check from "@/components/assets/check.png";
+import { isMobile } from "@/lib/isMobile";
 
 type TableOfContentsEntry = {
   title: string;
@@ -49,7 +50,14 @@ const contentByKey = {
   welcome: () => {
     return (
       <>
+        {isMobile() && (
+          <blockquote style={{ fontStyle: "italic", color: "green" }}>
+            <strong>Note:</strong> Windows 9X works best on desktop. For the
+            full experience, please visit on a larger screen.
+          </blockquote>
+        )}
         <h3>Welcome</h3>
+
         <p>
           Welcome to the exciting new world of Windows 9X, where your computer
           desktop meets Artificial Intelligence.
