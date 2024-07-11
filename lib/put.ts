@@ -1,7 +1,8 @@
+import { isLocal } from "./isLocal";
 import { createClient } from "./supabase/server";
 
 export async function put(path: string, blob: Blob): Promise<string> {
-  if (process.env.LOCAL_MODE) {
+  if (isLocal()) {
     const fs = await import("fs-extra");
 
     const buffer = await blob.arrayBuffer();

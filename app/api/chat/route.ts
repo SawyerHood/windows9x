@@ -2,10 +2,11 @@ import { createClientFromSettings } from "@/ai/client";
 import { getUser } from "@/lib/auth/getUser";
 import { capture } from "@/lib/capture";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
+import { isLocal } from "@/lib/isLocal";
 import { log } from "@/lib/log";
 
 export async function POST(req: Request) {
-  if (!process.env.LOCAL_MODE) {
+  if (!isLocal()) {
     const user = await getUser();
 
     if (!user) {

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { PostHog } from "posthog-node";
+import { isLocal } from "./isLocal";
 
 type Event = {
   type: "chat" | "icon" | "name" | "program";
@@ -7,7 +8,7 @@ type Event = {
 };
 
 export async function capture(event: Event) {
-  if (process.env.LOCAL_MODE) {
+  if (isLocal()) {
     return;
   }
 

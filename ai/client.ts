@@ -1,3 +1,4 @@
+import { isLocal } from "@/lib/isLocal";
 import type { Settings } from "@/state/settings";
 import { initLogger, wrapOpenAI } from "braintrust";
 import OpenAI from "openai";
@@ -84,7 +85,7 @@ export function getClientFromKey(apiKey: string): {
   };
 }
 
-if (!process.env.LOCAL_MODE) {
+if (!isLocal()) {
   initLogger({
     projectName: "windows96",
     apiKey: process.env.BRAINTRUST_API_KEY,
@@ -92,7 +93,7 @@ if (!process.env.LOCAL_MODE) {
 }
 
 function maybeWrapOpenAI(client: OpenAI): OpenAI {
-  if (process.env.LOCAL_MODE) {
+  if (isLocal()) {
     return client;
   }
   return wrapOpenAI(client);

@@ -3,11 +3,12 @@ import { generateIcon } from "@/ai/image";
 import { getUser } from "@/lib/auth/getUser";
 import { capture } from "@/lib/capture";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
+import { isLocal } from "@/lib/isLocal";
 import { put } from "@/lib/put";
 import { Settings } from "@/state/settings";
 
 export async function POST(req: Request) {
-  if (!process.env.LOCAL_MODE) {
+  if (!isLocal()) {
     const user = await getUser();
     if (!user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {

@@ -1,8 +1,9 @@
 import { User } from "@supabase/supabase-js";
 import { createClient } from "../supabase/server";
+import { isLocal } from "../isLocal";
 
 export async function getUser(): Promise<User | null> {
-  if (process.env.LOCAL_MODE) {
+  if (isLocal()) {
     return null;
   }
   const supabase = createClient();

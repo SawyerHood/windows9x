@@ -10,12 +10,12 @@ Create a `.env` file with the following in the root directory:
 
 ```
 ANTHROPIC_API_KEY=<your-anthropic-api-key>
-LOCAL_MODE=true
+NEXT_PUBLIC_LOCAL_MODE=true
 # Optional Replicate API key for icon generation
 REPLICATE_API_TOKEN=<your-replicate-api-token>
 ```
 
-> Note: LOCAL_MODE disables the use of 3rd party services other than your modal provider.
+> Note: NEXT_PUBLIC_LOCAL_MODE disables the use of 3rd party services other than your modal provider.
 
 1. Install [node](https://nodejs.org/en) v21 or greater
 2. Install [bun](https://bun.sh/docs/installation)

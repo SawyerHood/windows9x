@@ -11,10 +11,11 @@ import { capture } from "@/lib/capture";
 import { canGenerate } from "@/server/usage/canGenerate";
 import { createClient } from "@/lib/supabase/server";
 import { insertGeneration } from "@/server/usage/insertGeneration";
+import { isLocal } from "@/lib/isLocal";
 
 export async function GET(req: Request) {
   const settings = await getSettingsFromGetRequest(req);
-  if (!process.env.LOCAL_MODE && settings.model !== "cheap") {
+  if (!isLocal() && settings.model !== "cheap") {
     const user = await getUser();
     if (!user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {

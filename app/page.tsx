@@ -5,6 +5,7 @@ import { getFlagsForUser } from "@/flags/flags";
 import { ActionsProvider } from "@/lib/actions/ActionsProvider";
 import { login, logout } from "@/lib/auth/actions";
 import { getUser } from "@/lib/auth/getUser";
+import { isLocal } from "@/lib/isLocal";
 
 export default async function Home() {
   const user = await getUser();
@@ -12,7 +13,7 @@ export default async function Home() {
   return (
     <FlagsProvider flags={getFlagsForUser(user)}>
       <ActionsProvider actions={{ login, logout }}>
-        {user || process.env.LOCAL_MODE ? <OS /> : <Landing />}
+        {user || isLocal() ? <OS /> : <Landing />}
       </ActionsProvider>
     </FlagsProvider>
   );

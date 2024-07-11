@@ -1,8 +1,9 @@
 import { updateSession } from "@/lib/supabase/middleware";
 import { NextRequest, NextResponse } from "next/server";
+import { isLocal } from "./lib/isLocal";
 
 export async function middleware(request: NextRequest) {
-  if (process.env.LOCAL_MODE) {
+  if (isLocal()) {
     return NextResponse.next();
   }
   // update user's auth session

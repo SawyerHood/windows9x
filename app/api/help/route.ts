@@ -2,6 +2,7 @@ import { createClientFromSettings } from "@/ai/client";
 import { getUser } from "@/lib/auth/getUser";
 import { capture } from "@/lib/capture";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
+import { isLocal } from "@/lib/isLocal";
 import { log } from "@/lib/log";
 import { createClient } from "@/lib/supabase/server";
 import { canGenerate } from "@/server/usage/canGenerate";
@@ -10,7 +11,7 @@ import { insertGeneration } from "@/server/usage/insertGeneration";
 export async function POST(req: Request) {
   const body = await req.json();
   const settings = await getSettingsFromJSON(req);
-  if (!process.env.LOCAL_MODE) {
+  if (!isLocal()) {
     const user = await getUser();
 
     if (!user) {
