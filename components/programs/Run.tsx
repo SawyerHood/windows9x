@@ -6,12 +6,15 @@ import { ProgramEntry, programsAtom } from "@/state/programs";
 import { useState } from "react";
 import { getSettings } from "@/lib/getSettings";
 import { settingsAtom } from "@/state/settings";
+import { useFlags } from "@/flags/context";
 
 export function Run({ id }: { id: string }) {
   const windowsDispatch = useSetAtom(windowsListAtom);
   const programsDispatch = useSetAtom(programsAtom);
   const settings = useAtomValue(settingsAtom);
   const [isLoading, setIsLoading] = useState(false);
+  const flags = useFlags();
+  console.log(flags);
   return (
     <form
       style={{ display: "flex", flexDirection: "column", gap: 8 }}
@@ -65,25 +68,27 @@ export function Run({ id }: { id: string }) {
           Type the description of the program you want to run and Windows will
           create it for you.
         </p>
-        <p>
-          You are currently using the{" "}
-          <strong>{settings.model === "best" ? "Quality" : "Fast"}</strong>{" "}
-          model. You can change this in the{" "}
-          <a
-            onClick={(e) => {
-              e.preventDefault();
-              createWindow({
-                title: "Settings",
-                program: {
-                  type: "settings",
-                },
-              });
-            }}
-          >
-            Settings
-          </a>
-          .
-        </p>
+        {flags.tokens && (
+          <p>
+            You are currently using the{" "}
+            <strong>{settings.model === "best" ? "Quality" : "Fast"}</strong>{" "}
+            model. You can change this in the{" "}
+            <a
+              onClick={(e) => {
+                e.preventDefault();
+                createWindow({
+                  title: "Settings",
+                  program: {
+                    type: "settings",
+                  },
+                });
+              }}
+            >
+              Settings
+            </a>
+            .
+          </p>
+        )}
       </div>
       <div className="field-row">
         <textarea

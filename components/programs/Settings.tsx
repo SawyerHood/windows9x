@@ -6,10 +6,12 @@ import { windowsListAtom } from "@/state/windowsList";
 import styles from "./Settings.module.css";
 import cx from "classnames";
 import { ModelSection } from "../ModelSection";
+import { useFlags } from "@/flags/context";
 
 export function Settings({ id }: { id: string }) {
   const [settings, setSettings] = useAtom(settingsAtom);
   const windowsDispatch = useSetAtom(windowsListAtom);
+  const flags = useFlags();
 
   const onSave = () => {
     windowsDispatch({ type: "REMOVE", payload: id });
@@ -55,7 +57,7 @@ export function Settings({ id }: { id: string }) {
           </p>
         </div>
       </fieldset>
-      <ModelSection />
+      {flags.tokens && <ModelSection />}
       <button onClick={onSave} className={styles.submit}>
         Save
       </button>
