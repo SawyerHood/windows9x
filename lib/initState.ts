@@ -1,51 +1,34 @@
 import { WIDTH } from "@/components/programs/Welcome";
 import { createWindow } from "./createWindow";
+import { isMobile } from "./isMobile";
+import { waitForElement } from "./waitForElement";
 
 let initialized = false;
 
 export function initState() {
   if (initialized) return;
   initialized = true;
-  const welcomeID = createWindow({
+  const id = createWindow({
     title: "Welcome",
     program: { type: "welcome" },
-    pos: {
-      x: window.innerWidth / 2 - WIDTH / 2,
-      y: 10,
-    },
+
     size: { width: WIDTH, height: "auto" },
   });
-  waitForElement(welcomeID)
-    .then((welcomeWindow) => {
-      if (!welcomeWindow) return;
-      const welcomeRect = welcomeWindow.getBoundingClientRect();
-      createWindow({
-        title: "Run",
-        program: { type: "run" },
-        pos: {
-          x: window.innerWidth / 2 - 200 / 2,
-          y: welcomeRect.bottom + 10,
-        },
-        size: { width: 200, height: "auto" },
-      });
-    })
-    .catch((error) => {
-      console.error("Failed to create Run window:", error);
-    });
-}
+  if (!isMobile()) {
+    waitForElement(id).then((el) => {
+      if (el) {
+        const welcomeRect = el.getBoundingClientRect();
+        const runWidth = 200;
+        const runLeft = welcomeRect.left - 100; // Overlap by 50 pixels
+        const runTop = welcomeRect.top + 200; // Offset slightly from the top of Welcome
 
-async function waitForElement(id: string, timeout = 5000) {
-  return new Promise<HTMLElement | null>((resolve, reject) => {
-    const startTime = Date.now();
-    const interval = setInterval(() => {
-      const element = document.getElementById(id);
-      if (element) {
-        clearInterval(interval);
-        resolve(element);
-      } else if (Date.now() - startTime > timeout) {
-        clearInterval(interval);
-        reject(new Error(`Timeout waiting for element with id: ${id}`));
+        createWindow({
+          title: "Run",
+          program: { type: "run" },
+          size: { width: runWidth, height: "auto" },
+          pos: { x: runLeft, y: runTop },
+        });
       }
-    }, 100);
-  });
+    });
+  }
 }
