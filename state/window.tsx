@@ -66,6 +66,7 @@ export type WindowAction =
         size?: WindowState["size"];
         pos?: WindowState["pos"];
         icon?: string;
+        status?: WindowState["status"];
       };
     }
   | { type: "SET_ICON"; payload: string }

@@ -149,14 +149,6 @@ export function Welcome({ id: _id }: { id: string }) {
   return (
     <div className={styles.welcomeContainer}>
       <Image
-        src="/welcome.jpeg"
-        alt="Welcome background"
-        layout="fill"
-        objectFit="cover"
-        objectPosition="center"
-      />
-      <div className={styles.overlay} />
-      <Image
         src={sawyersoft}
         alt="Sawyer Software Logo"
         className={styles.logo}

@@ -4,6 +4,7 @@ import { getDefaultStore } from "jotai";
 import { focusedWindowAtom } from "../state/focusedWindow";
 import { windowsListAtom } from "@/state/windowsList";
 import { MIN_WINDOW_SIZE, WindowState, windowAtomFamily } from "@/state/window";
+import { isMobile } from "./isMobile";
 
 export function createWindow({
   title,
@@ -23,7 +24,16 @@ export function createWindow({
   const id = generateRandomId();
   getDefaultStore().set(windowAtomFamily(id), {
     type: "INIT",
-    payload: { title, program, id, loading, size, pos, icon },
+    payload: {
+      title,
+      program,
+      id,
+      loading,
+      size,
+      pos,
+      icon,
+      status: isMobile() ? "maximized" : "normal",
+    },
   });
   getDefaultStore().set(windowsListAtom, { type: "ADD", payload: id });
   getDefaultStore().set(focusedWindowAtom, id);
