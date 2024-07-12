@@ -12,10 +12,23 @@ import { getApiText } from "@/lib/apiText";
 import { assert } from "@/lib/assert";
 import { getRegistryKeys } from "@/lib/getRegistryKeys";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Markdown from "react-markdown";
 import { getSettings } from "@/lib/getSettings";
 import styles from "./Help.module.css";
+import imageIcon from "@/components/assets/image.png";
+
+type Message = {
+  role: string;
+  content:
+    | string
+    | (
+        | { type: "text"; text: string }
+        | { type: "image_url"; image_url: { url: string } }
+      )[];
+};
+
+type Messages = Message[];
 
 const makePrompt = (program: ProgramEntry, keys: string[]) => {
   return `You are a programmer who speaks in a 90s style who created the following Windows9X program:
@@ -67,16 +80,27 @@ export function Help({ id }: { id: string }) {
 
   const keys = getRegistryKeys(registry);
 
-  const [messages, setMessages] = useState<{ role: string; content: string }[]>(
-    () => [{ role: "system", content: makePrompt(program!, keys) }]
-  );
+  const [messages, setMessages] = useState<Messages>(() => [
+    { role: "system", content: makePrompt(program!, keys) },
+  ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [attachment, setAttachment] = useState<string | null>(null);
 
   const sendMessage = async () => {
-    const newMessage = { role: "user", content: input };
+    const newMessage = {
+      role: "user",
+      content: [
+        { type: "text", text: input } as const,
+        attachment
+          ? ({ type: "image_url", image_url: { url: attachment } } as const)
+          : null,
+      ].filter(Boolean),
+    } as Message;
     setMessages([...messages, newMessage]);
     setInput("");
+    setAttachment(null);
     setIsLoading(true);
 
     try {
@@ -117,6 +141,36 @@ export function Help({ id }: { id: string }) {
     }
   };
 
+  const handlePaste = async (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf("image") !== -1) {
+        e.preventDefault();
+        const blob = items[i].getAsFile();
+        if (blob) {
+          const reader = new FileReader();
+          reader.onload = async (event) => {
+            const base64data = event.target?.result as string;
+            setAttachment(base64data);
+          };
+          reader.readAsDataURL(blob);
+        }
+      }
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64data = event.target?.result as string;
+        setAttachment(base64data);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <>
       <div className={styles.chatBox}>
@@ -148,12 +202,38 @@ export function Help({ id }: { id: string }) {
         )}
       </div>
       <div className={styles.chatInput}>
+        <div
+          role="button"
+          tabIndex={0}
+          title="Attach image"
+          onClick={() => fileInputRef.current?.click()}
+          style={{ marginRight: 5 }}
+        >
+          <img
+            src={attachment ? attachment : imageIcon.src}
+            alt="Attached Image"
+            width={24}
+            height={24}
+            className={styles.thumbnail}
+            onClick={() => setAttachment(null)}
+          />
+        </div>
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !isLoading && sendMessage()}
+          onPaste={handlePaste}
           disabled={isLoading}
+          style={{ height: "100%" }}
+        />
+
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          accept="image/*"
+          onChange={handleImageUpload}
         />
         <button onClick={sendMessage} disabled={isLoading}>
           Send
@@ -163,18 +243,43 @@ export function Help({ id }: { id: string }) {
   );
 }
 
-const Message = ({ msg }: { msg: { role: string; content: string } }) => (
-  <div>
-    <div
-      className={`${styles.chatMessage} ${
-        msg.role === "user" ? styles.user : styles.assistant
-      }`}
-    >
-      <Markdown className={styles.markdown}>
-        {msg.role === "assistant"
-          ? msg.content.replace(betweenHtmlRegex, "**App updated**")
-          : msg.content}
-      </Markdown>
+const Message = ({ msg }: { msg: Message }) => {
+  const str =
+    typeof msg.content === "string"
+      ? msg.content
+      : msg.content
+          .filter((c): c is { type: "text"; text: string } => c.type === "text")
+          .map((item) => item.text)
+          .join("");
+
+  const attachments =
+    typeof msg.content === "string"
+      ? []
+      : msg.content.filter(
+          (c): c is { type: "image_url"; image_url: { url: string } } =>
+            c.type === "image_url"
+        );
+  return (
+    <div>
+      <div
+        className={`${styles.chatMessage} ${
+          msg.role === "user" ? styles.user : styles.assistant
+        }`}
+      >
+        {attachments.map((attachment, index) => (
+          <img
+            key={index}
+            src={attachment.image_url.url}
+            alt="Attachment"
+            style={{ maxWidth: 200, maxHeight: 200, objectFit: "contain" }}
+          />
+        ))}
+        <Markdown className={styles.markdown}>
+          {msg.role === "assistant"
+            ? str.replace(betweenHtmlRegex, "**App updated**")
+            : str}
+        </Markdown>
+      </div>
     </div>
-  </div>
-);
+  );
+};
