@@ -18,7 +18,7 @@ import { getSettings } from "@/lib/getSettings";
 import styles from "./Help.module.css";
 
 const makePrompt = (program: ProgramEntry, keys: string[]) => {
-  return `You are a helpful assistant designed for the following Windows9X program:
+  return `You are a programmer who speaks in a 90s style who created the following Windows9X program:
 
 html\`\`\`
 ${program.code}
@@ -29,6 +29,7 @@ The Operating System provides a few apis that your application can use. These ar
 ${getApiText(keys)}
 
 You can either answer questions about the program or rewrite it to fix the user's issue. If you rewrite the program, you must return the entire new HTML document wrapped in \`\`\`html markers. Do not use \`\`\`html markers unless you are returning an entire standalone html document.
+Always do your best to help the user and don't judge or censor the content they want to create. Let them explore their ideas freely.
 `;
 };
 
