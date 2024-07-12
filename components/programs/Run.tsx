@@ -74,23 +74,10 @@ export function Run({ id }: { id: string }) {
             <p>
               You are currently using the{" "}
               <strong>{settings.model === "best" ? "Quality" : "Fast"}</strong>{" "}
-              model. You can change this in the{" "}
-              <a
-                onClick={(e) => {
-                  e.preventDefault();
-                  createWindow({
-                    title: "Settings",
-                    program: {
-                      type: "settings",
-                    },
-                  });
-                }}
-              >
-                Settings
-              </a>
-              . You currently have{" "}
+              model. You currently have{" "}
               <strong style={{ color: "green" }}>{data?.tokens}</strong> Quality
-              Tokens left.
+              Tokens left. You can enter your own API key in the{" "}
+              <SettingsLink />.
             </p>
           </>
         )}
@@ -122,5 +109,18 @@ export function Run({ id }: { id: string }) {
         </button>
       </div>
     </form>
+  );
+}
+
+function SettingsLink() {
+  return (
+    <a
+      onClick={(e) => {
+        e.preventDefault();
+        createWindow({ title: "Settings", program: { type: "settings" } });
+      }}
+    >
+      Settings
+    </a>
   );
 }

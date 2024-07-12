@@ -53,7 +53,8 @@ export function Settings({ id }: { id: string }) {
             >
               Anthropic
             </a>{" "}
-            API key. Sonnet 3.5 is the default model.
+            API key. Sonnet 3.5 is the default model. Using an API key bypasses
+            the rate limit.
           </p>
         </div>
       </fieldset>
