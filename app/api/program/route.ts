@@ -52,7 +52,7 @@ export async function GET(req: Request) {
     });
   }
 
-  const programStream = await createProgramStream(desc, keys, settings);
+  const programStream = await createProgramStream(desc, keys, settings, req);
   return new Response(
     streamHtml(programStream, {
       injectIntoHead: `<script src="/api.js"></script>
@@ -104,15 +104,19 @@ ${getApiText(keys)}
 async function createProgramStream(
   desc: string,
   keys: string[],
-  settings: Settings
+  settings: Settings,
+  req: Request
 ) {
   const { client, usedOwnKey, preferredModel } =
     createClientFromSettings(settings);
 
-  await capture({
-    type: "program",
-    usedOwnKey,
-  });
+  await capture(
+    {
+      type: "program",
+      usedOwnKey,
+    },
+    req
+  );
 
   const params = {
     messages: [

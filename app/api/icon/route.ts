@@ -20,7 +20,7 @@ export async function POST(req: Request) {
   const body = await req.json();
   const settings = await getSettingsFromJSON(body);
   const prompt = body.name;
-  const imagePrompt = await genImagePrompt(prompt, settings);
+  const imagePrompt = await genImagePrompt(prompt, settings, req);
   if (!imagePrompt) {
     return new Response("", { status: 500 });
   }
@@ -42,12 +42,15 @@ function generateUniqueID() {
 
 const imageDescriptionPrompt = `You will be given the name of an application. Return a description of the icon that can be fed into stable diffusion to generate an icon for the application. Return only the description, do not return any other text.`;
 
-async function genImagePrompt(name: string, settings: Settings) {
+async function genImagePrompt(name: string, settings: Settings, req: Request) {
   const { client, mode, usedOwnKey } = createClientFromSettings(settings);
-  await capture({
-    type: "icon",
-    usedOwnKey,
-  });
+  await capture(
+    {
+      type: "icon",
+      usedOwnKey,
+    },
+    req
+  );
   const result = await client.chat.completions.create({
     model: getCheapestModel(mode),
     messages: [

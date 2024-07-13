@@ -53,10 +53,13 @@ export async function POST(req: Request) {
   const { client, usedOwnKey, preferredModel } =
     createClientFromSettings(settings);
 
-  await capture({
-    type: "help",
-    usedOwnKey,
-  });
+  await capture(
+    {
+      type: "help",
+      usedOwnKey,
+    },
+    req
+  );
 
   const response = await client.chat.completions.create({
     model: preferredModel,

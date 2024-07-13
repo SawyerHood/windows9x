@@ -24,10 +24,13 @@ export async function POST(req: Request) {
   const settings = await getSettingsFromJSON(body);
   const { client, mode, usedOwnKey } = createClientFromSettings(settings);
 
-  await capture({
-    type: "name",
-    usedOwnKey,
-  });
+  await capture(
+    {
+      type: "name",
+      usedOwnKey,
+    },
+    req
+  );
 
   const response = await client.chat.completions.create({
     model: getCheapestModel(mode),
