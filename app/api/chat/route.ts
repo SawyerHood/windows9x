@@ -6,6 +6,7 @@ import { isLocal } from "@/lib/isLocal";
 import { log } from "@/lib/log";
 
 export async function POST(req: Request) {
+  return new Response(null, { status: 401 });
   if (!isLocal()) {
     const user = await getUser();
 
