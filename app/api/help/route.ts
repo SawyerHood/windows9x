@@ -10,7 +10,7 @@ import { insertGeneration } from "@/server/usage/insertGeneration";
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const settings = await getSettingsFromJSON(req);
+  const settings = await getSettingsFromJSON(body);
   if (!isLocal()) {
     const user = await getUser();
 
@@ -47,6 +47,8 @@ export async function POST(req: Request) {
   const { messages } = body;
 
   log(messages);
+
+  console.log(settings);
 
   const { client, usedOwnKey, preferredModel } =
     createClientFromSettings(settings);

@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   const body = await req.json();
   const { messages } = body;
 
-  const settings = await getSettingsFromJSON(req);
+  const settings = await getSettingsFromJSON(body);
 
   log(messages);
 
