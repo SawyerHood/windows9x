@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import styles from "./Welcome.module.css";
 import sawyersoft from "@/components/landing/assets/sawyersoft.png";
 import check from "@/components/assets/check.png";
 import { isMobile } from "@/lib/isMobile";
+import { SettingsLink } from "../SettingsLink";
 
 type TableOfContentsEntry = {
   title: string;
@@ -91,6 +92,33 @@ const contentByKey = {
       </>
     );
   },
+  updates: () => {
+    return (
+      <>
+        <h3>Updates</h3>
+        <h4>July 14th, 2024</h4>
+        <p>
+          We are getting more traffic than expected! I&apos;ve temporarily
+          scaled back the number of Quality Tokens that free users start with to
+          5. You can purchase more tokens in the <SettingsLink />.
+        </p>
+        <p>
+          I&apos;ve also added a quick overview video that shows off some of the
+          things you can do in Windows 9X:
+        </p>
+        <iframe
+          width="430"
+          height="240"
+          src="https://www.youtube.com/embed/v-ryqn2x35Q?si=Tn7C_pZtCNIAbmfk"
+          title="YouTube video player"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
+        ></iframe>
+      </>
+    );
+  },
   filesystem: () => {
     return (
       <>
@@ -135,6 +163,26 @@ const contentByKey = {
       </>
     );
   },
+  tutorial: () => {
+    return (
+      <>
+        <iframe
+          width="430"
+          height="240"
+          src="https://www.youtube.com/embed/v-ryqn2x35Q?si=Tn7C_pZtCNIAbmfk"
+          title="YouTube video player"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
+        ></iframe>
+        <p>
+          Here is a quick video overview that shows off some of the things you
+          can do in Windows 9X.
+        </p>
+      </>
+    );
+  },
 };
 
 export const WIDTH = 700;
@@ -142,11 +190,25 @@ export const WIDTH = 700;
 export function Welcome({ id: _id }: { id: string }) {
   const tableOfContentsEntries: TableOfContentsEntry[] = [
     { title: "Welcome", key: "welcome" },
+    { title: "Updates", key: "updates" },
     { title: "Filesystem", key: "filesystem" },
     { title: "Advanced", key: "advanced" },
+    { title: "Tutorial", key: "tutorial" },
   ];
 
-  const [selectedEntry, setSelectedEntry] = useState("welcome");
+  const [selectedEntry, setSelectedEntry] = useState(() => {
+    if (typeof window !== "undefined") {
+      const onboarded = localStorage.getItem("onboarded");
+      return onboarded ? "updates" : "welcome";
+    }
+    return "welcome";
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && !localStorage.getItem("onboarded")) {
+      localStorage.setItem("onboarded", "true");
+    }
+  }, []);
 
   const handleEntrySelect = (key: string) => {
     setSelectedEntry(key);

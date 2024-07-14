@@ -8,6 +8,7 @@ import { getSettings } from "@/lib/getSettings";
 import { settingsAtom } from "@/state/settings";
 import { useFlags } from "@/flags/context";
 import { trpc } from "@/lib/api/client";
+import { SettingsLink } from "../SettingsLink";
 
 export function Run({ id }: { id: string }) {
   const windowsDispatch = useSetAtom(windowsListAtom);
@@ -109,18 +110,5 @@ export function Run({ id }: { id: string }) {
         </button>
       </div>
     </form>
-  );
-}
-
-function SettingsLink() {
-  return (
-    <a
-      onClick={(e) => {
-        e.preventDefault();
-        createWindow({ title: "Settings", program: { type: "settings" } });
-      }}
-    >
-      Settings
-    </a>
   );
 }
