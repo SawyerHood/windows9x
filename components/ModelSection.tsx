@@ -33,7 +33,7 @@ export function ModelSection() {
       </p>
       <div className="field-row">
         <p>
-          Note: Tokens are used for the Quality model. You get 10 free tokens
+          Note: Tokens are used for the Quality model. You get 5 free tokens
           every week for generations. You have unlimited uses for the Fast
           model.
         </p>
