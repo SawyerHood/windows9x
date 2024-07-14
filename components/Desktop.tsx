@@ -48,6 +48,7 @@ function ProgramIcon({ program }: { program: ProgramEntry }) {
       onDoubleClick={runProgram}
     >
       <Image
+        unoptimized
         src={program.icon ?? window}
         alt={program.name}
         width={24}

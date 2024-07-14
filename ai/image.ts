@@ -1,5 +1,6 @@
 import { log } from "@/lib/log";
 import Replicate from "replicate";
+import sharp from "sharp";
 
 export async function generateIcon(prompt: string): Promise<Blob | null> {
   const replicate = new Replicate();
@@ -19,7 +20,15 @@ export async function generateIcon(prompt: string): Promise<Blob | null> {
 
   if (!url) return null;
 
-  const blob = await fetch(url).then((res) => res.blob());
+  const arrayBuffer = await fetch(url).then((res) => res.arrayBuffer());
+
+  // Make it crunchy
+  const processedImageBuffer = await sharp(arrayBuffer)
+    .resize(48, 48)
+    .webp({ quality: 80 })
+    .toBuffer();
+
+  const blob = new Blob([processedImageBuffer], { type: "image/webp" });
 
   return blob;
 }
