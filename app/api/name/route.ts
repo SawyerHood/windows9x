@@ -28,6 +28,7 @@ export async function POST(req: Request) {
     {
       type: "name",
       usedOwnKey,
+      model: getCheapestModel(mode),
     },
     req
   );

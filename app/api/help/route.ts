@@ -57,6 +57,7 @@ export async function POST(req: Request) {
     {
       type: "help",
       usedOwnKey,
+      model: preferredModel,
     },
     req
   );

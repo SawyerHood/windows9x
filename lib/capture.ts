@@ -5,6 +5,7 @@ import { isLocal } from "./isLocal";
 type Event = {
   type: "chat" | "icon" | "name" | "program" | "help";
   usedOwnKey: boolean;
+  model: string;
 };
 
 export async function capture(event: Event, req: Request) {

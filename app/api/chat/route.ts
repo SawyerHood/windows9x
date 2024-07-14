@@ -55,6 +55,7 @@ export async function POST(req: Request) {
     {
       type: "chat",
       usedOwnKey,
+      model: preferredModel,
     },
     req
   );

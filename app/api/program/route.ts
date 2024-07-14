@@ -114,6 +114,7 @@ async function createProgramStream(
     {
       type: "program",
       usedOwnKey,
+      model: preferredModel,
     },
     req
   );

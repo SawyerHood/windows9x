@@ -60,6 +60,7 @@ async function genImagePrompt(name: string, settings: Settings, req: Request) {
     {
       type: "icon",
       usedOwnKey,
+      model: getCheapestModel(mode),
     },
     req
   );
