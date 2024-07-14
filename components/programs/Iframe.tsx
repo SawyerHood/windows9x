@@ -7,6 +7,7 @@ import assert from "assert";
 import { registryAtom } from "@/state/registry";
 import { getURLForProgram } from "@/lib/getURLForProgram";
 import { getSettings } from "@/lib/getSettings";
+import { settingsAtom } from "@/state/settings";
 
 export function Iframe({ id }: { id: string }) {
   const [state, dispatch] = useAtom(windowAtomFamily(id));
@@ -14,6 +15,7 @@ export function Iframe({ id }: { id: string }) {
   const dispatchPrograms = useSetAtom(programsAtom);
   const startedRef = useRef(false);
   const registry = useAtomValue(registryAtom);
+  const { model } = useAtomValue(settingsAtom);
 
   assert(state.program.type === "iframe", "Program is not an iframe");
 
@@ -53,10 +55,10 @@ export function Iframe({ id }: { id: string }) {
       });
       startedRef.current = false;
     }
-    if (!icon) {
+    if (!icon && model === "best") {
       fetchIcon();
     }
-  }, [state.title, dispatch, dispatchPrograms, icon, programID]);
+  }, [state.title, dispatch, dispatchPrograms, icon, programID, model]);
 
   // Adding message event listener to the iframe to handle registry operations
   useEffect(() => {
