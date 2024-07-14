@@ -5,6 +5,8 @@ import { capture } from "@/lib/capture";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
 import { isLocal } from "@/lib/isLocal";
 import { put } from "@/lib/put";
+import { createClient } from "@/lib/supabase/server";
+import { canGenerate } from "@/server/usage/canGenerate";
 import { Settings } from "@/state/settings";
 
 export async function POST(req: Request) {
@@ -14,6 +16,16 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
       });
+    }
+    const client = createClient();
+
+    if (!(await canGenerate(client, user))) {
+      return new Response(
+        JSON.stringify({ error: "You do not have enough tokens" }),
+        {
+          status: 401,
+        }
+      );
     }
   }
 
