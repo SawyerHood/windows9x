@@ -41,6 +41,10 @@ export function Window({ id }: { id: string }) {
           state.status === "maximized"
             ? "calc(100% - var(--taskbar-height))"
             : state.size.height,
+        maxHeight:
+          state.size.height === "auto" && state.status !== "maximized"
+            ? "700px"
+            : undefined,
         transform:
           state.status === "maximized"
             ? "none"

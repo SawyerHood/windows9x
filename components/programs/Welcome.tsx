@@ -103,19 +103,14 @@ const contentByKey = {
           5. You can purchase more tokens in the <SettingsLink />.
         </p>
         <p>
+          Icon generation has also been disabled unless you are generating with
+          the Quality model.
+        </p>
+        <p>
           I&apos;ve also added a quick overview video that shows off some of the
           things you can do in Windows 9X:
         </p>
-        <iframe
-          width="430"
-          height="240"
-          src="https://www.youtube.com/embed/v-ryqn2x35Q?si=Tn7C_pZtCNIAbmfk"
-          title="YouTube video player"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-        ></iframe>
+        <Video />
       </>
     );
   },
@@ -166,16 +161,7 @@ const contentByKey = {
   tutorial: () => {
     return (
       <>
-        <iframe
-          width="430"
-          height="240"
-          src="https://www.youtube.com/embed/v-ryqn2x35Q?si=Tn7C_pZtCNIAbmfk"
-          title="YouTube video player"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-        ></iframe>
+        <Video />
         <p>
           Here is a quick video overview that shows off some of the things you
           can do in Windows 9X.
@@ -184,6 +170,21 @@ const contentByKey = {
     );
   },
 };
+
+function Video() {
+  return (
+    <iframe
+      width="430"
+      height="240"
+      src="https://www.youtube.com/embed/v-ryqn2x35Q?si=Tn7C_pZtCNIAbmfk"
+      title="YouTube video player"
+      frameBorder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerPolicy="strict-origin-when-cross-origin"
+      allowFullScreen
+    ></iframe>
+  );
+}
 
 export const WIDTH = 700;
 
