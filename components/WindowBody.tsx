@@ -8,6 +8,7 @@ import { Run } from "./programs/Run";
 import { Help } from "./programs/Help";
 import { Explorer } from "./programs/Explorer";
 import { Settings } from "./programs/Settings";
+import { History } from "./programs/History";
 
 export function WindowBody({ state }: { state: WindowState }) {
   switch (state.program.type) {
@@ -23,6 +24,8 @@ export function WindowBody({ state }: { state: WindowState }) {
       return <Explorer id={state.id} />;
     case "settings":
       return <Settings id={state.id} />;
+    case "history":
+      return <History id={state.program.programID} />;
     default:
       assertNever(state.program);
   }

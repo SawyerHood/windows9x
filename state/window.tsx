@@ -7,6 +7,7 @@ import { programAtomFamily, programsAtom } from "./programs";
 export type Program =
   | { type: "welcome" }
   | { type: "run" }
+  | { type: "history"; programID: string }
   | { type: "iframe"; programID: string; canSave?: boolean; canOpen?: boolean }
   | { type: "help"; targetWindowID?: string }
   | { type: "settings" }

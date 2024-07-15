@@ -13,6 +13,8 @@ export function WindowMenuBar({ id }: { id: string }) {
 
   if (state.program.type !== "iframe") return null;
 
+  const { programID } = state.program;
+
   return (
     <MenuBar
       options={[
@@ -103,6 +105,18 @@ export function WindowMenuBar({ id }: { id: string }) {
                   },
                 }
               : null,
+            {
+              label: "History",
+              onClick: () => {
+                createWindow({
+                  title: "Program History",
+                  program: {
+                    type: "history",
+                    programID,
+                  },
+                });
+              },
+            },
             {
               label: "Close",
               onClick: () => {

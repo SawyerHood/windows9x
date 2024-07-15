@@ -14,6 +14,7 @@ export type ProgramEntry = {
   prompt: string;
   code?: string;
   icon?: string | null;
+  currentVersion?: number;
 };
 
 type ProgramsState = {
@@ -26,6 +27,14 @@ type ProgramAction =
   | {
       type: "UPDATE_PROGRAM";
       payload: Partial<ProgramEntry> & { id: string };
+    }
+  | {
+      type: "CHANGE_VERSION";
+      payload: { id: string; version: number };
+    }
+  | {
+      type: "DELETE_VERSION";
+      payload: { id: string; version: number };
     };
 
 export const programsAtom = atom<ProgramsState, [ProgramAction], void>(
@@ -61,6 +70,7 @@ function getProgramEntry(item: VirtualItem): ProgramEntry | null {
     id: folder.name,
     name: folder.name,
     code,
+    currentVersion: config.currentVersion || Date.now(),
   };
 }
 
@@ -72,10 +82,17 @@ function programsReducer(
     case "ADD_PROGRAM": {
       const { code, id: _id, name: _name, ...rest } = action.payload;
       const path = `${PROGRAMS_PATH}/${action.payload.id}`;
+      const timestamp = Date.now();
       let newFs = fs
         .createFolder(path)
-        .createFile(`${path}/main.exe`, JSON.stringify(rest))
+        .createFile(
+          `${path}/main.exe`,
+          JSON.stringify({ ...rest, currentVersion: timestamp })
+        )
         .createFile(`${path}/index.html`, code ?? "");
+
+      // Add version
+      newFs = addVersion(newFs, path, code ?? "", timestamp);
 
       return newFs;
     }
@@ -90,11 +107,20 @@ function programsReducer(
       if ("code" in rest) {
         const code = rest.code;
         delete rest.code;
+        const timestamp = Date.now();
         newFs = newFs.updateFile(`${path}/index.html`, code ?? "");
-      }
 
-      const existing = JSON.parse(fs.readFile(`${path}/main.exe`));
-      if (existing) {
+        // Add version
+        newFs = addVersion(newFs, path, code ?? "", timestamp);
+
+        // Update currentVersion in main.exe
+        const existing = JSON.parse(newFs.readFile(`${path}/main.exe`));
+        newFs = newFs.updateFile(
+          `${path}/main.exe`,
+          JSON.stringify({ ...existing, ...rest, currentVersion: timestamp })
+        );
+      } else {
+        const existing = JSON.parse(newFs.readFile(`${path}/main.exe`));
         newFs = newFs.updateFile(
           `${path}/main.exe`,
           JSON.stringify({ ...existing, ...rest })
@@ -102,9 +128,105 @@ function programsReducer(
       }
       return newFs;
     }
+    case "CHANGE_VERSION": {
+      const { id, version } = action.payload;
+      const path = `${PROGRAMS_PATH}/${id}`;
+      const versionsPath = `${path}/versions`;
+      const versionFileName = `${version}.html`;
+
+      let newFs = fs;
+
+      // Read the code from the specified version
+      const newCode = newFs.readFile(`${versionsPath}/${versionFileName}`);
+
+      // Update the current code
+      newFs = newFs.updateFile(`${path}/index.html`, newCode);
+
+      // Update currentVersion in main.exe
+      const existing = JSON.parse(newFs.readFile(`${path}/main.exe`));
+      newFs = newFs.updateFile(
+        `${path}/main.exe`,
+        JSON.stringify({ ...existing, currentVersion: version })
+      );
+
+      return newFs;
+    }
+    case "DELETE_VERSION": {
+      const { id, version } = action.payload;
+      const path = `${PROGRAMS_PATH}/${id}`;
+      const versionsPath = `${path}/versions`;
+      const versionFileName = `${version}.html`;
+
+      let newFs = fs;
+
+      // Delete the version file
+      newFs = newFs.delete(`${versionsPath}/${versionFileName}`);
+
+      // If the deleted version was the current version, set the current version to the latest remaining version
+      const existing = JSON.parse(newFs.readFile(`${path}/main.exe`));
+      if (existing.currentVersion === version) {
+        const remainingVersions = newFs.listItems(versionsPath);
+        const latestVersion = Math.max(
+          ...remainingVersions
+            .map((item) => parseInt(item.name.replace(".html", ""), 10))
+            .filter((v) => !isNaN(v))
+        );
+
+        if (!isNaN(latestVersion)) {
+          const latestCode = newFs.readFile(
+            `${versionsPath}/${latestVersion}.html`
+          );
+          newFs = newFs.updateFile(`${path}/index.html`, latestCode);
+          newFs = newFs.updateFile(
+            `${path}/main.exe`,
+            JSON.stringify({ ...existing, currentVersion: latestVersion })
+          );
+        }
+      }
+
+      return newFs;
+    }
   }
+}
+
+function addVersion(
+  fs: VirtualFileSystem,
+  programPath: string,
+  code: string,
+  timestamp: number
+): VirtualFileSystem {
+  const versionsPath = `${programPath}/versions`;
+  let newFs = fs;
+
+  // Create versions folder if it doesn't exist
+  if (!newFs.exists(versionsPath)) {
+    newFs = newFs.createFolder(versionsPath);
+  }
+
+  const versionFileName = `${timestamp}.html`;
+  newFs = newFs.createFile(`${versionsPath}/${versionFileName}`, code);
+
+  return newFs;
 }
 
 export const programAtomFamily = atomFamily((id: string) =>
   atom((get) => get(programsAtom).programs.find((p) => p.id === id))
+);
+
+export const programVersionsAtomFamily = atomFamily((id: string) =>
+  atom((get) => {
+    const fs = get(fileSystemAtom);
+    const programPath = `${PROGRAMS_PATH}/${id}`;
+    const versionsPath = `${programPath}/versions`;
+
+    if (!fs.exists(versionsPath)) {
+      return [];
+    }
+
+    const folder = fs.getFolder(versionsPath);
+    return Object.keys(folder.items)
+      .filter((file: string) => file.endsWith(".html"))
+      .map((file: string) => parseInt(file.replace(".html", ""), 10))
+      .sort((a: number, b: number) => b - a); // Sort in descending order (newest first)
+  })
 );

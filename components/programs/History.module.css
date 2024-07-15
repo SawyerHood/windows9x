@@ -1,0 +1,49 @@
+.historyContainer {
+  background-color: #c0c0c0;
+  border: 2px solid;
+  border-top-color: #dfdfdf;
+  border-left-color: #dfdfdf;
+  border-right-color: #808080;
+  border-bottom-color: #808080;
+  box-shadow: 1px 1px 0 0 #000000;
+  padding: 2px;
+}
+
+.versionList {
+  background-color: #ffffff;
+  border: 1px solid #808080;
+  height: 200px;
+  overflow-y: auto;
+}
+
+.versionItem {
+  padding: 4px 8px;
+  cursor: pointer;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  font-size: 11px;
+  display: flex;
+}
+
+.versionItem:hover {
+  background-color: #000080;
+  color: white;
+}
+
+.versionItem.current {
+  background-color: #dfdfdf;
+}
+
+.versionItem.current:hover {
+  background-color: #000080;
+  color: white;
+}
+
+.versionDate {
+  display: inline-block;
+  width: 100%;
+}
+
+.currentLabel {
+  margin-left: 8px;
+  font-style: italic;
+}
