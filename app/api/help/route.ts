@@ -1,4 +1,5 @@
 import { createClientFromSettings } from "@/ai/client";
+import { createCompletion } from "@/ai/createCompletion";
 import { getUser } from "@/lib/auth/getUser";
 import { capture } from "@/lib/capture";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
@@ -11,9 +12,8 @@ import { insertGeneration } from "@/server/usage/insertGeneration";
 export async function POST(req: Request) {
   const body = await req.json();
   const settings = await getSettingsFromJSON(body);
+  const user = await getUser();
   if (!isLocal()) {
-    const user = await getUser();
-
     if (!user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
@@ -50,8 +50,7 @@ export async function POST(req: Request) {
 
   console.log(settings);
 
-  const { client, usedOwnKey, preferredModel } =
-    createClientFromSettings(settings);
+  const { usedOwnKey, preferredModel } = createClientFromSettings(settings);
 
   await capture(
     {
@@ -62,10 +61,14 @@ export async function POST(req: Request) {
     req
   );
 
-  const response = await client.chat.completions.create({
-    model: preferredModel,
-    messages: [...messages],
-    max_tokens: 4000,
+  const response = await createCompletion({
+    settings,
+    label: "help",
+    user,
+    body: {
+      messages: [...messages],
+      max_tokens: 4000,
+    },
   });
 
   log(response);

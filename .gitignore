@@ -37,4 +37,5 @@ next-env.d.ts
 
 
 .env
+.env.test
 /public/blob/

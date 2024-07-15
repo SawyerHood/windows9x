@@ -12,11 +12,13 @@ import { canGenerate } from "@/server/usage/canGenerate";
 import { createClient } from "@/lib/supabase/server";
 import { insertGeneration } from "@/server/usage/insertGeneration";
 import { isLocal } from "@/lib/isLocal";
+import { createCompletion } from "@/ai/createCompletion";
+import { User } from "@supabase/supabase-js";
 
 export async function GET(req: Request) {
   const settings = await getSettingsFromGetRequest(req);
+  const user = await getUser();
   if (!isLocal() && settings.model !== "cheap") {
-    const user = await getUser();
     if (!user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
@@ -52,7 +54,13 @@ export async function GET(req: Request) {
     });
   }
 
-  const programStream = await createProgramStream(desc, keys, settings, req);
+  const programStream = await createProgramStream({
+    desc,
+    keys,
+    settings,
+    req,
+    user,
+  });
   return new Response(
     streamHtml(programStream, {
       injectIntoHead: `<script src="/api.js"></script>
@@ -101,14 +109,20 @@ ${getApiText(keys)}
 `;
 }
 
-async function createProgramStream(
-  desc: string,
-  keys: string[],
-  settings: Settings,
-  req: Request
-) {
-  const { client, usedOwnKey, preferredModel } =
-    createClientFromSettings(settings);
+async function createProgramStream({
+  desc,
+  keys,
+  settings,
+  req,
+  user,
+}: {
+  desc: string;
+  keys: string[];
+  settings: Settings;
+  req: Request;
+  user: User | null;
+}) {
+  const { usedOwnKey, preferredModel } = createClientFromSettings(settings);
 
   await capture(
     {
@@ -119,7 +133,7 @@ async function createProgramStream(
     req
   );
 
-  const params = {
+  const params: ChatCompletionCreateParamsStreaming = {
     messages: [
       {
         role: "system",
@@ -136,9 +150,12 @@ async function createProgramStream(
     stream: true,
   };
 
-  const stream = await client.chat.completions.create(
-    params as ChatCompletionCreateParamsStreaming
-  );
+  const stream = await createCompletion({
+    settings,
+    label: "program",
+    user,
+    body: params,
+  });
 
   return stream;
 }

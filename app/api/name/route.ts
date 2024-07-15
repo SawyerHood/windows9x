@@ -1,4 +1,5 @@
 import { createClientFromSettings, getCheapestModel } from "@/ai/client";
+import { createCompletion } from "@/ai/createCompletion";
 import { getUser } from "@/lib/auth/getUser";
 import { capture } from "@/lib/capture";
 import { extractXMLTag } from "@/lib/extractXMLTag";
@@ -8,9 +9,8 @@ import { isLocal } from "@/lib/isLocal";
 import { log } from "@/lib/log";
 
 export async function POST(req: Request) {
+  const user = await getUser();
   if (!isLocal()) {
-    const user = await getUser();
-
     if (!user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   const { desc } = body;
 
   const settings = await getSettingsFromJSON(body);
-  const { client, mode, usedOwnKey } = createClientFromSettings(settings);
+  const { mode, usedOwnKey } = createClientFromSettings(settings);
 
   await capture(
     {
@@ -33,19 +33,24 @@ export async function POST(req: Request) {
     req
   );
 
-  const response = await client.chat.completions.create({
-    model: getCheapestModel(mode),
-    messages: [
-      {
-        role: "system",
-        content: prompt,
-      },
-      {
-        role: "user",
-        content: desc,
-      },
-    ],
-    max_tokens: 4000,
+  const response = await createCompletion({
+    settings,
+    label: "name",
+    user,
+    forceModel: "cheap",
+    body: {
+      messages: [
+        {
+          role: "system",
+          content: prompt,
+        },
+        {
+          role: "user",
+          content: desc,
+        },
+      ],
+      max_tokens: 4000,
+    },
   });
 
   log(response);

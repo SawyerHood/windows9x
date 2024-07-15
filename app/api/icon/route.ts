@@ -1,4 +1,5 @@
 import { createClientFromSettings, getCheapestModel } from "@/ai/client";
+import { createCompletion } from "@/ai/createCompletion";
 import { generateIcon } from "@/ai/image";
 import { getUser } from "@/lib/auth/getUser";
 import { capture } from "@/lib/capture";
@@ -8,10 +9,11 @@ import { put } from "@/lib/put";
 import { createClient } from "@/lib/supabase/server";
 import { canGenerate } from "@/server/usage/canGenerate";
 import { Settings } from "@/state/settings";
+import { User } from "@supabase/supabase-js";
 
 export async function POST(req: Request) {
+  const user = await getUser();
   if (!isLocal()) {
-    const user = await getUser();
     if (!user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
@@ -32,7 +34,12 @@ export async function POST(req: Request) {
   const body = await req.json();
   const settings = await getSettingsFromJSON(body);
   const prompt = body.name;
-  const imagePrompt = await genImagePrompt(prompt, settings, req);
+  const imagePrompt = await genImagePrompt({
+    name: prompt,
+    settings,
+    req,
+    user,
+  });
   if (!imagePrompt) {
     return new Response("", { status: 500 });
   }
@@ -54,8 +61,18 @@ function generateUniqueID() {
 
 const imageDescriptionPrompt = `You will be given the name of an application. Return a description of the icon that can be fed into stable diffusion to generate an icon for the application. Return only the description, do not return any other text.`;
 
-async function genImagePrompt(name: string, settings: Settings, req: Request) {
-  const { client, mode, usedOwnKey } = createClientFromSettings(settings);
+async function genImagePrompt({
+  name,
+  settings,
+  req,
+  user,
+}: {
+  name: string;
+  settings: Settings;
+  req: Request;
+  user: User | null;
+}) {
+  const { mode, usedOwnKey } = createClientFromSettings(settings);
   await capture(
     {
       type: "icon",
@@ -64,12 +81,17 @@ async function genImagePrompt(name: string, settings: Settings, req: Request) {
     },
     req
   );
-  const result = await client.chat.completions.create({
-    model: getCheapestModel(mode),
-    messages: [
-      { role: "system", content: imageDescriptionPrompt },
-      { role: "user", content: name },
-    ],
+  const result = await createCompletion({
+    settings,
+    label: "icon",
+    user,
+    forceModel: "cheap",
+    body: {
+      messages: [
+        { role: "system", content: imageDescriptionPrompt },
+        { role: "user", content: name },
+      ],
+    },
   });
 
   return result.choices[0].message.content;
