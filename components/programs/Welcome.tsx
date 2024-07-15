@@ -7,6 +7,7 @@ import sawyersoft from "@/components/landing/assets/sawyersoft.png";
 import check from "@/components/assets/check.png";
 import { isMobile } from "@/lib/isMobile";
 import { SettingsLink } from "../SettingsLink";
+import history from "./updateAssets/history.png";
 
 type TableOfContentsEntry = {
   title: string;
@@ -96,6 +97,19 @@ const contentByKey = {
     return (
       <>
         <h3>Updates</h3>
+        <h4>July 15th, 2024</h4>
+        <p>
+          Added version history to generated programs. You can now go back to
+          previous versions of a program and undo changes. To get started press{" "}
+          <code>File &gt; History</code> in a program that is open. This is a
+          first pass at this feature, expect it to be improved in the future!
+        </p>
+        <Image src={history} alt="History" />
+        <p>
+          We are upgrading our database tonight to support more traffic! There
+          will be a few minutes of downtime around 8pm PT tonight.
+        </p>
+        <hr />
         <h4>July 14th, 2024</h4>
         <p>
           We are getting more traffic than expected! I&apos;ve temporarily

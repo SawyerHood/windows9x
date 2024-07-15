@@ -88,6 +88,7 @@
   object-fit: contain;
   filter: invert(1);
   height: 86px;
+  margin-bottom: 12px;
 }
 
 .buttonGroup {
