@@ -10,7 +10,12 @@ export const registryAtom = atom(
   (get) => {
     const filesystem = get(fileSystemAtom);
     const registry = filesystem.readFile(REGISTRY_PATH);
-    return JSON.parse(registry);
+    try {
+      return JSON.parse(registry);
+    } catch (error) {
+      console.error("Failed to parse registry:", error);
+      return {};
+    }
   },
   (get, set, update: RegistryEntry) => {
     const filesystem = get(fileSystemAtom);

@@ -7,6 +7,7 @@ export type VirtualFile = {
   name: string;
   content: string;
   metaData: Record<string, any>;
+  lastModified: number;
 };
 
 export type VirtualFolder = {
@@ -19,9 +20,10 @@ export type VirtualFolder = {
 export function createVirtualFile(
   name: string,
   content: string,
-  metaData: Record<string, any> = {}
+  metaData: Record<string, any> = {},
+  lastModified: number = Date.now()
 ): VirtualFile {
-  return { type: "file", name, content, metaData };
+  return { type: "file", name, content, metaData, lastModified };
 }
 
 export function createVirtualFolder(
@@ -76,6 +78,7 @@ export class VirtualFileSystem {
       const file = draft.getFile(path);
       file.content = content;
       file.metaData = metaData ?? file.metaData;
+      file.lastModified = Date.now();
     });
   }
 
@@ -180,6 +183,9 @@ export class VirtualFileSystem {
       }
       delete parentFolder.items[oldName];
       item.name = newName;
+      if (item.type === "file") {
+        item.lastModified = Date.now();
+      }
       parentFolder.items[newName] = item;
     });
   }
@@ -196,6 +202,9 @@ export class VirtualFileSystem {
         throw new Error(
           `An item with the name "${name}" already exists in the path "${path}".`
         );
+      }
+      if (item.type === "file") {
+        item.lastModified = Date.now();
       }
       parentFolder.items[name] = item;
     });

@@ -3,7 +3,8 @@
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "esnext",
+      "dom.asynciterable"
     ],
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -28,7 +29,7 @@
         "./*"
       ]
     },
-    "target": "ES2017"
+    "target": "ESNext"
   },
   "include": [
     "next-env.d.ts",

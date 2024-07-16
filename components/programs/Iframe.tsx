@@ -151,7 +151,6 @@ export function Iframe({ id }: { id: string }) {
       src={!program?.code ? url : undefined}
       srcDoc={program?.code || undefined}
       style={{ width: "100%", flexGrow: 1, border: "none" }}
-      allowTransparency
       onLoad={() => {
         assert(state.program.type === "iframe", "Program is not an iframe");
 
