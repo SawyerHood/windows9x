@@ -201,7 +201,13 @@ function WindowTaskBarItem({ id }: { id: string }) {
       }}
     >
       {state.icon && (
-        <Image src={state.icon} alt={state.title} width={16} height={16} />
+        <Image
+          unoptimized
+          src={state.icon}
+          alt={state.title}
+          width={16}
+          height={16}
+        />
       )}
       <span>{state.title}</span>
     </button>
