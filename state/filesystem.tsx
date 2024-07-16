@@ -2,11 +2,12 @@ import { throttle } from "@/lib/debounce";
 import { DEFAULT_FILE_SYSTEM } from "@/lib/filesystem/defaultFileSystem";
 import { VirtualFileSystem } from "@/lib/filesystem/filesystem";
 import {
-  createVfsFromOpfs,
-  isOpfsInitialized,
-  syncVfsToOpfs,
+  createVfsFromRealFs,
+  isRealFsInitialized,
+  syncVfsToRealFs,
+  changeRootDirectory,
 } from "@/lib/filesystem/fsSync";
-import { atom } from "jotai";
+import { atom, getDefaultStore } from "jotai";
 // import { atomWithStorage } from "jotai/utils";
 
 let hasInitialized = false;
@@ -38,11 +39,11 @@ privateFileSystemAtom.onMount = (set) => {
   if (!hasInitialized) {
     hasInitialized = true;
     (async () => {
-      if (!(await isOpfsInitialized())) {
+      if (!(await isRealFsInitialized())) {
         return;
       }
       try {
-        const vfs = await createVfsFromOpfs();
+        const vfs = await createVfsFromRealFs();
         set(vfs);
       } catch (error) {
         console.error("Failed to create VFS from OPFS:", error);
@@ -65,13 +66,24 @@ export const fileSystemAtom = atom<
     const newState =
       typeof update === "function" ? update(get(fileSystemAtom)) : update;
     set(privateFileSystemAtom, newState);
-    writeToOpfs(newState);
+    writeToRealFs(newState);
   }
 );
 
-const writeToOpfs = throttle(async (vfs: VirtualFileSystem) => {
-  await syncVfsToOpfs(vfs);
+const writeToRealFs = throttle(async (vfs: VirtualFileSystem) => {
+  await syncVfsToRealFs(vfs);
 }, 1000);
+
+export async function pickRootDirectory() {
+  await changeRootDirectory();
+  if (!(await isRealFsInitialized())) {
+    getDefaultStore().set(privateFileSystemAtom, DEFAULT_FILE_SYSTEM);
+    writeToRealFs(DEFAULT_FILE_SYSTEM);
+    return;
+  }
+  const vfs = await createVfsFromRealFs();
+  getDefaultStore().set(privateFileSystemAtom, vfs);
+}
 
 // export const fileSystemAtom = atom<VirtualFileSystem>((get) => {
 //   if (!hasInitialized) {

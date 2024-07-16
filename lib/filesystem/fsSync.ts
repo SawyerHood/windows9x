@@ -5,10 +5,53 @@ import {
   createVirtualFolder,
   createVirtualFile,
 } from "./filesystem";
+import { openDB } from "idb";
 
-export async function isOpfsInitialized(): Promise<boolean> {
+const DB_NAME = "FileSystemDB";
+const STORE_NAME = "FileSystemStore";
+const ROOT_KEY = "rootDirectoryHandle";
+
+async function getDb() {
+  return openDB(DB_NAME, 1, {
+    upgrade(db) {
+      db.createObjectStore(STORE_NAME);
+    },
+  });
+}
+
+async function getRootDirectoryHandle(): Promise<FileSystemDirectoryHandle> {
+  const db = await getDb();
+  const storedHandle = await db.get(STORE_NAME, ROOT_KEY);
+
+  if (storedHandle) {
+    // Verify if the stored handle is still valid
+    try {
+      await storedHandle.requestPermission({ mode: "readwrite" });
+      return storedHandle;
+    } catch (error) {
+      console.warn(
+        "Stored directory handle is no longer valid. Using default."
+      );
+    }
+  }
+
+  return navigator.storage.getDirectory();
+}
+
+export async function changeRootDirectory(): Promise<void> {
   try {
-    const root = await navigator.storage.getDirectory();
+    const directoryHandle = await (window as any).showDirectoryPicker();
+    const db = await getDb();
+    await db.put(STORE_NAME, directoryHandle, ROOT_KEY);
+    console.log("Root directory changed successfully.");
+  } catch (error) {
+    console.error("Failed to change root directory:", error);
+  }
+}
+
+export async function isRealFsInitialized(): Promise<boolean> {
+  try {
+    const root = await getRootDirectoryHandle();
     await root.getDirectoryHandle("system", { create: false });
     return true;
   } catch (error) {
@@ -16,12 +59,12 @@ export async function isOpfsInitialized(): Promise<boolean> {
   }
 }
 
-export async function syncVfsToOpfs(vfs: VirtualFileSystem): Promise<void> {
-  const root = await navigator.storage.getDirectory();
-  await syncFolderToOpfs(root, vfs.getFolder(""), "");
+export async function syncVfsToRealFs(vfs: VirtualFileSystem): Promise<void> {
+  const root = await getRootDirectoryHandle();
+  await syncFolderToRealFs(root, vfs.getFolder(""), "");
 }
 
-async function syncFolderToOpfs(
+async function syncFolderToRealFs(
   actualFolder: FileSystemDirectoryHandle,
   virtualFolder: VirtualFolder,
   path: string
@@ -43,21 +86,21 @@ async function syncFolderToOpfs(
       });
 
       // Check if the file needs to be updated
-      if (await shouldWriteFileToOpfs(fileHandle, item)) {
-        const writable = await fileHandle.createWritable();
-        await writable.write(item.content);
-        await writable.close();
-      }
+      //   if (await shouldWriteFileToRealFs(fileHandle, item)) {
+      const writable = await fileHandle.createWritable();
+      await writable.write(item.content);
+      await writable.close();
+      //   }
     } else if (item.type === "folder") {
       const folderHandle = await actualFolder.getDirectoryHandle(name, {
         create: true,
       });
-      await syncFolderToOpfs(folderHandle, item, itemPath);
+      await syncFolderToRealFs(folderHandle, item, itemPath);
     }
   }
 }
 
-async function shouldWriteFileToOpfs(
+async function shouldWriteFileToRealFs(
   fileHandle: FileSystemFileHandle,
   virtualFile: VirtualFile
 ): Promise<boolean> {
@@ -71,13 +114,13 @@ async function shouldWriteFileToOpfs(
   }
 }
 
-export async function createVfsFromOpfs(): Promise<VirtualFileSystem> {
-  const root = await navigator.storage.getDirectory();
-  const rootVirtualFolder = await createVirtualFolderFromOpfs(root, "");
+export async function createVfsFromRealFs(): Promise<VirtualFileSystem> {
+  const root = await getRootDirectoryHandle();
+  const rootVirtualFolder = await createVirtualFolderFromRealFs(root, "");
   return new VirtualFileSystem({ root: rootVirtualFolder });
 }
 
-async function createVirtualFolderFromOpfs(
+async function createVirtualFolderFromRealFs(
   actualFolder: FileSystemDirectoryHandle,
   path: string
 ): Promise<VirtualFolder> {
@@ -98,7 +141,7 @@ async function createVirtualFolderFromOpfs(
       );
     } else if (handle.kind === "directory") {
       const folderHandle = await actualFolder.getDirectoryHandle(name);
-      folder.items[name] = await createVirtualFolderFromOpfs(
+      folder.items[name] = await createVirtualFolderFromRealFs(
         folderHandle,
         itemPath
       );
