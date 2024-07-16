@@ -1,5 +1,6 @@
 import { createClientFromSettings } from "@/ai/client";
 import { createCompletion } from "@/ai/createCompletion";
+import { getMaxTokens } from "@/ai/getMaxTokens";
 import { getUser } from "@/lib/auth/getUser";
 import { capture } from "@/lib/capture";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
@@ -65,7 +66,7 @@ export async function POST(req: Request) {
     user,
     body: {
       messages: [...messages],
-      max_tokens: 8192,
+      max_tokens: getMaxTokens(settings),
     },
   });
 
