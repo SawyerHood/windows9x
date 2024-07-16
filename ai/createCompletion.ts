@@ -60,9 +60,16 @@ export async function createCompletion({
         : forceModel === "best"
         ? getBestModel(mode)
         : preferredModel;
-    return await client.chat.completions.create({
-      ...body,
-      model,
-    });
+    return await client.chat.completions.create(
+      {
+        ...body,
+        model,
+      },
+      {
+        headers: {
+          "anthropic-beta": "max-tokens-3-5-sonnet-2024-07-15",
+        },
+      }
+    );
   });
 }

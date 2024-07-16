@@ -14,6 +14,7 @@ import { insertGeneration } from "@/server/usage/insertGeneration";
 import { isLocal } from "@/lib/isLocal";
 import { createCompletion } from "@/ai/createCompletion";
 import { User } from "@supabase/supabase-js";
+import { getMaxTokens } from "@/ai/getMaxTokens";
 
 export async function GET(req: Request) {
   const settings = await getSettingsFromGetRequest(req);
@@ -146,7 +147,7 @@ async function createProgramStream({
     ],
     model: preferredModel,
     temperature: 1,
-    max_tokens: 4000,
+    max_tokens: getMaxTokens(settings),
     stream: true,
   };
 

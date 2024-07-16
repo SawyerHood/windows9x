@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     user,
     body: {
       messages: [...messages],
-      max_tokens: 4000,
+      max_tokens: 8192,
     },
   });
 

@@ -106,6 +106,10 @@ const contentByKey = {
         </p>
         <Image src={history} alt="History" />
         <p>
+          Quality programs can now be twice as long. You should be able to
+          generate more complex programs.
+        </p>
+        <p>
           We are upgrading our database tonight to support more traffic! There
           will be a few minutes of downtime around 8pm PT tonight.
         </p>

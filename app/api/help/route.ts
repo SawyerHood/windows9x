@@ -48,8 +48,6 @@ export async function POST(req: Request) {
 
   log(messages);
 
-  console.log(settings);
-
   const { usedOwnKey, preferredModel } = createClientFromSettings(settings);
 
   await capture(
@@ -67,7 +65,7 @@ export async function POST(req: Request) {
     user,
     body: {
       messages: [...messages],
-      max_tokens: 4000,
+      max_tokens: 8192,
     },
   });
 
