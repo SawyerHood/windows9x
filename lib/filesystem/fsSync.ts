@@ -59,21 +59,36 @@ export async function isRealFsInitialized(): Promise<boolean> {
   }
 }
 
-export async function syncVfsToRealFs(vfs: VirtualFileSystem): Promise<void> {
+// Maybe don't ever do deletes when we sync to real fs. Flush these separately using tombstones.
+// Also maybe track newly created files.
+
+export async function syncVfsToRealFs(
+  vfs: VirtualFileSystem
+): Promise<VirtualFileSystem> {
   const root = await getRootDirectoryHandle();
-  await syncFolderToRealFs(root, vfs.getFolder(""), "");
+  const updatedRootFolder = await syncFolderToRealFs(
+    root,
+    vfs.getFolder(""),
+    ""
+  );
+  return new VirtualFileSystem({ root: updatedRootFolder });
 }
 
 async function syncFolderToRealFs(
   actualFolder: FileSystemDirectoryHandle,
   virtualFolder: VirtualFolder,
   path: string
-): Promise<void> {
+): Promise<VirtualFolder> {
+  const updatedFolder = createVirtualFolder(virtualFolder.name);
+
+  const childNames = new Set();
   // Delete items that are not in the virtual filesystem
   for await (const [name] of actualFolder.entries()) {
-    if (!virtualFolder.items[name]) {
-      await actualFolder.removeEntry(name, { recursive: true });
-    }
+    childNames.add(name);
+    // if (!virtualFolder.items[name]) {
+    //   childNames.delete(name);
+    //   await actualFolder.removeEntry(name, { recursive: true });
+    // }
   }
 
   // Add or update items from the virtual filesystem
@@ -81,23 +96,52 @@ async function syncFolderToRealFs(
     const itemPath = path ? `${path}/${name}` : name;
 
     if (item.type === "file") {
+      const needToCreate = !childNames.has(name);
       const fileHandle = await actualFolder.getFileHandle(name, {
         create: true,
       });
-
-      // Check if the file needs to be updated
-      //   if (await shouldWriteFileToRealFs(fileHandle, item)) {
-      const writable = await fileHandle.createWritable();
-      await writable.write(item.content);
-      await writable.close();
-      //   }
+      const updatedFile = await syncFileToRealFs(
+        fileHandle,
+        item as VirtualFile,
+        needToCreate
+      );
+      updatedFolder.items[name] = updatedFile;
     } else if (item.type === "folder") {
       const folderHandle = await actualFolder.getDirectoryHandle(name, {
         create: true,
       });
-      await syncFolderToRealFs(folderHandle, item, itemPath);
+      updatedFolder.items[name] = await syncFolderToRealFs(
+        folderHandle,
+        item as VirtualFolder,
+        itemPath
+      );
     }
   }
+
+  return updatedFolder;
+}
+
+async function syncFileToRealFs(
+  fileHandle: FileSystemFileHandle,
+  virtualFile: VirtualFile,
+  shouldCreate: boolean
+): Promise<VirtualFile> {
+  if (
+    shouldCreate ||
+    (await shouldWriteFileToRealFs(fileHandle, virtualFile))
+  ) {
+    const writable = await fileHandle.createWritable();
+    await writable.write(virtualFile.content);
+    await writable.close();
+  }
+
+  const file = await fileHandle.getFile();
+  return createVirtualFile(
+    virtualFile.name,
+    virtualFile.content,
+    virtualFile.metaData,
+    file.lastModified
+  );
 }
 
 async function shouldWriteFileToRealFs(
@@ -149,4 +193,73 @@ async function createVirtualFolderFromRealFs(
   }
 
   return folder;
+}
+
+export async function updateVfsFromRealFs(
+  vfs: VirtualFileSystem
+): Promise<VirtualFileSystem> {
+  const root = await getRootDirectoryHandle();
+  const updatedRootFolder = await updateFolderFromRealFs(
+    root,
+    vfs.getFolder(""),
+    ""
+  );
+  return new VirtualFileSystem({ root: updatedRootFolder });
+}
+
+async function updateFolderFromRealFs(
+  actualFolder: FileSystemDirectoryHandle,
+  virtualFolder: VirtualFolder,
+  path: string
+): Promise<VirtualFolder> {
+  const updatedFolder = createVirtualFolder(virtualFolder.name);
+  const existingItems = new Set(Object.keys(virtualFolder.items));
+
+  for await (const [name, handle] of actualFolder.entries()) {
+    const itemPath = path ? `${path}/${name}` : name;
+    existingItems.delete(name);
+
+    if (handle.kind === "file") {
+      const fileHandle = await actualFolder.getFileHandle(name);
+      updatedFolder.items[name] = await updateFileFromRealFs(
+        fileHandle,
+        virtualFolder.items[name] as VirtualFile | undefined
+      );
+    } else if (handle.kind === "directory") {
+      const folderHandle = await actualFolder.getDirectoryHandle(name);
+      updatedFolder.items[name] = await updateFolderFromRealFs(
+        folderHandle,
+        (virtualFolder.items[name] as VirtualFolder) ||
+          createVirtualFolder(name),
+        itemPath
+      );
+    }
+  }
+
+  //   // Remove items that no longer exist in the real filesystem
+  //   existingItems.forEach((itemName) => {
+  //     delete updatedFolder.items[itemName];
+  //   });
+
+  return updatedFolder;
+}
+
+async function updateFileFromRealFs(
+  fileHandle: FileSystemFileHandle,
+  virtualFile?: VirtualFile
+): Promise<VirtualFile> {
+  const file = await fileHandle.getFile();
+  const actualLastModified = file.lastModified;
+
+  if (!virtualFile || actualLastModified > virtualFile.lastModified) {
+    const content = await file.text();
+    return createVirtualFile(
+      file.name,
+      content,
+      virtualFile?.metaData || {},
+      actualLastModified
+    );
+  }
+
+  return virtualFile;
 }
