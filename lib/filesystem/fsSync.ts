@@ -250,7 +250,8 @@ async function updateFileFromRealFs(
 ): Promise<VirtualFile> {
   const file = await fileHandle.getFile();
   const actualLastModified = file.lastModified;
-
+  console.log("actualLastModified", actualLastModified);
+  console.log("virtualFile", virtualFile);
   if (!virtualFile || actualLastModified > virtualFile.lastModified) {
     const content = await file.text();
     return createVirtualFile(

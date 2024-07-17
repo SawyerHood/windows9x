@@ -76,15 +76,16 @@ let isFsDirty = false;
 
 function startSyncing() {
   const sync = async () => {
+    let newVfs = getDefaultStore().get(privateFileSystemAtom);
     if (isFsDirty) {
       isFsDirty = false;
-      let newVfs = await syncVfsToRealFs(
+      newVfs = await syncVfsToRealFs(
         getDefaultStore().get(privateFileSystemAtom)
       );
       getDefaultStore().set(privateFileSystemAtom, newVfs);
-      newVfs = await updateVfsFromRealFs(newVfs);
-      getDefaultStore().set(privateFileSystemAtom, newVfs);
     }
+    newVfs = await updateVfsFromRealFs(newVfs);
+    getDefaultStore().set(privateFileSystemAtom, newVfs);
     setTimeout(sync, 500);
   };
 
