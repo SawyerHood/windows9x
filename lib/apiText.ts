@@ -1,6 +1,7 @@
 export const getApiText = (keys: string[]) => `\`\`\`typescript
 declare global {
   // Chat lets you use an LLM to generate a response. 
+  // Note that a call to assistant must always come after a call to user.
   var chat: (messages: { role: "user" | "assistant" | "system"; content: string }[]) => Promise<string>;
   var registry: Registry;
 
