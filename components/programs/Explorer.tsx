@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useAtom, useSetAtom } from "jotai";
-import { fileSystemAtom } from "@/state/filesystem";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
-import { VirtualItem } from "@/lib/filesystem/filesystem";
 import { windowAtomFamily } from "@/state/window";
 import { windowsListAtom } from "@/state/windowsList";
 
@@ -15,12 +13,14 @@ import up from "@/components/assets/up.ico";
 import paste from "@/components/assets/paste.ico";
 import newFolder from "@/components/assets/newDir.png";
 import Image from "next/image";
+import { fsManagerAtom, getFsManager } from "@/lib/realFs/FsManager";
+import { StubItem } from "@/lib/realFs/FsAdapter";
 
 export function Explorer({ id }: { id: string }) {
   const createContextMenu = useCreateContextMenu();
   const [state, dispatch] = useAtom(windowAtomFamily(id));
-  const [fileSystem, setFileSystem] = useAtom(fileSystemAtom);
   const windowListDispatch = useSetAtom(windowsListAtom);
+  const fs = useAtomValue(fsManagerAtom);
 
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [newFileName, setNewFileName] = useState<string>("");
@@ -33,13 +33,15 @@ export function Explorer({ id }: { id: string }) {
   const { action, actionText } = state.program;
   const currentPath = state.program.currentPath || "/";
   const [inputPath, setInputPath] = useState(state.program.currentPath || "");
+  const currentFolder = useAtomValue(fs.getFolderAtom(currentPath, "shallow"));
 
   useEffect(() => {
     setInputPath(currentPath || "/");
   }, [currentPath]);
 
-  const handleDoubleClick = (path: string) => {
-    const item = fileSystem.getItem(path);
+  const handleDoubleClick = async (path: string) => {
+    const fs = await getFsManager();
+    const item = await fs.getItem(path, "shallow");
     if (item?.type === "folder") {
       dispatch({
         type: "UPDATE_PROGRAM",
@@ -60,9 +62,13 @@ export function Explorer({ id }: { id: string }) {
     setInputPath(e.target.value);
   };
 
-  const handlePathSubmit = () => {
+  const handlePathSubmit = async () => {
     try {
-      fileSystem.getFolder(inputPath);
+      const fs = await getFsManager();
+      const folder = await fs.getFolder(inputPath, "shallow");
+      if (!folder) {
+        return;
+      }
       dispatch({
         type: "UPDATE_PROGRAM",
         payload: { type: "explorer", currentPath: inputPath },
@@ -70,10 +76,14 @@ export function Explorer({ id }: { id: string }) {
     } catch {}
   };
 
-  const handleNavigateUp = () => {
+  const handleNavigateUp = async () => {
     const parentPath = currentPath.split("/").slice(0, -1).join("/");
     try {
-      fileSystem.getFolder(parentPath);
+      const fs = await getFsManager();
+      const folder = await fs.getFolder(parentPath, "shallow");
+      if (!folder) {
+        return;
+      }
       dispatch({
         type: "UPDATE_PROGRAM",
         payload: { type: "explorer", currentPath: parentPath },
@@ -105,15 +115,15 @@ export function Explorer({ id }: { id: string }) {
     setNewFileName("");
   };
 
-  const handleNewFolderSubmit = () => {
+  const handleNewFolderSubmit = async () => {
     if (newFileName.trim() === "") {
       setIsCreatingFolder(false);
       return;
     }
     try {
       const newFolderPath = `${currentPath}/${newFileName}`;
-      const newFolder = fileSystem.createFolder(newFolderPath);
-      setFileSystem(newFolder);
+      const fs = await getFsManager();
+      await fs.createFolder(newFolderPath);
       setIsCreatingFolder(false);
       setSelectedItem(newFolderPath);
     } catch (error) {
@@ -132,7 +142,7 @@ export function Explorer({ id }: { id: string }) {
     setNewFileName(oldPath.split("/").pop() || "");
   };
 
-  const handleRenameSubmit = () => {
+  const handleRenameSubmit = async () => {
     if (
       newFileName.trim() === "" ||
       newFileName === selectedItem?.split("/").pop()
@@ -143,8 +153,8 @@ export function Explorer({ id }: { id: string }) {
     try {
       const oldPath = selectedItem!;
       const newPath = `${currentPath}/${newFileName}`;
-      const updatedFileSystem = fileSystem.renameItem(oldPath, newFileName);
-      setFileSystem(updatedFileSystem);
+      const fs = await getFsManager();
+      await fs.move(oldPath, newPath);
       setIsRenaming(false);
       setSelectedItem(newPath);
     } catch (error) {
@@ -152,38 +162,34 @@ export function Explorer({ id }: { id: string }) {
     }
   };
 
-  const handleCopy = useCallback(
-    async (path: string) => {
-      try {
-        const item = fileSystem.getItem(path);
-        if (item) {
-          await navigator.clipboard.writeText(
-            JSON.stringify({ action: "copy", item })
-          );
-        }
-      } catch (error) {
-        console.error("Failed to copy to clipboard:", error);
+  const handleCopy = useCallback(async (path: string) => {
+    try {
+      const fs = await getFsManager();
+      const item = await fs.getItem(path, "deep");
+      if (item) {
+        await navigator.clipboard.writeText(
+          JSON.stringify({ action: "copy", item })
+        );
       }
-    },
-    [fileSystem]
-  );
+    } catch (error) {
+      console.error("Failed to copy to clipboard:", error);
+    }
+  }, []);
 
-  const handleCut = useCallback(
-    async (path: string) => {
-      try {
-        const item = fileSystem.getItem(path);
-        if (item) {
-          await navigator.clipboard.writeText(
-            JSON.stringify({ action: "cut", item })
-          );
-          setFileSystem(fileSystem.delete(path));
-        }
-      } catch (error) {
-        console.error("Failed to cut to clipboard:", error);
+  const handleCut = useCallback(async (path: string) => {
+    try {
+      const fs = await getFsManager();
+      const item = await fs.getItem(path, "deep");
+      if (item) {
+        await navigator.clipboard.writeText(
+          JSON.stringify({ action: "cut", item })
+        );
+        await fs.delete(path);
       }
-    },
-    [fileSystem, setFileSystem]
-  );
+    } catch (error) {
+      console.error("Failed to cut to clipboard:", error);
+    }
+  }, []);
 
   const handlePaste = useCallback(async () => {
     try {
@@ -198,7 +204,9 @@ export function Explorer({ id }: { id: string }) {
       let newPath = `${currentPath}/${item.name}`;
       let counter = 1;
 
-      while (fileSystem.getItem(newPath)) {
+      const fs = await getFsManager();
+
+      while (await fs.getItem(newPath, "shallow")) {
         const nameParts = item.name.split(".");
         if (nameParts.length > 1) {
           const extension = nameParts.pop();
@@ -211,22 +219,17 @@ export function Explorer({ id }: { id: string }) {
         counter++;
       }
 
-      let updatedFileSystem;
       if (action === "copy" || action === "cut") {
-        updatedFileSystem = fileSystem.insertItem(newPath, {
+        await fs.writeFile(newPath, {
           ...item,
           name: newPath.split("/").pop(),
         });
-      }
-
-      if (updatedFileSystem) {
-        setFileSystem(updatedFileSystem);
       }
     } catch (error) {
       console.error("Failed to paste from clipboard:", error);
       alert("Failed to paste item");
     }
-  }, [currentPath, fileSystem, setFileSystem]);
+  }, [currentPath]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -249,7 +252,7 @@ export function Explorer({ id }: { id: string }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedItem, handleCopy, handleCut, handlePaste]);
 
-  const renderItems = (items: Record<string, VirtualItem>, path: string) => {
+  const renderItems = (items: Record<string, StubItem>, path: string) => {
     return Object.keys(items).map((key) => {
       const item = items[key];
       const itemPath = `${path}/${item.name}`.replace("//", "/");
@@ -262,7 +265,10 @@ export function Explorer({ id }: { id: string }) {
           onContextMenu={createContextMenu([
             {
               label: "Delete",
-              onClick: () => setFileSystem(fileSystem.delete(itemPath)),
+              onClick: async () => {
+                const fs = await getFsManager();
+                await fs.delete(itemPath);
+              },
             },
             {
               label: "Rename",
@@ -302,7 +308,6 @@ export function Explorer({ id }: { id: string }) {
     });
   };
 
-  const currentFolder = fileSystem.getFolder(currentPath);
   const currentItems = currentFolder ? currentFolder.items : {};
 
   return (

@@ -17,7 +17,7 @@ import { useActions } from "@/lib/actions/ActionsProvider";
 import Image from "next/image";
 import { initState } from "@/lib/initState";
 import { WIDTH } from "./programs/Welcome";
-import { pickRootDirectory } from "@/state/filesystem";
+// import { pickRootDirectory } from "@/state/filesystem";
 
 export function OS() {
   const [windows] = useAtom(windowsListAtom);
@@ -108,7 +108,7 @@ function StartMenu() {
     {
       label: "Change Root Directory",
       cb: () => {
-        pickRootDirectory();
+        // pickRootDirectory();
       },
     },
     {

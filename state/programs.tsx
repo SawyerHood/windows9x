@@ -1,12 +1,8 @@
 import { atom } from "jotai";
 import { atomFamily } from "jotai/utils";
-import { fileSystemAtom } from "./filesystem";
 import { PROGRAMS_PATH } from "@/lib/filesystem/defaultFileSystem";
-import {
-  VirtualFileSystem,
-  VirtualFolder,
-  VirtualItem,
-} from "@/lib/filesystem/filesystem";
+import { getFsManager } from "@/lib/realFs/FsManager";
+import { DeepFolder, DeepItem } from "@/lib/realFs/FsAdapter";
 
 export type ProgramEntry = {
   id: string;
@@ -37,23 +33,30 @@ type ProgramAction =
       payload: { id: string; version: number };
     };
 
-export const programsAtom = atom<ProgramsState, [ProgramAction], void>(
-  (get) => {
-    const fs = get(fileSystemAtom);
-    const programs = fs.listItems(PROGRAMS_PATH);
+export const programsAtom = atom<Promise<ProgramsState>, [ProgramAction], void>(
+  async (get) => {
+    const fsManager = await getFsManager();
+    const programs = await get(fsManager.getFolderAtom(PROGRAMS_PATH, "deep"));
+    if (!programs) {
+      return {
+        programs: [],
+      };
+    }
     return {
-      programs: programs.map(getProgramEntry).filter(Boolean) as ProgramEntry[],
+      programs: Object.values(programs.items)
+        .map(getProgramEntry)
+        .filter(Boolean) as ProgramEntry[],
     };
   },
-  (get, set, action) => {
-    const fs = get(fileSystemAtom);
-    set(fileSystemAtom, programsReducer(fs, action));
+  async (_get, _set, action) => {
+    const fsManager = await getFsManager();
+    await programsReducer(fsManager, action);
   }
 );
 
-function getProgramEntry(item: VirtualItem): ProgramEntry | null {
+function getProgramEntry(item: DeepItem): ProgramEntry | null {
   if (item.type !== "folder") return null;
-  const folder = item as VirtualFolder;
+  const folder = item as DeepFolder;
   const main = folder.items["main.exe"];
   if (!main || main.type !== "file") {
     return null;
@@ -62,9 +65,9 @@ function getProgramEntry(item: VirtualItem): ProgramEntry | null {
   const index = folder.items["index.html"];
   let code: string | null = null;
   if (index && index.type === "file") {
-    code = index.content;
+    code = index.content as string;
   }
-  const config = JSON.parse(main.content);
+  const config = main.content ? JSON.parse(main.content as string) : {};
   return {
     ...config,
     id: folder.name,
@@ -74,59 +77,63 @@ function getProgramEntry(item: VirtualItem): ProgramEntry | null {
   };
 }
 
-function programsReducer(
-  fs: VirtualFileSystem,
+async function programsReducer(
+  fsManager: Awaited<ReturnType<typeof getFsManager>>,
   action: ProgramAction
-): VirtualFileSystem {
+): Promise<void> {
   switch (action.type) {
     case "ADD_PROGRAM": {
       const { code, id: _id, name: _name, ...rest } = action.payload;
       const path = `${PROGRAMS_PATH}/${action.payload.id}`;
       const timestamp = Date.now();
-      let newFs = fs
-        .createFolder(path)
-        .createFile(
-          `${path}/main.exe`,
-          JSON.stringify({ ...rest, currentVersion: timestamp })
-        )
-        .createFile(`${path}/index.html`, code ?? "");
+      await fsManager.createFolder(path);
+      await fsManager.writeFile(
+        `${path}/main.exe`,
+        JSON.stringify({ ...rest, currentVersion: timestamp })
+      );
+      await fsManager.writeFile(`${path}/index.html`, code ?? "");
 
       // Add version
-      newFs = addVersion(newFs, path, code ?? "", timestamp);
-
-      return newFs;
+      await addVersion(fsManager, path, code ?? "", timestamp);
+      break;
     }
     case "REMOVE_PROGRAM": {
-      return fs.delete(`${PROGRAMS_PATH}/${action.payload}`);
+      await fsManager.delete(`${PROGRAMS_PATH}/${action.payload}`);
+      break;
     }
     case "UPDATE_PROGRAM": {
       const path = `${PROGRAMS_PATH}/${action.payload.id}`;
       const { id: _id, name: _name, ...rest } = action.payload;
-      let newFs = fs;
 
       if ("code" in rest) {
         const code = rest.code;
         delete rest.code;
         const timestamp = Date.now();
-        newFs = newFs.updateFile(`${path}/index.html`, code ?? "");
+        await fsManager.writeFile(`${path}/index.html`, code ?? "");
 
         // Add version
-        newFs = addVersion(newFs, path, code ?? "", timestamp);
+        await addVersion(fsManager, path, code ?? "", timestamp);
 
         // Update currentVersion in main.exe
-        const existing = JSON.parse(newFs.readFile(`${path}/main.exe`));
-        newFs = newFs.updateFile(
+        const existingContent = await (
+          await fsManager.getFile(`${path}/main.exe`, "deep")
+        )?.content;
+        const existing = JSON.parse(existingContent as string);
+        await fsManager.writeFile(
           `${path}/main.exe`,
           JSON.stringify({ ...existing, ...rest, currentVersion: timestamp })
         );
       } else {
-        const existing = JSON.parse(newFs.readFile(`${path}/main.exe`));
-        newFs = newFs.updateFile(
+        const existingContent = await (
+          await fsManager.getFile(`${path}/main.exe`, "deep")
+        )?.content;
+        const existing = JSON.parse(existingContent as string);
+        await fsManager.writeFile(
           `${path}/main.exe`,
           JSON.stringify({ ...existing, ...rest })
         );
       }
-      return newFs;
+      break;
     }
     case "CHANGE_VERSION": {
       const { id, version } = action.payload;
@@ -134,22 +141,30 @@ function programsReducer(
       const versionsPath = `${path}/versions`;
       const versionFileName = `${version}.html`;
 
-      let newFs = fs;
-
       // Read the code from the specified version
-      const newCode = newFs.readFile(`${versionsPath}/${versionFileName}`);
+      const newCode = await fsManager.getFile(
+        `${versionsPath}/${versionFileName}`,
+        "deep"
+      );
+
+      if (!newCode?.content) {
+        return;
+      }
 
       // Update the current code
-      newFs = newFs.updateFile(`${path}/index.html`, newCode);
+      await fsManager.writeFile(`${path}/index.html`, newCode?.content);
 
       // Update currentVersion in main.exe
-      const existing = JSON.parse(newFs.readFile(`${path}/main.exe`));
-      newFs = newFs.updateFile(
+      const existingContent = await (
+        await fsManager.getFile(`${path}/main.exe`, "deep")
+      )?.content;
+      const existing = JSON.parse(existingContent as string);
+      await fsManager.writeFile(
         `${path}/main.exe`,
         JSON.stringify({ ...existing, currentVersion: version })
       );
 
-      return newFs;
+      break;
     }
     case "DELETE_VERSION": {
       const { id, version } = action.payload;
@@ -157,73 +172,82 @@ function programsReducer(
       const versionsPath = `${path}/versions`;
       const versionFileName = `${version}.html`;
 
-      let newFs = fs;
-
       // Delete the version file
-      newFs = newFs.delete(`${versionsPath}/${versionFileName}`);
+      await fsManager.delete(`${versionsPath}/${versionFileName}`);
 
       // If the deleted version was the current version, set the current version to the latest remaining version
-      const existing = JSON.parse(newFs.readFile(`${path}/main.exe`));
+      const existingContent = await (
+        await fsManager.getFile(`${path}/main.exe`, "deep")
+      )?.content;
+      const existing = JSON.parse(existingContent as string);
       if (existing.currentVersion === version) {
-        const remainingVersions = newFs.listItems(versionsPath);
+        const remainingVersions =
+          Object.keys(
+            (await fsManager.getFolder(versionsPath, "shallow"))?.items ?? {}
+          ) ?? [];
         const latestVersion = Math.max(
           ...remainingVersions
-            .map((item) => parseInt(item.name.replace(".html", ""), 10))
+            .map((item) => parseInt(item.replace(".html", ""), 10))
             .filter((v) => !isNaN(v))
         );
 
         if (!isNaN(latestVersion)) {
-          const latestCode = newFs.readFile(
-            `${versionsPath}/${latestVersion}.html`
+          const latestCode = await fsManager.getFile(
+            `${versionsPath}/${latestVersion}.html`,
+            "deep"
           );
-          newFs = newFs.updateFile(`${path}/index.html`, latestCode);
-          newFs = newFs.updateFile(
+          await fsManager.writeFile(
+            `${path}/index.html`,
+            latestCode?.content ?? ""
+          );
+          await fsManager.writeFile(
             `${path}/main.exe`,
             JSON.stringify({ ...existing, currentVersion: latestVersion })
           );
         }
       }
 
-      return newFs;
+      break;
     }
   }
 }
 
-function addVersion(
-  fs: VirtualFileSystem,
+async function addVersion(
+  fsManager: Awaited<ReturnType<typeof getFsManager>>,
   programPath: string,
   code: string,
   timestamp: number
-): VirtualFileSystem {
+): Promise<void> {
   const versionsPath = `${programPath}/versions`;
-  let newFs = fs;
 
   // Create versions folder if it doesn't exist
-  if (!newFs.exists(versionsPath)) {
-    newFs = newFs.createFolder(versionsPath);
+  const folder = await fsManager.getFolder(versionsPath, "shallow");
+  if (!folder) {
+    await fsManager.createFolder(versionsPath);
   }
 
   const versionFileName = `${timestamp}.html`;
-  newFs = newFs.createFile(`${versionsPath}/${versionFileName}`, code);
-
-  return newFs;
+  await fsManager.writeFile(`${versionsPath}/${versionFileName}`, code);
 }
 
 export const programAtomFamily = atomFamily((id: string) =>
-  atom((get) => get(programsAtom).programs.find((p) => p.id === id))
+  atom(async (get) => {
+    const p = await get(programsAtom);
+    return p.programs.find((p) => p.id === id);
+  })
 );
 
 export const programVersionsAtomFamily = atomFamily((id: string) =>
-  atom((get) => {
-    const fs = get(fileSystemAtom);
+  atom(async (get) => {
+    const fsManager = await getFsManager();
     const programPath = `${PROGRAMS_PATH}/${id}`;
     const versionsPath = `${programPath}/versions`;
 
-    if (!fs.exists(versionsPath)) {
+    const folder = await get(fsManager.getFolderAtom(versionsPath, "shallow"));
+    if (!folder) {
       return [];
     }
 
-    const folder = fs.getFolder(versionsPath);
     return Object.keys(folder.items)
       .filter((file: string) => file.endsWith(".html"))
       .map((file: string) => parseInt(file.replace(".html", ""), 10))

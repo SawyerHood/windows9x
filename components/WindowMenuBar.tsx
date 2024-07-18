@@ -3,13 +3,12 @@ import { MenuBar } from "./MenuBar";
 import { getIframe, reloadIframe, windowAtomFamily } from "@/state/window";
 import { windowsListAtom } from "@/state/windowsList";
 import { createWindow } from "@/lib/createWindow";
-import { fileSystemAtom } from "@/state/filesystem";
 import { getParentPath, lastVisitedPathAtom } from "@/state/lastVisitedPath";
+import { getFsManager } from "@/lib/realFs/FsManager";
 
 export function WindowMenuBar({ id }: { id: string }) {
   const [state] = useAtom(windowAtomFamily(id));
   const windowsDispatch = useSetAtom(windowsListAtom);
-  const [_, setFileSystem] = useAtom(fileSystemAtom);
 
   if (state.program.type !== "iframe") return null;
 
@@ -33,7 +32,7 @@ export function WindowMenuBar({ id }: { id: string }) {
                   onClick: () => {
                     const store = getDefaultStore();
                     const iframe = getIframe(id)!;
-                    const handleSaveComplete = (event: MessageEvent) => {
+                    const handleSaveComplete = async (event: MessageEvent) => {
                       if (event.data.operation === "saveComplete") {
                         window.removeEventListener(
                           "message",
@@ -42,20 +41,20 @@ export function WindowMenuBar({ id }: { id: string }) {
 
                         const content = event.data.content;
                         const lastVisitedPath = store.get(lastVisitedPathAtom);
-                        const fs = store.get(fileSystemAtom);
+                        const fs = await getFsManager();
                         createWindow({
                           title: "Save",
                           program: {
                             type: "explorer",
                             currentPath:
-                              lastVisitedPath && fs.exists(lastVisitedPath)
+                              lastVisitedPath &&
+                              (await fs.getItem(lastVisitedPath, "shallow"))
                                 ? lastVisitedPath
                                 : undefined,
                             actionText: "Save",
-                            action: (path) => {
-                              setFileSystem((fs) =>
-                                fs.createOrUpdateFile(path, content)
-                              );
+                            action: async (path) => {
+                              const fs = await getFsManager();
+                              await fs.writeFile(path, content);
                               store.set(
                                 lastVisitedPathAtom,
                                 getParentPath(path)
@@ -77,27 +76,28 @@ export function WindowMenuBar({ id }: { id: string }) {
             state.program.canOpen
               ? {
                   label: "Open",
-                  onClick: () => {
+                  onClick: async () => {
                     const store = getDefaultStore();
                     const lastVisitedPath = store.get(lastVisitedPathAtom);
-                    const fs = store.get(fileSystemAtom);
+                    const fs = await getFsManager();
                     createWindow({
                       title: "Open",
                       program: {
                         type: "explorer",
                         actionText: "Open",
                         currentPath:
-                          lastVisitedPath && fs.exists(lastVisitedPath)
+                          lastVisitedPath &&
+                          (await fs.getItem(lastVisitedPath, "shallow"))
                             ? lastVisitedPath
                             : undefined,
-                        action: (path) => {
-                          const fs = store.get(fileSystemAtom);
-                          const file = fs.readFile(path);
+                        action: async (path) => {
+                          const fs = await getFsManager();
+                          const file = await fs.getFile(path, "deep");
                           const iframe = getIframe(id)!;
                           store.set(lastVisitedPathAtom, getParentPath(path));
                           iframe.contentWindow?.postMessage({
                             operation: "open",
-                            content: file,
+                            content: file?.content,
                           });
                         },
                       },

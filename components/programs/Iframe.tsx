@@ -10,6 +10,17 @@ import { getSettings } from "@/lib/getSettings";
 import { settingsAtom } from "@/state/settings";
 
 export function Iframe({ id }: { id: string }) {
+  const window = useAtomValue(windowAtomFamily(id));
+  assert(window.program.type === "iframe", "Window is not an iframe");
+  const program = useAtomValue(programAtomFamily(window.program.programID));
+  // Return null if the program is not found
+  if (!program) {
+    return null;
+  }
+  return <IframeInner id={id} />;
+}
+
+function IframeInner({ id }: { id: string }) {
   const [state, dispatch] = useAtom(windowAtomFamily(id));
   const ref = useRef<HTMLIFrameElement>(null);
   const dispatchPrograms = useSetAtom(programsAtom);
@@ -72,7 +83,7 @@ export function Iframe({ id }: { id: string }) {
       const { operation, key, value, id, returnJson } = event.data;
 
       const store = getDefaultStore();
-      const registry = store.get(registryAtom);
+      const registry = await store.get(registryAtom);
 
       switch (operation) {
         case "get": {

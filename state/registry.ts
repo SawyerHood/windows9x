@@ -1,29 +1,25 @@
 import { atom } from "jotai";
-import { fileSystemAtom } from "./filesystem";
 import { REGISTRY_PATH } from "@/lib/filesystem/defaultFileSystem";
+import { getFsManager } from "@/lib/realFs/FsManager";
 
 export interface RegistryEntry {
   [key: string]: any;
 }
 
 export const registryAtom = atom(
-  (get) => {
-    const filesystem = get(fileSystemAtom);
-    const registry = filesystem.readFile(REGISTRY_PATH);
+  async (get) => {
+    const fs = await getFsManager();
+    const registry = await get(fs.getFileAtom(REGISTRY_PATH));
     try {
-      return JSON.parse(registry);
+      return JSON.parse((registry?.content as string) || "{}");
     } catch (error) {
       console.error("Failed to parse registry:", error);
       return {};
     }
   },
-  (get, set, update: RegistryEntry) => {
-    const filesystem = get(fileSystemAtom);
-    const registry = filesystem.updateFile(
-      REGISTRY_PATH,
-      JSON.stringify(update)
-    );
-    set(fileSystemAtom, registry);
+  async (_get, _set, update: RegistryEntry) => {
+    const fs = await getFsManager();
+    await fs.writeFile(REGISTRY_PATH, JSON.stringify(update));
   }
 );
 

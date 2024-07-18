@@ -309,11 +309,11 @@ export function getIframeID(id: string) {
   return `iframe-${id}`;
 }
 
-export function reloadIframe(id: string) {
+export async function reloadIframe(id: string) {
   const store = getDefaultStore();
   const window = store.get(windowAtomFamily(id));
   assert(window.program.type === "iframe", "Window is not an iframe");
-  const program = store.get(programAtomFamily(window.program.programID));
+  const program = await store.get(programAtomFamily(window.program.programID));
   assert(program, "Program not found");
 
   store.set(programsAtom, {

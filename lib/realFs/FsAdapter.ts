@@ -1,4 +1,4 @@
-import { RealFs } from "./realFs";
+import { RealFs } from "./RealFs";
 
 export interface StubFile {
   type: "file";
@@ -11,9 +11,9 @@ export interface SubFolder {
   name: string;
 }
 
-type DeepItem = DeepFile | DeepFolder;
+export type DeepItem = DeepFile | DeepFolder;
 
-type StubItem = StubFile | SubFolder;
+export type StubItem = StubFile | SubFolder;
 
 export interface DeepFile extends StubFile {
   content: string | ArrayBuffer;
@@ -29,7 +29,7 @@ export interface ShallowFolder extends SubFolder {
 
 export type Depth = "shallow" | "deep";
 
-export class WindowsFs {
+export class FsAdapter {
   constructor(private fs: RealFs) {}
 
   async writeFile(path: string, content: string | ArrayBuffer): Promise<void> {
