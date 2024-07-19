@@ -1,12 +1,12 @@
 import { getRootDirectoryHandle } from "@/lib/filesystem/fsSync";
 import {
-  FsAdapter,
+  Drive,
   StubFile,
   DeepFile,
   DeepFolder,
   ShallowFolder,
   Depth,
-} from "./FsAdapter";
+} from "./Drive";
 import { RealFs } from "./RealFs";
 import { atomWithRefresh } from "jotai/utils";
 import { atom } from "jotai";
@@ -19,7 +19,7 @@ import {
 import { getOldFormat } from "./getOldFormat";
 
 export class FsManager {
-  private adapter: FsAdapter;
+  private adapter: Drive;
 
   private shallowAtoms: {
     [path: string]: ReturnType<
@@ -40,7 +40,7 @@ export class FsManager {
   } = {};
 
   constructor(handle: FileSystemDirectoryHandle) {
-    this.adapter = new FsAdapter(new RealFs(handle));
+    this.adapter = new Drive(new RealFs(handle));
     this.setupDefaultDirectories();
   }
 

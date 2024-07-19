@@ -29,7 +29,7 @@ export interface ShallowFolder extends SubFolder {
 
 export type Depth = "shallow" | "deep";
 
-export class FsAdapter {
+export class Drive {
   constructor(private fs: RealFs) {}
 
   async writeFile(path: string, content: string | ArrayBuffer): Promise<void> {

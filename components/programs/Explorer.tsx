@@ -14,7 +14,7 @@ import paste from "@/components/assets/paste.ico";
 import newFolder from "@/components/assets/newDir.png";
 import Image from "next/image";
 import { fsManagerAtom, getFsManager } from "@/lib/realFs/FsManager";
-import { StubItem } from "@/lib/realFs/FsAdapter";
+import { StubItem } from "@/lib/realFs/Drive";
 
 export function Explorer({ id }: { id: string }) {
   const createContextMenu = useCreateContextMenu();
