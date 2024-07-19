@@ -30,3 +30,19 @@ export async function getRootDirectoryHandle(): Promise<FileSystemDirectoryHandl
 
   return navigator.storage.getDirectory();
 }
+
+export async function setRootDirectoryHandle(
+  newHandle: FileSystemDirectoryHandle
+): Promise<void> {
+  const db = await getDb();
+
+  // Verify if the new handle is valid and has the necessary permissions
+  try {
+    await newHandle.requestPermission({ mode: "readwrite" });
+  } catch (error) {
+    throw new Error("Unable to set new root directory: Permission denied");
+  }
+
+  // Store the new handle
+  await db.put(STORE_NAME, newHandle, ROOT_KEY);
+}

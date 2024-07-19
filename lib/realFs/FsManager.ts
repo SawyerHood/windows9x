@@ -1,4 +1,4 @@
-import { getRootDirectoryHandle } from "@/lib/filesystem/fsSync";
+import { getRootDirectoryHandle } from "@/lib/realFs/rootDirectory";
 import {
   Drive,
   StubFile,
@@ -15,7 +15,7 @@ import {
   PROGRAMS_PATH,
   USER_PATH,
   REGISTRY_PATH,
-} from "@/lib/filesystem/defaultFileSystem";
+} from "@/lib/realFs/defaultFileSystem";
 import { getOldFormat } from "./getOldFormat";
 
 export class FsManager {
