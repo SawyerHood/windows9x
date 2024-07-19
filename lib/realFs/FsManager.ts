@@ -1,4 +1,7 @@
-import { getRootDirectoryHandle } from "@/lib/realFs/rootDirectory";
+import {
+  getRootDirectoryHandle,
+  rootDirectoryHandleAtom,
+} from "@/lib/realFs/rootDirectory";
 import {
   Drive,
   StubFile,
@@ -9,7 +12,7 @@ import {
 } from "./Drive";
 import { RealFs } from "./RealFs";
 import { atomWithRefresh } from "jotai/utils";
-import { atom } from "jotai";
+import { atom, getDefaultStore } from "jotai";
 import {
   SYSTEM_PATH,
   PROGRAMS_PATH,
@@ -183,9 +186,9 @@ export class FsManager {
   }
 }
 
-async function createFsManager(): Promise<FsManager> {
-  const dir = await getRootDirectoryHandle();
-
+async function createFsManager(
+  dir: FileSystemDirectoryHandle
+): Promise<FsManager> {
   // Check if the URL contains the 'reset' search parameter
   const searchParams = new URLSearchParams(window.location.search);
   const shouldReset = searchParams.has("reset");
@@ -207,17 +210,13 @@ async function createFsManager(): Promise<FsManager> {
   return manager;
 }
 
-let manager: FsManager;
 export async function getFsManager(): Promise<FsManager> {
-  if (!manager) {
-    manager = await createFsManager();
-  }
-  return manager;
+  return await getDefaultStore().get(fsManagerAtom);
 }
 
-export const fsManagerAtom = atom(async () => {
-  const fs = await getFsManager();
-  return fs;
+export const fsManagerAtom = atom(async (get) => {
+  const dir = await get(rootDirectoryHandleAtom);
+  return new FsManager(dir);
 });
 
 async function resetFs() {

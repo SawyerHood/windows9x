@@ -1,4 +1,6 @@
 import { openDB } from "idb";
+import { atom, getDefaultStore } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 
 const DB_NAME = "FileSystemDB";
 const STORE_NAME = "FileSystemStore";
@@ -13,36 +15,68 @@ async function getDb() {
 }
 
 export async function getRootDirectoryHandle(): Promise<FileSystemDirectoryHandle> {
-  const db = await getDb();
-  const storedHandle = await db.get(STORE_NAME, ROOT_KEY);
-
-  if (storedHandle) {
-    // Verify if the stored handle is still valid
-    try {
-      await storedHandle.requestPermission({ mode: "readwrite" });
-      return storedHandle;
-    } catch (error) {
-      console.warn(
-        "Stored directory handle is no longer valid. Using default."
-      );
-    }
-  }
-
-  return navigator.storage.getDirectory();
+  return getDefaultStore().get(rootDirectoryHandleAtom);
 }
 
 export async function setRootDirectoryHandle(
-  newHandle: FileSystemDirectoryHandle
+  newHandle: FileSystemDirectoryHandle | null
 ): Promise<void> {
-  const db = await getDb();
-
-  // Verify if the new handle is valid and has the necessary permissions
-  try {
-    await newHandle.requestPermission({ mode: "readwrite" });
-  } catch (error) {
-    throw new Error("Unable to set new root directory: Permission denied");
-  }
-
-  // Store the new handle
-  await db.put(STORE_NAME, newHandle, ROOT_KEY);
+  getDefaultStore().set(rootDirectoryHandleAtom, newHandle);
 }
+
+const privateRootDirectoryHandleAtom =
+  atomWithStorage<FileSystemDirectoryHandle | null>(
+    ROOT_KEY,
+    null,
+    {
+      getItem: async (key, initialValue) => {
+        const db = await getDb();
+        const storedHandle = await db.get(STORE_NAME, key);
+
+        if (storedHandle) {
+          // Verify if the stored handle is still valid
+          try {
+            await storedHandle.requestPermission({ mode: "readwrite" });
+            return storedHandle;
+          } catch (error) {
+            console.warn(
+              "Stored directory handle is no longer valid. Using default."
+            );
+          }
+        }
+
+        return initialValue;
+      },
+      setItem: async (key, value) => {
+        const db = await getDb();
+
+        if (value) {
+          // Verify if the new handle is valid and has the necessary permissions
+          try {
+            await value.requestPermission({ mode: "readwrite" });
+          } catch (error) {
+            throw new Error(
+              "Unable to set new root directory: Permission denied"
+            );
+          }
+        }
+
+        // Store the new handle
+        await db.put(STORE_NAME, value, key);
+      },
+      removeItem: async (key) => {
+        const db = await getDb();
+        await db.delete(STORE_NAME, key);
+      },
+    },
+    { getOnInit: true }
+  );
+
+export const rootDirectoryHandleAtom = atom(
+  async (get) =>
+    (await get(privateRootDirectoryHandleAtom)) ??
+    (await navigator.storage.getDirectory()),
+  (_get, set, newHandle: FileSystemDirectoryHandle | null) => {
+    set(privateRootDirectoryHandleAtom, newHandle);
+  }
+);

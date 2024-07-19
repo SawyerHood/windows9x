@@ -17,9 +17,11 @@ import { useActions } from "@/lib/actions/ActionsProvider";
 import Image from "next/image";
 import { initState } from "@/lib/initState";
 import { WIDTH } from "./programs/Welcome";
-// import { pickRootDirectory } from "@/state/filesystem";
+import { fsManagerAtom } from "@/lib/realFs/FsManager";
 
 export function OS() {
+  // Temp fix lol
+  useAtom(fsManagerAtom);
   const [windows] = useAtom(windowsListAtom);
   const setFocusedWindow = useSetAtom(focusedWindowAtom);
   const registry = useAtomValue(registryAtom);
@@ -105,12 +107,6 @@ function StartMenu() {
   const { logout } = useActions();
 
   const entries: { label: string; cb: () => void }[] = [
-    {
-      label: "Change Root Directory",
-      cb: () => {
-        // pickRootDirectory();
-      },
-    },
     {
       label: "Welcome",
       cb: () => {
