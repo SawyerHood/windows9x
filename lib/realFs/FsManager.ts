@@ -16,6 +16,7 @@ import {
   USER_PATH,
   REGISTRY_PATH,
 } from "@/lib/filesystem/defaultFileSystem";
+import { getOldFormat } from "./getOldFormat";
 
 export class FsManager {
   private adapter: FsAdapter;
@@ -57,6 +58,11 @@ export class FsManager {
     if (!registryExists) {
       await this.writeFile(REGISTRY_PATH, "{}");
     }
+  }
+
+  public async hasSystemData(): Promise<boolean> {
+    const system = await this.getFolder(SYSTEM_PATH, "shallow");
+    return !!system;
   }
 
   async writeFile(path: string, content: string | ArrayBuffer): Promise<void> {
@@ -179,7 +185,24 @@ export class FsManager {
 
 async function createFsManager(): Promise<FsManager> {
   const dir = await getRootDirectoryHandle();
+
+  // Check if the URL contains the 'reset' search parameter
+  const searchParams = new URLSearchParams(window.location.search);
+  const shouldReset = searchParams.has("reset");
+
+  if (shouldReset) {
+    await resetFs();
+  }
+
   const manager = new FsManager(dir);
+  if (!(await manager.hasSystemData())) {
+    const oldFormat = getOldFormat();
+    if (oldFormat) {
+      for (const [name, item] of Object.entries(oldFormat.items)) {
+        await manager.insert(name, item);
+      }
+    }
+  }
   await manager.setupDefaultDirectories();
   return manager;
 }
@@ -196,3 +219,11 @@ export const fsManagerAtom = atom(async () => {
   const fs = await getFsManager();
   return fs;
 });
+
+async function resetFs() {
+  const dir = await getRootDirectoryHandle();
+  // Remove all items in the directory
+  for await (const entry of dir.values()) {
+    await dir.removeEntry(entry.name, { recursive: true });
+  }
+}

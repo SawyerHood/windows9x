@@ -196,11 +196,6 @@ export function Explorer({ id }: { id: string }) {
       const clipboardContent = await navigator.clipboard.readText();
       const { action, item } = JSON.parse(clipboardContent);
 
-      if (!item) {
-        alert("No valid item in clipboard");
-        return;
-      }
-
       let newPath = `${currentPath}/${item.name}`;
       let counter = 1;
 
@@ -220,10 +215,7 @@ export function Explorer({ id }: { id: string }) {
       }
 
       if (action === "copy" || action === "cut") {
-        await fs.writeFile(newPath, {
-          ...item,
-          name: newPath.split("/").pop(),
-        });
+        await fs.insert(newPath, item);
       }
     } catch (error) {
       console.error("Failed to paste from clipboard:", error);

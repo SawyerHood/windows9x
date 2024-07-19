@@ -32,7 +32,11 @@ export class RealFs {
     const parentDir = await this.ensureDirectory(parts.join("/"));
     const file = await parentDir.getFileHandle(fileName, { create: true });
     const writable = await file.createWritable();
-    await writable.write(content);
+    try {
+      await writable.write(content);
+    } catch (e) {
+      console.error(e);
+    }
     await writable.close();
   }
 
