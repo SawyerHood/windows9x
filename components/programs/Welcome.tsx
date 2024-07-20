@@ -97,6 +97,32 @@ const contentByKey = {
     return (
       <>
         <h3>Updates</h3>
+        <h4>July 19th, 2024</h4>
+        We now have the ability to sync your Windows 9X filesystem to your
+        actual file system! Open up Settings and choose a directory to set as
+        your system directory. This will mount your filesystem to that directory
+        and any files you make in Windows 9X will be saved to that directory.
+        You can also directly edit those files from your real operating system
+        and they will magically update in Windows 9X.
+        <blockquote className="twitter-tweet" data-media-max-width="560">
+          <p lang="en" dir="ltr">
+            What if the filesystem for your fake ai generated operating system
+            was actually real? Generating a program w/ claude -&gt; that is
+            written to my filesystem that I can edit in my local code editor
+            -&gt; that is hot reloaded in my fake os{" "}
+            <a href="https://t.co/ZRQrTlQJNv">pic.twitter.com/ZRQrTlQJNv</a>
+          </p>
+          &mdash; Sawyer Hood (@sawyerhood){" "}
+          <a href="https://twitter.com/sawyerhood/status/1813589978095788286?ref_src=twsrc%5Etfw">
+            July 17, 2024
+          </a>
+        </blockquote>{" "}
+        <script
+          async
+          src="https://platform.twitter.com/widgets.js"
+          charSet="utf-8"
+        ></script>
+        <hr />
         <h4>July 15th, 2024</h4>
         <p>
           Added version history to generated programs. You can now go back to
