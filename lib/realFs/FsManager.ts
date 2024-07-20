@@ -216,7 +216,7 @@ export async function getFsManager(): Promise<FsManager> {
 
 export const fsManagerAtom = atom(async (get) => {
   const dir = await get(rootDirectoryHandleAtom);
-  return new FsManager(dir);
+  return createFsManager(dir);
 });
 
 async function resetFs() {

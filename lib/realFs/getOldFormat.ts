@@ -1,4 +1,4 @@
-import { DeepFolder, DeepItem } from "./Drive";
+import { DeepFolder, DeepItem } from "./FsAdapter";
 
 type VirtualItem = VirtualFile | VirtualFolder;
 
