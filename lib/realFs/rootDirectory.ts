@@ -1,6 +1,23 @@
 import { openDB } from "idb";
 import { atom, getDefaultStore } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+import { getOriginPrivateDirectory } from "file-system-access";
+
+async function getDirectoryHandle() {
+  // Check if FileSystemFileHandle has createWritable method
+  const hasCreateWritable = "createWritable" in FileSystemFileHandle.prototype;
+  let handle: FileSystemDirectoryHandle;
+
+  if (hasCreateWritable) {
+    handle = (await getOriginPrivateDirectory()) as FileSystemDirectoryHandle;
+  } else {
+    handle = (await getOriginPrivateDirectory(
+      import("file-system-access/lib/adapters/indexeddb.js")
+    )) as FileSystemDirectoryHandle;
+  }
+
+  return handle;
+}
 
 const DB_NAME = "FileSystemDB";
 const STORE_NAME = "FileSystemStore";
@@ -74,8 +91,7 @@ const privateRootDirectoryHandleAtom =
 
 export const rootDirectoryHandleAtom = atom(
   async (get) =>
-    (await get(privateRootDirectoryHandleAtom)) ??
-    (await navigator.storage.getDirectory()),
+    (await get(privateRootDirectoryHandleAtom)) ?? (await getDirectoryHandle()),
   (_get, set, newHandle: FileSystemDirectoryHandle | null) => {
     set(privateRootDirectoryHandleAtom, newHandle);
   }

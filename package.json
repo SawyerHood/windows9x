@@ -25,6 +25,7 @@
     "@types/fs-extra": "^11.0.4",
     "braintrust": "^0.0.126",
     "classnames": "^2.5.1",
+    "file-system-access": "^1.0.4",
     "fs-extra": "^11.2.0",
     "idb": "^8.0.0",
     "immer": "^10.1.1",
