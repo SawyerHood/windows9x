@@ -12,24 +12,10 @@ import { useFlags } from "@/flags/context";
 export function Settings({ id }: { id: string }) {
   const [settings, setSettings] = useAtom(settingsAtom);
   const windowsDispatch = useSetAtom(windowsListAtom);
-  const [rootDirectory, setRootDirectory] = useAtom(rootDirectoryHandleAtom);
   const flags = useFlags();
 
   const onSave = () => {
     windowsDispatch({ type: "REMOVE", payload: id });
-  };
-
-  const handleChooseDirectory = async () => {
-    try {
-      const directoryHandle = await (window as any).showDirectoryPicker();
-      setRootDirectory(directoryHandle);
-    } catch (error) {
-      console.error("Error selecting directory:", error);
-    }
-  };
-
-  const handleClearDirectory = () => {
-    setRootDirectory(null);
   };
 
   return (
@@ -76,27 +62,52 @@ export function Settings({ id }: { id: string }) {
 
       {flags.tokens && <ModelSection />}
 
-      <fieldset>
-        <legend>Default Directory</legend>
-        <div className={cx("field-row")}>
-          <button onClick={handleChooseDirectory} className={styles.button}>
-            Choose Directory
-          </button>
-          <button onClick={handleClearDirectory} className={styles.button}>
-            Clear Directory
-          </button>
-        </div>
-        <div className={cx("field-row")}>
-          <p className={styles.note}>
-            {rootDirectory
-              ? `Current directory: ${rootDirectory.name}`
-              : "No custom directory set. Using default."}
-          </p>
-        </div>
-      </fieldset>
+      <DirectorySection />
+
       <button onClick={onSave} className={styles.submit}>
         Save
       </button>
     </div>
+  );
+}
+
+function DirectorySection() {
+  const [rootDirectory, setRootDirectory] = useAtom(rootDirectoryHandleAtom);
+  const handleChooseDirectory = async () => {
+    try {
+      const directoryHandle = await (window as any).showDirectoryPicker();
+      setRootDirectory(directoryHandle);
+    } catch (error) {
+      console.error("Error selecting directory:", error);
+    }
+  };
+
+  const handleClearDirectory = () => {
+    setRootDirectory(null);
+  };
+
+  if (!(window as any).showDirectoryPicker) {
+    return null;
+  }
+
+  return (
+    <fieldset>
+      <legend>Default Directory</legend>
+      <div className={cx("field-row")}>
+        <button onClick={handleChooseDirectory} className={styles.button}>
+          Choose Directory
+        </button>
+        <button onClick={handleClearDirectory} className={styles.button}>
+          Clear Directory
+        </button>
+      </div>
+      <div className={cx("field-row")}>
+        <p className={styles.note}>
+          {rootDirectory
+            ? `Current directory: ${rootDirectory.name}`
+            : "No custom directory set. Using default."}
+        </p>
+      </div>
+    </fieldset>
   );
 }
