@@ -13,6 +13,7 @@ const nextConfig = {
       },
     ],
   },
+  transpilePackages: ["file-system-access", "fetch-blob"],
 };
 
 export default nextConfig;

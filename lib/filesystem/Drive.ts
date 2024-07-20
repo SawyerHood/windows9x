@@ -1,4 +1,5 @@
 import { RealFs } from "./RealFs";
+import { readFileAsText } from "./readFileAsText";
 
 export interface StubFile {
   type: "file";
@@ -79,12 +80,24 @@ export class Drive {
     const file = await fileHandle.getFile();
     const name = path.split("/").pop() || "";
 
+    let proto = Object.getPrototypeOf(file);
+    let d = 0;
+    while (proto) {
+      console.log(
+        `Prototype chain level ${depth}:`,
+        Object.getOwnPropertyNames(proto)
+      );
+      proto = Object.getPrototypeOf(proto);
+      d++;
+    }
+    console.log("File properties:", Object.keys(file));
+
     if (depth === "deep") {
       return {
         type: "file",
         name,
         lastModified: file.lastModified,
-        content: await file.text(),
+        content: await readFileAsText(file),
       };
     } else {
       return {
@@ -113,9 +126,9 @@ export class Drive {
     }
 
     if (item.kind === "file") {
-      const content = await (
+      const content = await readFileAsText(
         await (item as FileSystemFileHandle).getFile()
-      ).text();
+      );
       await this.writeFile(newPath, content);
     } else {
       const folder = await this.getFolder(oldPath, "deep");
@@ -167,7 +180,7 @@ export class Drive {
           type: "file",
           name: entry.name,
           lastModified: file.lastModified,
-          content: await file.text(),
+          content: await readFileAsText(file),
         };
       } else {
         const subDirHandle = await dirHandle.getDirectoryHandle(entry.name);

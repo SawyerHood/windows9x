@@ -1,3 +1,5 @@
+import { readFileAsText } from "./readFileAsText";
+
 export class RealFs {
   root: FileSystemDirectoryHandle;
 
@@ -45,7 +47,7 @@ export class RealFs {
     if (!file || file.kind !== "file") throw new Error("File not found");
     const fileHandle = file as FileSystemFileHandle;
     const fileData = await fileHandle.getFile();
-    return await fileData.text();
+    return await readFileAsText(fileData);
   }
 
   async delete(path: string): Promise<void> {
