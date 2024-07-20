@@ -21,7 +21,7 @@ export function Settings({ id }: { id: string }) {
 
   const handleChooseDirectory = async () => {
     try {
-      const directoryHandle = await window.showDirectoryPicker();
+      const directoryHandle = await (window as any).showDirectoryPicker();
       setRootDirectory(directoryHandle);
     } catch (error) {
       console.error("Error selecting directory:", error);
