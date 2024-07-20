@@ -147,6 +147,11 @@ export const rootDirectoryHandleAtom = atom(
   }
 );
 
+export const isRootDirectorySetAtom = atom(async (get) => {
+  const rootDirectoryHandle = await get(privateRootDirectoryHandleAtom);
+  return rootDirectoryHandle !== null;
+});
+
 export const mountedDirectoriesAtom = atom(
   (get) => get(privateMountedDirectoriesAtom),
   async (

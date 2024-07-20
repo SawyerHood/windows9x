@@ -1,9 +1,12 @@
 "use client";
 
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { settingsAtom } from "@/state/settings";
 import { windowsListAtom } from "@/state/windowsList";
-import { rootDirectoryHandleAtom } from "@/lib/filesystem/directoryMapping";
+import {
+  isRootDirectorySetAtom,
+  rootDirectoryHandleAtom,
+} from "@/lib/filesystem/directoryMapping";
 import styles from "./Settings.module.css";
 import cx from "classnames";
 import { ModelSection } from "../ModelSection";
@@ -74,6 +77,8 @@ export function Settings({ id }: { id: string }) {
 
 function DirectorySection() {
   const [rootDirectory, setRootDirectory] = useAtom(rootDirectoryHandleAtom);
+  const isRootDirectorySet = useAtomValue(isRootDirectorySetAtom);
+
   const handleChooseDirectory = async () => {
     try {
       const directoryHandle = await window.showDirectoryPicker();
@@ -104,9 +109,19 @@ function DirectorySection() {
       </div>
       <div className={cx("field-row")}>
         <p className={styles.note}>
-          {rootDirectory
-            ? `Current directory: ${rootDirectory.name}`
-            : "No custom directory set. Using default."}
+          {isRootDirectorySet ? (
+            <span>
+              Current directory: <b>{rootDirectory.name}</b>
+            </span>
+          ) : (
+            "No custom directory set. Storing in browser storage."
+          )}
+        </p>
+      </div>
+      <div className={cx("field-row")}>
+        <p className={styles.note}>
+          This lets you choose a real directory on you computer where all of the
+          files inside of Windows 9X will be saved.
         </p>
       </div>
     </fieldset>
