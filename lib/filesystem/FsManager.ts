@@ -7,7 +7,7 @@ import {
   Depth,
 } from "./Drive";
 import { RealFs } from "./RealFs";
-import { atomWithRefresh } from "jotai/utils";
+import { atomFamily, atomWithRefresh } from "jotai/utils";
 import {
   SYSTEM_PATH,
   PROGRAMS_PATH,
@@ -19,23 +19,41 @@ export class FsManager {
   private rootDrive: Drive;
   private mountedDrives: { [name: string]: Drive } = {};
 
-  private shallowAtoms: {
-    [path: string]: ReturnType<
-      typeof atomWithRefresh<Promise<ShallowFolder | null>>
-    >;
-  } = {};
+  // TODO these atomFamilies need to be garbage collected
+  private shallowAtoms = atomFamily((path: string) => {
+    const baseAtom = atomWithRefresh(async () =>
+      this.getFolder(path, "shallow")
+    );
+    baseAtom.onMount = (setAtom: () => void) => {
+      const interval = setInterval(() => {
+        setAtom();
+      }, 500);
+      return () => clearInterval(interval);
+    };
+    return baseAtom;
+  });
 
-  private deepAtoms: {
-    [path: string]: ReturnType<
-      typeof atomWithRefresh<Promise<DeepFolder | null>>
-    >;
-  } = {};
+  private deepAtoms = atomFamily((path: string) => {
+    const baseAtom = atomWithRefresh(async () => this.getFolder(path, "deep"));
+    baseAtom.onMount = (setAtom: () => void) => {
+      const interval = setInterval(() => {
+        setAtom();
+      }, 500);
+      return () => clearInterval(interval);
+    };
+    return baseAtom;
+  });
 
-  private fileAtoms: {
-    [path: string]: ReturnType<
-      typeof atomWithRefresh<Promise<DeepFile | null>>
-    >;
-  } = {};
+  private fileAtoms = atomFamily((path: string) => {
+    const baseAtom = atomWithRefresh(async () => this.getFile(path, "deep"));
+    baseAtom.onMount = (setAtom: () => void) => {
+      const interval = setInterval(() => {
+        setAtom();
+      }, 500);
+      return () => clearInterval(interval);
+    };
+    return baseAtom;
+  });
 
   constructor(
     rootHandle: FileSystemDirectoryHandle,
@@ -111,6 +129,10 @@ export class FsManager {
     path: string,
     depth: Depth = "shallow"
   ): Promise<StubFile | ShallowFolder | DeepFile | DeepFolder | null> {
+    if (path === "/mnt") {
+      return this.getMntFolder(depth);
+    }
+
     const mountedDrive = this.getMountedDriveForPath(path);
     if (mountedDrive) {
       const relativePath = this.getRelativePath(path);
@@ -134,31 +156,13 @@ export class FsManager {
       const rootFolder = await this.rootDrive.getFolder(path, depth as any);
       if (rootFolder && Object.keys(this.mountedDrives).length > 0) {
         // Add "mnt" folder to the root directory
-        const mntFolder: ShallowFolder | DeepFolder = {
-          type: "folder",
-          name: "mnt",
-          items: {},
-        };
-
-        if (depth === "deep") {
-          for (const [name, drive] of Object.entries(this.mountedDrives)) {
-            mntFolder.items[name] = (await drive.getFolder("/", "deep"))!;
-          }
-        } else {
-          mntFolder.items = Object.fromEntries(
-            Object.keys(this.mountedDrives).map((name) => [
-              name,
-              {
-                type: "folder" as const,
-                name,
-              },
-            ])
-          );
-        }
-
-        rootFolder.items["mnt"] = mntFolder;
+        rootFolder.items["mnt"] = await this.getMntFolder(depth);
       }
       return rootFolder;
+    }
+
+    if (path === "/mnt") {
+      return this.getMntFolder(depth);
     }
 
     const mountedDrive = this.getMountedDriveForPath(path);
@@ -216,45 +220,14 @@ export class FsManager {
   ): ReturnType<
     typeof atomWithRefresh<Promise<ShallowFolder | DeepFolder | null>>
   > {
-    const atomsMap = depth === "shallow" ? this.shallowAtoms : this.deepAtoms;
-
-    if (!atomsMap[path]) {
-      const atom = atomWithRefresh(async (_get) => {
-        return await this.getFolder(path, depth as any);
-      });
-      atom.onMount = (set) => {
-        const interval = setInterval(() => {
-          set();
-        }, 500);
-        return () => {
-          clearInterval(interval);
-          delete atomsMap[path];
-        };
-      };
-      atomsMap[path] = atom;
-    }
-    return atomsMap[path];
+    const atomFamily = depth === "shallow" ? this.shallowAtoms : this.deepAtoms;
+    return atomFamily(path);
   }
 
   getFileAtom(
     path: string
   ): ReturnType<typeof atomWithRefresh<Promise<DeepFile | null>>> {
-    if (!this.fileAtoms[path]) {
-      const atom = atomWithRefresh(async (_get) => {
-        return await this.getFile(path, "deep");
-      });
-      atom.onMount = (set) => {
-        const interval = setInterval(() => {
-          set();
-        }, 500);
-        return () => {
-          clearInterval(interval);
-          delete this.fileAtoms[path];
-        };
-      };
-      this.fileAtoms[path] = atom;
-    }
-    return this.fileAtoms[path];
+    return this.fileAtoms(path);
   }
 
   private getMountedDriveForPath(path: string): Drive | null {
@@ -268,5 +241,37 @@ export class FsManager {
   private getRelativePath(path: string): string {
     const parts = path.split("/");
     return "/" + parts.slice(3).join("/");
+  }
+
+  private async getMntFolder(
+    depth: Depth
+  ): Promise<ShallowFolder | DeepFolder> {
+    const mntFolder: ShallowFolder | DeepFolder = {
+      type: "folder",
+      name: "mnt",
+      items: {},
+    };
+
+    if (depth === "deep") {
+      for (const [name, drive] of Object.entries(this.mountedDrives)) {
+        const driveFolder = await drive.getFolder("/", "deep");
+        if (driveFolder) {
+          driveFolder.name = name; // Update the name to match the mounted drive name
+          mntFolder.items[name] = driveFolder;
+        }
+      }
+    } else {
+      mntFolder.items = Object.fromEntries(
+        Object.keys(this.mountedDrives).map((name) => [
+          name,
+          {
+            type: "folder" as const,
+            name,
+          },
+        ])
+      );
+    }
+
+    return mntFolder;
   }
 }

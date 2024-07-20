@@ -170,7 +170,7 @@ export const mountedDirectoriesAtom = atom(
 
 export async function mountDirectory(
   name: string,
-  handle: FileSystemDirectoryHandle
+  handle: FileSystemDirectoryHandle | null
 ): Promise<void> {
   getDefaultStore().set(mountedDirectoriesAtom, { name, handle });
 }

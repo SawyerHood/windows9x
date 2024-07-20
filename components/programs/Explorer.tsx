@@ -243,6 +243,23 @@ export function Explorer({ id }: { id: string }) {
     }
   }, [dispatch, currentPath]);
 
+  const handleUnmount = useCallback(
+    async (mountName: string) => {
+      try {
+        await mountDirectory(mountName, null);
+        // Refresh the current folder view
+        dispatch({
+          type: "UPDATE_PROGRAM",
+          payload: { type: "explorer", currentPath },
+        });
+      } catch (error) {
+        console.error("Failed to unmount directory:", error);
+        alert("Failed to unmount directory");
+      }
+    },
+    [dispatch, currentPath]
+  );
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) {
@@ -268,6 +285,8 @@ export function Explorer({ id }: { id: string }) {
     return Object.keys(items).map((key) => {
       const item = items[key];
       const itemPath = `${path}/${item.name}`.replace("//", "/");
+      const isMount = path === "/mnt" && item.type === "folder";
+
       return (
         <tr
           key={key}
@@ -294,6 +313,14 @@ export function Explorer({ id }: { id: string }) {
               label: "Cut",
               onClick: () => handleCut(itemPath),
             },
+            ...(isMount
+              ? [
+                  {
+                    label: "Unmount",
+                    onClick: () => handleUnmount(item.name),
+                  },
+                ]
+              : []),
           ])}
         >
           <td>{item.type === "folder" ? "📁" : "📄"}</td>

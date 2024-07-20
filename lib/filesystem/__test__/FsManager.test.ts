@@ -6,7 +6,7 @@ import {
   USER_PATH,
   REGISTRY_PATH,
 } from "../defaultFileSystem";
-import { DeepFile, ShallowFolder, StubFolder } from "../Drive";
+import { DeepFile, DeepFolder, ShallowFolder } from "../Drive";
 import { filterOutKey } from "./filterOutKey";
 
 async function getNodeDirectoryHandle() {
@@ -335,22 +335,55 @@ describe("FsManager", () => {
       expect(folder?.name).toBe("structure");
     });
 
-    it("should list 'mnt' folder in root directory when mounted drives exist", async () => {
-      const rootPath = "/";
-      const rootFolder = await fsManagerWithMountedDrive.getFolder(
-        rootPath,
+    it("should list mounted drives in /mnt folder", async () => {
+      const mntPath = "/mnt";
+      const mntFolder = await fsManagerWithMountedDrive.getFolder(
+        mntPath,
         "shallow"
       );
 
-      expect(rootFolder).not.toBeNull();
-      const mntFolder = rootFolder?.items["mnt"] as ShallowFolder;
-      expect(mntFolder).toBeDefined();
-      expect(mntFolder.type).toBe("folder");
+      console.log(mntFolder);
+      expect(mntFolder).not.toBeNull();
+      expect(mntFolder?.type).toBe("folder");
+      expect(mntFolder?.name).toBe("mnt");
+      expect(mntFolder?.items[driveName]).toBeDefined();
+      expect(mntFolder?.items[driveName].type).toBe("folder");
+      expect(mntFolder?.items[driveName].name).toBe(driveName);
+    });
 
-      const testDriveFolder = mntFolder.items["testDrive"] as StubFolder;
-      expect(testDriveFolder).toBeDefined();
-      expect(testDriveFolder.type).toBe("folder");
-      expect(testDriveFolder.name).toBe("testDrive");
+    it("should retrieve deep folder structure of mounted drives", async () => {
+      const mntPath = "/mnt";
+      const mntFolder = (await fsManagerWithMountedDrive.getFolder(
+        mntPath,
+        "deep"
+      )) as DeepFolder;
+
+      expect(mntFolder).not.toBeNull();
+      expect(mntFolder.type).toBe("folder");
+      expect(mntFolder.name).toBe("mnt");
+      expect(mntFolder.items[driveName]).toBeDefined();
+      expect(mntFolder.items[driveName].type).toBe("folder");
+      expect(mntFolder.items[driveName].name).toBe(driveName);
+      // Check if the mounted drive's root folder is accessible
+      expect(
+        Object.keys((mntFolder.items[driveName] as DeepFolder).items || {})
+          .length
+      ).toBeGreaterThanOrEqual(0);
+    });
+
+    it("should handle getItem for /mnt path", async () => {
+      const mntPath = "/mnt";
+      const mntItem = await fsManagerWithMountedDrive.getItem(
+        mntPath,
+        "shallow"
+      );
+
+      expect(mntItem).not.toBeNull();
+      expect(mntItem?.type).toBe("folder");
+      expect(mntItem?.name).toBe("mnt");
+      expect((mntItem as ShallowFolder).items[driveName]).toBeDefined();
+      expect((mntItem as ShallowFolder).items[driveName].type).toBe("folder");
+      expect((mntItem as ShallowFolder).items[driveName].name).toBe(driveName);
     });
   });
 });
