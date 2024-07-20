@@ -53,7 +53,7 @@ const privateRootDirectoryHandleAtom =
         if (value) {
           // Verify if the new handle is valid and has the necessary permissions
           try {
-            await value.requestPermission({ mode: "readwrite" });
+            await (value as any).requestPermission({ mode: "readwrite" });
           } catch (error) {
             throw new Error(
               "Unable to set new root directory: Permission denied"
