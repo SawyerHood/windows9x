@@ -1,7 +1,7 @@
 import {
   getRootDirectoryHandle,
   rootDirectoryHandleAtom,
-} from "@/lib/realFs/rootDirectory";
+} from "@/lib/filesystem/rootDirectory";
 import {
   Drive,
   StubFile,
@@ -18,7 +18,7 @@ import {
   PROGRAMS_PATH,
   USER_PATH,
   REGISTRY_PATH,
-} from "@/lib/realFs/defaultFileSystem";
+} from "@/lib/filesystem/defaultFileSystem";
 import { getOldFormat } from "./getOldFormat";
 
 export class FsManager {

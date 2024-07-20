@@ -3,7 +3,7 @@
 import { useAtom, useSetAtom } from "jotai";
 import { settingsAtom } from "@/state/settings";
 import { windowsListAtom } from "@/state/windowsList";
-import { rootDirectoryHandleAtom } from "@/lib/realFs/rootDirectory";
+import { rootDirectoryHandleAtom } from "@/lib/filesystem/rootDirectory";
 import styles from "./Settings.module.css";
 import cx from "classnames";
 import { ModelSection } from "../ModelSection";

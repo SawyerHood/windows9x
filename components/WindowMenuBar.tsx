@@ -4,7 +4,7 @@ import { getIframe, reloadIframe, windowAtomFamily } from "@/state/window";
 import { windowsListAtom } from "@/state/windowsList";
 import { createWindow } from "@/lib/createWindow";
 import { getParentPath, lastVisitedPathAtom } from "@/state/lastVisitedPath";
-import { getFsManager } from "@/lib/realFs/FsManager";
+import { getFsManager } from "@/lib/filesystem/FsManager";
 
 export function WindowMenuBar({ id }: { id: string }) {
   const [state] = useAtom(windowAtomFamily(id));

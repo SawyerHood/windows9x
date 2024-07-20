@@ -1,8 +1,8 @@
 import { atom } from "jotai";
 import { atomFamily } from "jotai/utils";
-import { PROGRAMS_PATH } from "@/lib/realFs/defaultFileSystem";
-import { getFsManager } from "@/lib/realFs/FsManager";
-import { DeepFolder, DeepItem } from "@/lib/realFs/Drive";
+import { PROGRAMS_PATH } from "@/lib/filesystem/defaultFileSystem";
+import { getFsManager } from "@/lib/filesystem/FsManager";
+import { DeepFolder, DeepItem } from "@/lib/filesystem/Drive";
 
 export type ProgramEntry = {
   id: string;

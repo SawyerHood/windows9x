@@ -17,7 +17,7 @@ import { useActions } from "@/lib/actions/ActionsProvider";
 import Image from "next/image";
 import { initState } from "@/lib/initState";
 import { WIDTH } from "./programs/Welcome";
-import { fsManagerAtom } from "@/lib/realFs/FsManager";
+import { fsManagerAtom } from "@/lib/filesystem/FsManager";
 
 export function OS() {
   // Temp fix lol
