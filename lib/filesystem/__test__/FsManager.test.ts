@@ -6,7 +6,7 @@ import {
   USER_PATH,
   REGISTRY_PATH,
 } from "../defaultFileSystem";
-import { DeepFile } from "../Drive";
+import { DeepFile, ShallowFolder, StubFolder } from "../Drive";
 import { filterOutKey } from "./filterOutKey";
 
 async function getNodeDirectoryHandle() {
@@ -333,6 +333,24 @@ describe("FsManager", () => {
       );
       expect(folder).not.toBeNull();
       expect(folder?.name).toBe("structure");
+    });
+
+    it("should list 'mnt' folder in root directory when mounted drives exist", async () => {
+      const rootPath = "/";
+      const rootFolder = await fsManagerWithMountedDrive.getFolder(
+        rootPath,
+        "shallow"
+      );
+
+      expect(rootFolder).not.toBeNull();
+      const mntFolder = rootFolder?.items["mnt"] as ShallowFolder;
+      expect(mntFolder).toBeDefined();
+      expect(mntFolder.type).toBe("folder");
+
+      const testDriveFolder = mntFolder.items["testDrive"] as StubFolder;
+      expect(testDriveFolder).toBeDefined();
+      expect(testDriveFolder.type).toBe("folder");
+      expect(testDriveFolder.name).toBe("testDrive");
     });
   });
 });

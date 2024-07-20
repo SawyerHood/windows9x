@@ -15,6 +15,8 @@ import newFolder from "@/components/assets/newDir.png";
 import Image from "next/image";
 import { fsManagerAtom, getFsManager } from "@/state/fsManager";
 import { StubItem } from "@/lib/filesystem/Drive";
+import disk from "@/components/assets/disk.png";
+import { mountDirectory } from "@/lib/filesystem/directoryMapping";
 
 export function Explorer({ id }: { id: string }) {
   const createContextMenu = useCreateContextMenu();
@@ -223,6 +225,24 @@ export function Explorer({ id }: { id: string }) {
     }
   }, [currentPath]);
 
+  const handleMount = useCallback(async () => {
+    try {
+      const directoryHandle = await window.showDirectoryPicker();
+      const mountName = prompt("Enter a name for this mounted directory:");
+      if (mountName) {
+        await mountDirectory(mountName, directoryHandle);
+        // Refresh the current folder view
+        dispatch({
+          type: "UPDATE_PROGRAM",
+          payload: { type: "explorer", currentPath },
+        });
+      }
+    } catch (error) {
+      console.error("Failed to mount directory:", error);
+      alert("Failed to mount directory");
+    }
+  }, [dispatch, currentPath]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) {
@@ -316,6 +336,10 @@ export function Explorer({ id }: { id: string }) {
         <button onClick={handlePaste}>
           <Image src={paste} alt="Paste" />
           <span>Paste</span>
+        </button>
+        <button onClick={handleMount}>
+          <Image src={disk} alt="Mount" />
+          <span>Mount</span>
         </button>
       </div>
       <div className={styles.pathBar}>

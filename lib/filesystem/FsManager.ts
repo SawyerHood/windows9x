@@ -129,6 +129,38 @@ export class FsManager {
     path: string,
     depth: Depth = "shallow"
   ): Promise<ShallowFolder | DeepFolder | null> {
+    if (path === "/") {
+      // Handle root directory
+      const rootFolder = await this.rootDrive.getFolder(path, depth as any);
+      if (rootFolder && Object.keys(this.mountedDrives).length > 0) {
+        // Add "mnt" folder to the root directory
+        const mntFolder: ShallowFolder | DeepFolder = {
+          type: "folder",
+          name: "mnt",
+          items: {},
+        };
+
+        if (depth === "deep") {
+          for (const [name, drive] of Object.entries(this.mountedDrives)) {
+            mntFolder.items[name] = (await drive.getFolder("/", "deep"))!;
+          }
+        } else {
+          mntFolder.items = Object.fromEntries(
+            Object.keys(this.mountedDrives).map((name) => [
+              name,
+              {
+                type: "folder" as const,
+                name,
+              },
+            ])
+          );
+        }
+
+        rootFolder.items["mnt"] = mntFolder;
+      }
+      return rootFolder;
+    }
+
     const mountedDrive = this.getMountedDriveForPath(path);
     if (mountedDrive) {
       const relativePath = this.getRelativePath(path);

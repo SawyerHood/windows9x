@@ -7,24 +7,24 @@ export interface StubFile {
   lastModified: number;
 }
 
-export interface SubFolder {
+export interface StubFolder {
   type: "folder";
   name: string;
 }
 
 export type DeepItem = DeepFile | DeepFolder;
 
-export type StubItem = StubFile | SubFolder;
+export type StubItem = StubFile | StubFolder;
 
 export interface DeepFile extends StubFile {
   content: string | ArrayBuffer;
 }
 
-export interface DeepFolder extends SubFolder {
+export interface DeepFolder extends StubFolder {
   items: Record<string, DeepItem>;
 }
 
-export interface ShallowFolder extends SubFolder {
+export interface ShallowFolder extends StubFolder {
   items: Record<string, StubItem>;
 }
 
