@@ -202,7 +202,7 @@ async function createFsManager(
     const oldFormat = getOldFormat();
     if (oldFormat) {
       for (const [name, item] of Object.entries(oldFormat.items)) {
-        await manager.insert(name, item);
+        await manager.insert(name, item as DeepFolder | DeepFile);
       }
     }
   }
