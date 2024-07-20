@@ -8,6 +8,7 @@ import styles from "./Settings.module.css";
 import cx from "classnames";
 import { ModelSection } from "../ModelSection";
 import { useFlags } from "@/flags/context";
+import { supportsDirectoryPicker } from "@/lib/supportsDirectoryPicker";
 
 export function Settings({ id }: { id: string }) {
   const [settings, setSettings] = useAtom(settingsAtom);
@@ -75,7 +76,7 @@ function DirectorySection() {
   const [rootDirectory, setRootDirectory] = useAtom(rootDirectoryHandleAtom);
   const handleChooseDirectory = async () => {
     try {
-      const directoryHandle = await (window as any).showDirectoryPicker();
+      const directoryHandle = await window.showDirectoryPicker();
       setRootDirectory(directoryHandle);
     } catch (error) {
       console.error("Error selecting directory:", error);
@@ -86,7 +87,7 @@ function DirectorySection() {
     setRootDirectory(null);
   };
 
-  if (!(window as any).showDirectoryPicker) {
+  if (!supportsDirectoryPicker()) {
     return null;
   }
 

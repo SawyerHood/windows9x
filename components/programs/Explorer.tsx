@@ -17,6 +17,7 @@ import { fsManagerAtom, getFsManager } from "@/state/fsManager";
 import { StubItem } from "@/lib/filesystem/Drive";
 import disk from "@/components/assets/disk.png";
 import { mountDirectory } from "@/lib/filesystem/directoryMapping";
+import { supportsDirectoryPicker } from "@/lib/supportsDirectoryPicker";
 
 export function Explorer({ id }: { id: string }) {
   const createContextMenu = useCreateContextMenu();
@@ -349,6 +350,8 @@ export function Explorer({ id }: { id: string }) {
 
   const currentItems = currentFolder ? currentFolder.items : {};
 
+  const canMountDirectory = supportsDirectoryPicker();
+
   return (
     <div className={styles.explorer}>
       <div className={styles.actions}>
@@ -364,10 +367,12 @@ export function Explorer({ id }: { id: string }) {
           <Image src={paste} alt="Paste" />
           <span>Paste</span>
         </button>
-        <button onClick={handleMount}>
-          <Image src={disk} alt="Mount" />
-          <span>Mount</span>
-        </button>
+        {canMountDirectory && (
+          <button onClick={handleMount}>
+            <Image src={disk} alt="Mount" />
+            <span>Mount</span>
+          </button>
+        )}
       </div>
       <div className={styles.pathBar}>
         <label>Address:</label>
