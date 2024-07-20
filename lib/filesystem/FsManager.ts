@@ -37,8 +37,17 @@ export class FsManager {
     >;
   } = {};
 
-  constructor(handle: FileSystemDirectoryHandle) {
-    this.rootDrive = new Drive(new RealFs(handle));
+  constructor(
+    rootHandle: FileSystemDirectoryHandle,
+    mountedDrives: { [name: string]: FileSystemDirectoryHandle } = {}
+  ) {
+    this.rootDrive = new Drive(new RealFs(rootHandle));
+
+    // Mount drives passed in the constructor
+    for (const [name, handle] of Object.entries(mountedDrives)) {
+      this.mountedDrives[name] = new Drive(new RealFs(handle));
+    }
+
     this.setupDefaultDirectories();
   }
 
@@ -61,28 +70,6 @@ export class FsManager {
   public async hasSystemData(): Promise<boolean> {
     const system = await this.getFolder(SYSTEM_PATH, "shallow");
     return !!system;
-  }
-
-  public async mountDrive(
-    name: string,
-    handle: FileSystemDirectoryHandle
-  ): Promise<void> {
-    if (this.mountedDrives[name]) {
-      throw new Error(`Drive with name '${name}' is already mounted`);
-    }
-    const mountPath = `/mnt/${name}`;
-    const mountedDrive = new Drive(new RealFs(handle));
-    this.mountedDrives[name] = mountedDrive;
-    await this.rootDrive.createFolder(mountPath);
-  }
-
-  public async unmountDrive(name: string): Promise<void> {
-    if (!this.mountedDrives[name]) {
-      throw new Error(`Drive with name '${name}' is not mounted`);
-    }
-    const mountPath = `/mnt/${name}`;
-    delete this.mountedDrives[name];
-    await this.rootDrive.delete(mountPath);
   }
 
   async writeFile(path: string, content: string | ArrayBuffer): Promise<void> {
@@ -201,7 +188,7 @@ export class FsManager {
 
     if (!atomsMap[path]) {
       const atom = atomWithRefresh(async (_get) => {
-        return await this.rootDrive.getFolder(path, depth as any);
+        return await this.getFolder(path, depth as any);
       });
       atom.onMount = (set) => {
         const interval = setInterval(() => {
@@ -222,7 +209,7 @@ export class FsManager {
   ): ReturnType<typeof atomWithRefresh<Promise<DeepFile | null>>> {
     if (!this.fileAtoms[path]) {
       const atom = atomWithRefresh(async (_get) => {
-        return await this.rootDrive.getFile(path, "deep");
+        return await this.getFile(path, "deep");
       });
       atom.onMount = (set) => {
         const interval = setInterval(() => {

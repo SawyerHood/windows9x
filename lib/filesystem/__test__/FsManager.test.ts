@@ -123,33 +123,27 @@ describe("FsManager", () => {
     });
   });
 
-  describe("mountDrive and unmountDrive", () => {
-    it("should mount and unmount a drive", async () => {
+  describe("mounted drives", () => {
+    it("should handle mounted drives passed in the constructor", async () => {
       const driveName = "testDrive";
       const mountPath = `/mnt/${driveName}`;
       const handle = await getNodeDirectoryHandle();
 
-      await fsManager.mountDrive(driveName, handle);
-      const mountedFolder = await fsManager.getFolder(mountPath, "shallow");
-      expect(mountedFolder).not.toBeNull();
+      const fsManagerWithMountedDrive = new FsManager(handle, {
+        [driveName]: await getNodeDirectoryHandle(),
+      });
 
-      await fsManager.unmountDrive(driveName);
-      const unmountedFolder = await fsManager.getFolder(mountPath, "shallow");
-      expect(unmountedFolder).toBeNull();
-    });
+      const testFilePath = `${mountPath}/test.txt`;
+      const content = "Test content in mounted drive";
 
-    it("should throw an error when mounting a drive with an existing name", async () => {
-      const driveName = "existingDrive";
-      const handle = await getNodeDirectoryHandle();
+      await fsManagerWithMountedDrive.writeFile(testFilePath, content);
+      const file = await fsManagerWithMountedDrive.getFile(
+        testFilePath,
+        "deep"
+      );
 
-      await fsManager.mountDrive(driveName, handle);
-      await expect(fsManager.mountDrive(driveName, handle)).rejects.toThrow();
-    });
-
-    it("should throw an error when unmounting a non-existent drive", async () => {
-      await expect(
-        fsManager.unmountDrive("nonExistentDrive")
-      ).rejects.toThrow();
+      expect(file).not.toBeNull();
+      expect(file?.content).toBe(content);
     });
   });
 
@@ -242,22 +236,22 @@ describe("FsManager", () => {
   describe("operations with mounted paths", () => {
     const driveName = "testDrive";
     const mountPath = `/mnt/${driveName}`;
+    let fsManagerWithMountedDrive: FsManager;
 
     beforeEach(async () => {
-      const handle = await getNodeDirectoryHandle();
-      await fsManager.mountDrive(driveName, handle);
-    });
-
-    afterEach(async () => {
-      await fsManager.unmountDrive(driveName);
+      const rootHandle = await getNodeDirectoryHandle();
+      const mountedDriveHandle = await getNodeDirectoryHandle();
+      fsManagerWithMountedDrive = new FsManager(rootHandle, {
+        [driveName]: mountedDriveHandle,
+      });
     });
 
     it("should write and read a file in a mounted drive", async () => {
       const path = `${mountPath}/test.txt`;
       const content = "Hello, mounted world!";
 
-      await fsManager.writeFile(path, content);
-      const file = await fsManager.getFile(path, "deep");
+      await fsManagerWithMountedDrive.writeFile(path, content);
+      const file = await fsManagerWithMountedDrive.getFile(path, "deep");
 
       expect(file).not.toBeNull();
       expect(file?.content).toBe(content);
@@ -266,8 +260,8 @@ describe("FsManager", () => {
     it("should create and retrieve a folder in a mounted drive", async () => {
       const path = `${mountPath}/testFolder`;
 
-      await fsManager.createFolder(path);
-      const folder = await fsManager.getFolder(path, "shallow");
+      await fsManagerWithMountedDrive.createFolder(path);
+      const folder = await fsManagerWithMountedDrive.getFolder(path, "shallow");
 
       expect(folder).not.toBeNull();
       expect(folder?.name).toBe("testFolder");
@@ -275,10 +269,10 @@ describe("FsManager", () => {
 
     it("should delete a file in a mounted drive", async () => {
       const path = `${mountPath}/fileToDelete.txt`;
-      await fsManager.writeFile(path, "content");
+      await fsManagerWithMountedDrive.writeFile(path, "content");
 
-      await fsManager.delete(path);
-      const file = await fsManager.getFile(path, "shallow");
+      await fsManagerWithMountedDrive.delete(path);
+      const file = await fsManagerWithMountedDrive.getFile(path, "shallow");
 
       expect(file).toBeNull();
     });
@@ -286,11 +280,14 @@ describe("FsManager", () => {
     it("should move a file within a mounted drive", async () => {
       const oldPath = `${mountPath}/oldFile.txt`;
       const newPath = `${mountPath}/newFile.txt`;
-      await fsManager.writeFile(oldPath, "content");
+      await fsManagerWithMountedDrive.writeFile(oldPath, "content");
 
-      await fsManager.move(oldPath, newPath);
-      const oldFile = await fsManager.getFile(oldPath, "shallow");
-      const newFile = await fsManager.getFile(newPath, "deep");
+      await fsManagerWithMountedDrive.move(oldPath, newPath);
+      const oldFile = await fsManagerWithMountedDrive.getFile(
+        oldPath,
+        "shallow"
+      );
+      const newFile = await fsManagerWithMountedDrive.getFile(newPath, "deep");
 
       expect(oldFile).toBeNull();
       expect(newFile).not.toBeNull();
@@ -306,8 +303,11 @@ describe("FsManager", () => {
         content: "Inserted content in mounted drive",
       };
 
-      await fsManager.insert(path, file);
-      const retrievedFile = await fsManager.getFile(path, "deep");
+      await fsManagerWithMountedDrive.insert(path, file);
+      const retrievedFile = await fsManagerWithMountedDrive.getFile(
+        path,
+        "deep"
+      );
 
       expect(retrievedFile).toMatchObject(filterOutKey(file, "lastModified"));
     });
@@ -315,9 +315,9 @@ describe("FsManager", () => {
     it("should retrieve an item from a mounted drive", async () => {
       const path = `${mountPath}/itemFile.txt`;
       const content = "Item file content in mounted drive";
-      await fsManager.writeFile(path, content);
+      await fsManagerWithMountedDrive.writeFile(path, content);
 
-      const item = await fsManager.getItem(path, "deep");
+      const item = await fsManagerWithMountedDrive.getItem(path, "deep");
       expect(item).not.toBeNull();
       expect(item?.type).toBe("file");
       expect((item as DeepFile).content).toBe(content);
@@ -325,9 +325,12 @@ describe("FsManager", () => {
 
     it("should handle deep nested paths in a mounted drive", async () => {
       const deepPath = `${mountPath}/deep/nested/folder/structure`;
-      await fsManager.createFolder(deepPath);
+      await fsManagerWithMountedDrive.createFolder(deepPath);
 
-      const folder = await fsManager.getFolder(deepPath, "shallow");
+      const folder = await fsManagerWithMountedDrive.getFolder(
+        deepPath,
+        "shallow"
+      );
       expect(folder).not.toBeNull();
       expect(folder?.name).toBe("structure");
     });

@@ -22,6 +22,7 @@ async function getDirectoryHandle() {
 const DB_NAME = "FileSystemDB";
 const STORE_NAME = "FileSystemStore";
 const ROOT_KEY = "rootDirectoryHandle";
+const MOUNTED_DIRS_KEY = "mountedDirectories";
 
 async function getDb() {
   return openDB(DB_NAME, 1, {
@@ -29,6 +30,35 @@ async function getDb() {
       db.createObjectStore(STORE_NAME);
     },
   });
+}
+
+// Update the storage functions to handle multiple directories
+async function getStoredDirectories(): Promise<
+  Record<string, FileSystemDirectoryHandle>
+> {
+  const db = await getDb();
+  const storedDirs = (await db.get(STORE_NAME, MOUNTED_DIRS_KEY)) || {};
+  const validDirs: Record<string, FileSystemDirectoryHandle> = {};
+
+  for (const [name, handle] of Object.entries(storedDirs)) {
+    try {
+      await (handle as FileSystemDirectoryHandle).requestPermission({
+        mode: "readwrite",
+      });
+      validDirs[name] = handle as FileSystemDirectoryHandle;
+    } catch (error) {
+      console.warn(`Stored directory handle for "${name}" is no longer valid.`);
+    }
+  }
+
+  return validDirs;
+}
+
+async function setStoredDirectories(
+  dirs: Record<string, FileSystemDirectoryHandle>
+): Promise<void> {
+  const db = await getDb();
+  await db.put(STORE_NAME, dirs, MOUNTED_DIRS_KEY);
 }
 
 export async function getRootDirectoryHandle(): Promise<FileSystemDirectoryHandle> {
@@ -89,6 +119,26 @@ const privateRootDirectoryHandleAtom =
     { getOnInit: true }
   );
 
+const privateMountedDirectoriesAtom = atomWithStorage<
+  Record<string, FileSystemDirectoryHandle>
+>(
+  MOUNTED_DIRS_KEY,
+  {},
+  {
+    getItem: async (_key, _initialValue) => {
+      return await getStoredDirectories();
+    },
+    setItem: async (_key, value) => {
+      await setStoredDirectories(value);
+    },
+    removeItem: async (key) => {
+      const db = await getDb();
+      await db.delete(STORE_NAME, key);
+    },
+  },
+  { getOnInit: true }
+);
+
 export const rootDirectoryHandleAtom = atom(
   async (get) =>
     (await get(privateRootDirectoryHandleAtom)) ?? (await getDirectoryHandle()),
@@ -96,3 +146,35 @@ export const rootDirectoryHandleAtom = atom(
     set(privateRootDirectoryHandleAtom, newHandle);
   }
 );
+
+export const mountedDirectoriesAtom = atom(
+  (get) => get(privateMountedDirectoriesAtom),
+  async (
+    get,
+    set,
+    update: { name: string; handle: FileSystemDirectoryHandle | null }
+  ) => {
+    const currentDirs = await get(privateMountedDirectoriesAtom);
+    if (update.handle === null) {
+      const { name } = update;
+      const { [name]: _, ...rest } = currentDirs;
+      set(privateMountedDirectoriesAtom, rest);
+    } else {
+      set(privateMountedDirectoriesAtom, {
+        ...currentDirs,
+        [update.name]: update.handle,
+      });
+    }
+  }
+);
+
+export async function mountDirectory(
+  name: string,
+  handle: FileSystemDirectoryHandle
+): Promise<void> {
+  getDefaultStore().set(mountedDirectoriesAtom, { name, handle });
+}
+
+export async function unmountDirectory(name: string): Promise<void> {
+  getDefaultStore().set(mountedDirectoriesAtom, { name, handle: null });
+}
