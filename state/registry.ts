@@ -1,6 +1,6 @@
 import { atom } from "jotai";
 import { REGISTRY_PATH } from "@/lib/filesystem/defaultFileSystem";
-import { getFsManager } from "@/lib/filesystem/FsManager";
+import { getFsManager } from "@/state/fsManager";
 
 export interface RegistryEntry {
   [key: string]: any;

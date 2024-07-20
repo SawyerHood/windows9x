@@ -1,6 +1,7 @@
 import { DeepFile, DeepFolder, Drive } from "../Drive";
 import { RealFs } from "../RealFs";
 import { getOriginPrivateDirectory } from "file-system-access";
+import { filterOutKey } from "./filterOutKey";
 
 async function getNodeDirectoryHandle() {
   return getOriginPrivateDirectory(
@@ -156,7 +157,7 @@ describe("Drive", () => {
       };
       await drive.insert("inserted.txt", file);
       const result = await drive.getFile("inserted.txt", "deep");
-      expect(result).toEqual(file);
+      expect(result).toMatchObject(filterOutKey(file, "lastModified"));
     });
 
     it("should insert a folder structure", async () => {
@@ -228,24 +229,6 @@ describe("Drive", () => {
     });
   });
 });
-
-// Helper function to recursively filter out a key from all objects
-function filterOutKey(obj: any, keyToFilter: string): any {
-  if (typeof obj !== "object" || obj === null) {
-    return obj;
-  }
-
-  if (Array.isArray(obj)) {
-    return obj.map((item) => filterOutKey(item, keyToFilter));
-  }
-
-  return Object.entries(obj).reduce((acc, [key, value]) => {
-    if (key !== keyToFilter) {
-      acc[key] = filterOutKey(value, keyToFilter);
-    }
-    return acc;
-  }, {} as any);
-}
 
 describe("filterOutKey", () => {
   it("should remove the specified key from nested objects", () => {

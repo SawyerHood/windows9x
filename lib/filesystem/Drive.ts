@@ -80,18 +80,6 @@ export class Drive {
     const file = await fileHandle.getFile();
     const name = path.split("/").pop() || "";
 
-    let proto = Object.getPrototypeOf(file);
-    let d = 0;
-    while (proto) {
-      console.log(
-        `Prototype chain level ${depth}:`,
-        Object.getOwnPropertyNames(proto)
-      );
-      proto = Object.getPrototypeOf(proto);
-      d++;
-    }
-    console.log("File properties:", Object.keys(file));
-
     if (depth === "deep") {
       return {
         type: "file",
@@ -105,6 +93,28 @@ export class Drive {
         name,
         lastModified: file.lastModified,
       };
+    }
+  }
+
+  async getItem(
+    path: string,
+    depth: "shallow"
+  ): Promise<StubFile | ShallowFolder | null>;
+  async getItem(
+    path: string,
+    depth: "deep"
+  ): Promise<DeepFile | DeepFolder | null>;
+  async getItem(
+    path: string,
+    depth: Depth = "shallow"
+  ): Promise<StubFile | ShallowFolder | DeepFile | DeepFolder | null> {
+    const item = await this.fs.getItem(path);
+    if (!item) return null;
+
+    if (item.kind === "file") {
+      return this.getFile(path, depth as any);
+    } else {
+      return this.getFolder(path, depth as any);
     }
   }
 
