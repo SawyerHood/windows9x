@@ -5,14 +5,20 @@ import { getOriginPrivateDirectory } from "file-system-access";
 
 async function getDirectoryHandle() {
   // Check if FileSystemFileHandle has createWritable method
-  const hasCreateWritable = "createWritable" in FileSystemFileHandle.prototype;
+  const hasCreateWritable =
+    globalThis.FileSystemFileHandle &&
+    "createWritable" in window.FileSystemFileHandle.prototype;
   let handle: FileSystemDirectoryHandle;
 
   if (hasCreateWritable) {
     handle = (await getOriginPrivateDirectory()) as FileSystemDirectoryHandle;
-  } else {
+  } else if (globalThis.indexedDB) {
     handle = (await getOriginPrivateDirectory(
       import("file-system-access/lib/adapters/indexeddb.js")
+    )) as FileSystemDirectoryHandle;
+  } else {
+    handle = (await getOriginPrivateDirectory(
+      import("file-system-access/lib/adapters/memory.js")
     )) as FileSystemDirectoryHandle;
   }
 
@@ -116,7 +122,7 @@ const privateRootDirectoryHandleAtom =
         await db.delete(STORE_NAME, key);
       },
     },
-    { getOnInit: true }
+    { getOnInit: typeof window !== "undefined" }
   );
 
 const privateMountedDirectoriesAtom = atomWithStorage<
@@ -136,7 +142,7 @@ const privateMountedDirectoriesAtom = atomWithStorage<
       await db.delete(STORE_NAME, key);
     },
   },
-  { getOnInit: true }
+  { getOnInit: typeof window !== "undefined" }
 );
 
 export const rootDirectoryHandleAtom = atom(

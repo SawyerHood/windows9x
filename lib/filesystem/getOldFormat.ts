@@ -19,6 +19,9 @@ type VirtualFolder = {
 const KEY = "filesystem";
 
 export function getOldFormat(): DeepFolder | null {
+  if (!globalThis.localStorage) {
+    return null;
+  }
   const storedData = localStorage.getItem(KEY);
   if (!storedData) {
     return null;

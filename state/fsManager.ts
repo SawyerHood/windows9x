@@ -1,5 +1,4 @@
 import {
-  getRootDirectoryHandle,
   rootDirectoryHandleAtom,
   mountedDirectoriesAtom,
 } from "@/lib/filesystem/directoryMapping";
@@ -12,14 +11,6 @@ async function createFsManager(
   dir: FileSystemDirectoryHandle,
   mountedDirs: Record<string, FileSystemDirectoryHandle>
 ): Promise<FsManager> {
-  // Check if the URL contains the 'reset' search parameter
-  const searchParams = new URLSearchParams(window.location.search);
-  const shouldReset = searchParams.has("reset");
-
-  if (shouldReset) {
-    await resetFs();
-  }
-
   const manager = new FsManager(dir, mountedDirs);
   if (!(await manager.hasSystemData())) {
     const oldFormat = getOldFormat();
@@ -43,10 +34,10 @@ export const fsManagerAtom = atom(async (get) => {
   return createFsManager(dir, mountedDirs);
 });
 
-async function resetFs() {
-  const dir = await getRootDirectoryHandle();
-  // Remove all items in the directory
-  for await (const entry of dir.values()) {
-    await dir.removeEntry(entry.name, { recursive: true });
-  }
-}
+// async function resetFs() {
+//   const dir = await getRootDirectoryHandle();
+//   // Remove all items in the directory
+//   for await (const entry of dir.values()) {
+//     await dir.removeEntry(entry.name, { recursive: true });
+//   }
+// }
