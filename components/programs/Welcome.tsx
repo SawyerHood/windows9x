@@ -5,9 +5,9 @@ import Image from "next/image";
 import styles from "./Welcome.module.css";
 import sawyersoft from "@/components/landing/assets/sawyersoft.png";
 import check from "@/components/assets/check.png";
-import { isMobile } from "@/lib/isMobile";
 import { SettingsLink } from "../SettingsLink";
 import history from "./updateAssets/history.png";
+import mount from "./updateAssets/mount.png";
 
 type TableOfContentsEntry = {
   title: string;
@@ -52,12 +52,6 @@ const contentByKey = {
   welcome: () => {
     return (
       <>
-        {isMobile() && (
-          <blockquote style={{ fontStyle: "italic", color: "green" }}>
-            <strong>Note:</strong> Windows 9X works best on desktop. For the
-            full experience, please visit on a larger screen.
-          </blockquote>
-        )}
         <h3>Welcome</h3>
 
         <p>
@@ -97,6 +91,13 @@ const contentByKey = {
     return (
       <>
         <h3>Updates</h3>
+        <h4>July 23rd, 2024</h4>
+        <p>
+          Introducing mounted file systems. You can now access a directory on
+          your computer inside of Windows 9X. Generate programs inside of
+          Windows 9X and use them to edit files on your actual file system.
+        </p>
+        <Image src={mount} alt="Image of mounted filesystem" width={400} />
         <h4>July 19th, 2024</h4>
         We now have the ability to sync your Windows 9X filesystem to your
         actual file system! Open up Settings and choose a directory to set as
