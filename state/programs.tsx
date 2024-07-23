@@ -8,6 +8,7 @@ export type ProgramEntry = {
   id: string;
   name: string;
   prompt: string;
+  imgPrompt?: string;
   code?: string;
   icon?: string | null;
   currentVersion?: number;

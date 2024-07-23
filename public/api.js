@@ -5,7 +5,7 @@ class Registry {
   async get(key) {
     const id = currId++;
     window.parent.postMessage({ operation: "get", key, id }, "*");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       window.addEventListener("message", (event) => {
         if (event.data.id === id) {
           resolve(event.data.value);
@@ -24,7 +24,7 @@ class Registry {
   async listKeys() {
     const id = currId++;
     window.parent.postMessage({ operation: "listKeys", id }, "*");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       window.addEventListener("message", (event) => {
         if (event.data.id === id) {
           resolve(event.data.value);
@@ -35,16 +35,15 @@ class Registry {
 }
 window.chat = (messages, returnJson) => {
   const id = currId++;
-  window.parent.postMessage(
-    { operation: "chat", value: messages, id, returnJson },
-    "*"
-  );
-  return new Promise((resolve, reject) => {
-    window.addEventListener("message", (event) => {
+  window.parent.postMessage({ operation: "chat", value: messages, id, returnJson }, "*");
+  return new Promise((resolve, _reject) => {
+    const messageHandler = (event) => {
       if (event.data.id === id) {
+        window.removeEventListener("message", messageHandler);
         resolve(event.data.value);
       }
-    });
+    };
+    window.addEventListener("message", messageHandler);
   });
 };
 var onSaveCallback = null;
@@ -69,4 +68,17 @@ window.onmessage = (event) => {
     onOpenCallback?.(content);
   }
 };
-window.registry = new Registry();
+window.registry = new Registry;
+window.spawn = (description, base64Image) => {
+  const id = currId++;
+  window.parent.postMessage({ operation: "spawn", description, base64Image, id }, "*");
+  return new Promise((resolve, _reject) => {
+    const messageHandler = (event) => {
+      if (event.data.id === id) {
+        window.removeEventListener("message", messageHandler);
+        resolve(event.data.result);
+      }
+    };
+    window.addEventListener("message", messageHandler);
+  });
+};

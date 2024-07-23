@@ -9,6 +9,7 @@ import { settingsAtom } from "@/state/settings";
 import { useFlags } from "@/flags/context";
 import { trpc } from "@/lib/api/client";
 import { SettingsLink } from "../SettingsLink";
+import { spawn } from "@/lib/spawn";
 
 export function Run({ id }: { id: string }) {
   const windowsDispatch = useSetAtom(windowsListAtom);
@@ -27,39 +28,10 @@ export function Run({ id }: { id: string }) {
         const formData = new FormData(e.currentTarget);
         const programDescription = formData.get("program-description");
         if (typeof programDescription === "string") {
-          let name = programDescription;
-
-          if (name.length > 20) {
-            const nameResp = await fetch("/api/name", {
-              method: "POST",
-              body: JSON.stringify({
-                desc: programDescription,
-                settings: getSettings(),
-              }),
-            });
-
-            name = (await nameResp.json()).name;
-          }
-
-          const program: ProgramEntry = {
-            id: name,
-            prompt: programDescription,
-            name,
-          };
-
-          programsDispatch({ type: "ADD_PROGRAM", payload: program });
-
-          createWindow({
-            title: name,
-            program: {
-              type: "iframe",
-              programID: program.id,
-            },
-            loading: true,
-            size: {
-              width: 400,
-              height: 400,
-            },
+          await spawn({
+            description: programDescription,
+            settings,
+            programsDispatch,
           });
           windowsDispatch({ type: "REMOVE", payload: id });
         }

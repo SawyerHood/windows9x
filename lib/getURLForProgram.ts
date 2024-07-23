@@ -9,8 +9,13 @@ export function getURLForProgram(
 ) {
   const keys = getRegistryKeys(registry);
   const keyString = JSON.stringify(keys);
+  const imgUrlParam = program.imgPrompt
+    ? `&imgUrl=${encodeURIComponent(program.imgPrompt)}`
+    : "";
 
-  return `/api/program?description=${program.prompt}&keys=${encodeURIComponent(
-    keyString
-  )}&settings=${encodeURIComponent(JSON.stringify(getSettings()))}`;
+  return `/api/program?description=${encodeURIComponent(
+    program.prompt
+  )}&keys=${encodeURIComponent(keyString)}&settings=${encodeURIComponent(
+    JSON.stringify(getSettings())
+  )}${imgUrlParam}`;
 }

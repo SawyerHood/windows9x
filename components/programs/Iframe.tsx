@@ -8,6 +8,8 @@ import { registryAtom } from "@/state/registry";
 import { getURLForProgram } from "@/lib/getURLForProgram";
 import { getSettings } from "@/lib/getSettings";
 import { settingsAtom } from "@/state/settings";
+import { spawn } from "@/lib/spawn";
+import { useStore } from "jotai";
 
 export function Iframe({ id }: { id: string }) {
   const window = useAtomValue(windowAtomFamily(id));
@@ -27,6 +29,7 @@ function IframeInner({ id }: { id: string }) {
   const startedRef = useRef(false);
   const registry = useAtomValue(registryAtom);
   const { model } = useAtomValue(settingsAtom);
+  const store = useStore();
 
   assert(state.program.type === "iframe", "Program is not an iframe");
 
@@ -80,7 +83,15 @@ function IframeInner({ id }: { id: string }) {
       }
 
       // Assuming the message contains the operation type and key-value data
-      const { operation, key, value, id, returnJson } = event.data;
+      const {
+        operation,
+        key,
+        value,
+        id,
+        returnJson,
+        description,
+        base64Image,
+      } = event.data;
 
       const store = getDefaultStore();
       const registry = await store.get(registryAtom);
@@ -144,6 +155,23 @@ function IframeInner({ id }: { id: string }) {
           // Handled in Window.tsx
           break;
         }
+        case "spawn": {
+          const settings = getSettings();
+
+          await spawn({
+            description,
+            settings,
+            programsDispatch: dispatchPrograms,
+            base64Image,
+          });
+
+          event.source!.postMessage({
+            operation: "result",
+            id,
+            result: "Program spawned successfully",
+          });
+          break;
+        }
 
         default:
           console.error("Unsupported operation");
@@ -152,7 +180,7 @@ function IframeInner({ id }: { id: string }) {
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [dispatch, ref]);
+  }, [dispatch, ref, store, dispatchPrograms]);
 
   return (
     <iframe

@@ -79,3 +79,20 @@ window.onmessage = (event) => {
 };
 
 (window as any).registry = new Registry();
+
+(window as any).spawn = (description: string, base64Image?: string) => {
+  const id = currId++;
+  window.parent.postMessage(
+    { operation: "spawn", description, base64Image, id },
+    "*"
+  );
+  return new Promise((resolve, _reject) => {
+    const messageHandler = (event: MessageEvent) => {
+      if (event.data.id === id) {
+        window.removeEventListener("message", messageHandler);
+        resolve(event.data.result);
+      }
+    };
+    window.addEventListener("message", messageHandler);
+  });
+};

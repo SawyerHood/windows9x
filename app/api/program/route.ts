@@ -1,6 +1,7 @@
 import { ChatCompletionCreateParamsStreaming } from "openai/resources/index.mjs";
 import { streamHtml } from "openai-html-stream";
 import { getApiText } from "@/lib/apiText";
+import fetch from "node-fetch";
 
 import { getSettingsFromGetRequest } from "@/lib/getSettingsFromRequest";
 import { createClientFromSettings } from "@/ai/client";
@@ -49,6 +50,19 @@ export async function GET(req: Request) {
 
   const desc = url.searchParams.get("description");
   const keys = JSON.parse(url.searchParams.get("keys") ?? "[]");
+  const imgUrl = url.searchParams.get("imgUrl");
+  let dataUri: string | undefined;
+
+  if (imgUrl) {
+    try {
+      const url = decodeURIComponent(imgUrl);
+      console.log(url);
+      dataUri = await fetchImageAsDataUri(url);
+    } catch (error) {
+      console.error("Error fetching image:", error);
+    }
+  }
+
   if (!desc) {
     return new Response("No description", {
       status: 404,
@@ -61,6 +75,7 @@ export async function GET(req: Request) {
     settings,
     req,
     user,
+    imgUrl: dataUri, // Pass the data URI instead of the URL
   });
   return new Response(
     streamHtml(programStream, {
@@ -83,6 +98,14 @@ href="https://unpkg.com/98.css"
   );
 }
 
+async function fetchImageAsDataUri(url: string): Promise<string> {
+  const response = await fetch(url);
+  const arrayBuffer = await response.arrayBuffer();
+  const base64 = Buffer.from(arrayBuffer).toString("base64");
+  const mimeType = response.headers.get("content-type") || "image/png";
+  return `data:${mimeType};base64,${base64}`;
+}
+
 function makeSystem(keys: string[]) {
   log(keys);
   return `You will be creating a fantastical application for the Windows9X operating system, an alternate reality version of Windows from 199X. I will provide you with the name of an application exe file, and your job is to imagine what that application would do and generate the code to implement it.
@@ -103,6 +126,7 @@ Make the programs fill the entire screen.
 Don't include any other text, commentary or explanations, just the raw HTML/CSS/JS. Make sure that the page is standalone and is wrapped in <html> tags
 Remember, you have full creative freedom to imagine a captivating application that fits the name provided. Aim to create something functional yet unexpected that transports the user into the alternate world of the Windows9X operating system. Focus on crafting clean, well-structured code that brings your vision to life.
 
+If the user provides an image, use that to help you make the program. It might be a low fi sketch, but read in between the lines
 
 The Operating System provides a few apis that your application can use. These are defined on window:
 
@@ -116,12 +140,14 @@ async function createProgramStream({
   settings,
   req,
   user,
+  imgUrl,
 }: {
   desc: string;
   keys: string[];
   settings: Settings;
   req: Request;
   user: User | null;
+  imgUrl?: string | null;
 }) {
   const { usedOwnKey, preferredModel } = createClientFromSettings(settings);
 
@@ -134,16 +160,25 @@ async function createProgramStream({
     req
   );
 
+  const userMessage: ChatCompletionCreateParamsStreaming["messages"][0] = {
+    role: "user",
+    content: [{ type: "text", text: `<app_name>${desc}</app_name>` }],
+  };
+
+  if (imgUrl) {
+    (userMessage.content as any[]).push({
+      type: "image_url",
+      image_url: { url: imgUrl }, // This now contains the data URI
+    });
+  }
+
   const params: ChatCompletionCreateParamsStreaming = {
     messages: [
       {
         role: "system",
         content: makeSystem(keys),
       },
-      {
-        role: "user",
-        content: `<app_name>${desc}</app_name>`,
-      },
+      userMessage,
     ],
     model: preferredModel,
     temperature: 1,
