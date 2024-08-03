@@ -26,7 +26,7 @@ declare global {
 
   // Spawn a new program with the given description and optional dataUrl for an image to help with making the program
   // Returns a promise that resolves when the program has been spawned. 
-  // Include the mime type in the base64 image.
+  // Include the mime type in the base64 image. Make sure the image has a background color.
   var spawn: (description: string, dataUrl?: string) => Promise<string>;
 }
 
