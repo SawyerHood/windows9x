@@ -18,6 +18,7 @@ import { StubItem } from "@/lib/filesystem/Drive";
 import disk from "@/components/assets/disk.png";
 import { mountDirectory } from "@/lib/filesystem/directoryMapping";
 import { supportsDirectoryPicker } from "@/lib/supportsDirectoryPicker";
+import { runProgramFromPath } from "@/lib/runProgramFromPath";
 
 export function Explorer({ id }: { id: string }) {
   const createContextMenu = useCreateContextMenu();
@@ -52,12 +53,16 @@ export function Explorer({ id }: { id: string }) {
       });
     }
 
-    if (item?.type === "file" && action) {
-      action(path);
-      windowListDispatch({
-        type: "REMOVE",
-        payload: id,
-      });
+    if (item?.type === "file") {
+      if (action) {
+        action(path);
+        windowListDispatch({
+          type: "REMOVE",
+          payload: id,
+        });
+      } else if (item.name.endsWith(".exe")) {
+        runProgramFromPath(path);
+      }
     }
   };
 

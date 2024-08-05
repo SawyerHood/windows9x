@@ -102,6 +102,7 @@ const contentByKey = {
             counts against your quality tokens. I&apos;m working on new metering
             methods for that.
           </li>
+          <li>You can now double click to run programs in Explorer.</li>
         </ul>
         <h4>July 23rd, 2024</h4>
         <p>
