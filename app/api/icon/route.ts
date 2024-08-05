@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 import { canGenerate } from "@/server/usage/canGenerate";
 import { Settings } from "@/state/settings";
 import { User } from "@supabase/supabase-js";
+import { createPaymentRequiredResponse } from "@/server/paymentRequiredResponse";
 
 export async function POST(req: Request) {
   const user = await getUser();
@@ -22,12 +23,7 @@ export async function POST(req: Request) {
     const client = createClient();
 
     if (!(await canGenerate(client, user))) {
-      return new Response(
-        JSON.stringify({ error: "You do not have enough tokens" }),
-        {
-          status: 401,
-        }
-      );
+      return createPaymentRequiredResponse();
     }
   }
 

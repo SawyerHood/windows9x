@@ -9,6 +9,7 @@ import { log } from "@/lib/log";
 import { createClient } from "@/lib/supabase/server";
 import { canGenerate } from "@/server/usage/canGenerate";
 import { insertGeneration } from "@/server/usage/insertGeneration";
+import { createPaymentRequiredResponse } from "@/server/paymentRequiredResponse";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -26,14 +27,7 @@ export async function POST(req: Request) {
       const hasTokens = await canGenerate(client, user);
 
       if (!hasTokens) {
-        return new Response(
-          JSON.stringify(
-            "No tokens left. Use a custom key or buy tokens to continue."
-          ),
-          {
-            status: 401,
-          }
-        );
+        return createPaymentRequiredResponse();
       }
 
       await insertGeneration({

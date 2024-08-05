@@ -1,6 +1,7 @@
 import { ChatCompletionCreateParamsStreaming } from "openai/resources/index.mjs";
 import { streamHtml } from "openai-html-stream";
 import { getApiText } from "@/lib/apiText";
+import { createPaymentRequiredResponse } from "@/server/paymentRequiredResponse";
 
 import { getSettingsFromGetRequest } from "@/lib/getSettingsFromRequest";
 import { createClientFromSettings } from "@/ai/client";
@@ -31,9 +32,7 @@ export async function GET(req: Request) {
       const hasTokens = await canGenerate(client, user);
 
       if (!hasTokens) {
-        return new Response(JSON.stringify({ error: "No generations left" }), {
-          status: 401,
-        });
+        return createPaymentRequiredResponse();
       }
 
       await insertGeneration({
