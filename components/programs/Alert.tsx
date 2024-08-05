@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React from "react";
 import styles from "./Alert.module.css";
 import { useSetAtom, useAtomValue } from "jotai";
 import { windowsListAtom } from "@/state/windowsList";
@@ -19,7 +19,18 @@ export function Alert({ id }: { id: string }) {
     return null;
   }
 
-  const { message, icon } = windowState.program;
+  const { message, icon, actions } = windowState.program;
+
+  const renderActions = () => {
+    if (actions && actions.length > 0) {
+      return actions.map((action, index) => (
+        <button key={index} onClick={() => action.callback(handleClose)}>
+          {action.label}
+        </button>
+      ));
+    }
+    return <button onClick={handleClose}>OK</button>;
+  };
 
   return (
     <div className={styles.alertContainer}>
@@ -31,9 +42,7 @@ export function Alert({ id }: { id: string }) {
         )}
         <div className={styles.alertMessage}>{message}</div>
       </div>
-      <div className={styles.alertActions}>
-        <button onClick={handleClose}>OK</button>
-      </div>
+      <div className={styles.alertActions}>{renderActions()}</div>
     </div>
   );
 }

@@ -18,8 +18,18 @@ export type Program =
       action?: (path: string) => void;
       actionText?: string;
     }
-  | { type: "alert"; message: ReactNode; alertId?: string; icon?: "x" };
+  | {
+      type: "alert";
+      message: ReactNode;
+      alertId?: string;
+      icon?: "x";
+      actions?: AlertAction[];
+    };
 
+export type AlertAction = {
+  label: string;
+  callback: (close: () => void) => void;
+};
 export type WindowState = {
   status: "maximized" | "minimized" | "normal";
   pos: {
