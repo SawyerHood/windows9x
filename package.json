@@ -54,6 +54,7 @@
     "eslint-config-next": "^15.0.0-rc.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   },
   "module": "index.ts",
