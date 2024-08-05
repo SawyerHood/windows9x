@@ -103,6 +103,7 @@ const contentByKey = {
             methods for that.
           </li>
           <li>You can now double click to run programs in Explorer.</li>
+          <li>Show an error when you run out of tokens.</li>
         </ul>
         <h4>July 23rd, 2024</h4>
         <p>
