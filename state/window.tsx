@@ -3,6 +3,7 @@ import { assertNever } from "@/lib/assertNever";
 import { getDefaultStore } from "jotai";
 import { atomFamily, atomWithReducer } from "jotai/utils";
 import { programAtomFamily, programsAtom } from "./programs";
+import { ReactNode } from "react";
 
 export type Program =
   | { type: "welcome" }
@@ -16,7 +17,8 @@ export type Program =
       currentPath?: string;
       action?: (path: string) => void;
       actionText?: string;
-    };
+    }
+  | { type: "alert"; message: ReactNode; alertId?: string; icon?: "x" };
 
 export type WindowState = {
   status: "maximized" | "minimized" | "normal";

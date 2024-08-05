@@ -1,0 +1,27 @@
+.alertContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+}
+
+.alertContent {
+  display: flex;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.alertIcon {
+  flex-shrink: 0;
+  margin-right: 16px;
+}
+
+.alertMessage {
+  flex-grow: 1;
+}
+
+.alertActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
