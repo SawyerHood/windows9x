@@ -9,6 +9,7 @@ import { settingsAtom } from "@/state/settings";
 import { useFlags } from "@/flags/context";
 import { trpc } from "@/lib/api/client";
 import { SettingsLink } from "../SettingsLink";
+import wrappedFetch from "@/lib/wrappedFetch";
 
 export function Run({ id }: { id: string }) {
   const windowsDispatch = useSetAtom(windowsListAtom);
@@ -30,7 +31,7 @@ export function Run({ id }: { id: string }) {
           let name = programDescription;
 
           if (name.length > 20) {
-            const nameResp = await fetch("/api/name", {
+            const nameResp = await wrappedFetch("/api/name", {
               method: "POST",
               body: JSON.stringify({
                 desc: programDescription,

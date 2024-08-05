@@ -17,6 +17,7 @@ import Markdown from "react-markdown";
 import { getSettings } from "@/lib/getSettings";
 import styles from "./Help.module.css";
 import imageIcon from "@/components/assets/image.png";
+import wrappedFetch from "@/lib/wrappedFetch";
 
 type Message = {
   role: string;
@@ -104,7 +105,7 @@ export function Help({ id }: { id: string }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/help", {
+      const response = await wrappedFetch("/api/help", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

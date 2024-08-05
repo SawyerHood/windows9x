@@ -8,6 +8,7 @@ import { registryAtom } from "@/state/registry";
 import { getURLForProgram } from "@/lib/getURLForProgram";
 import { getSettings } from "@/lib/getSettings";
 import { settingsAtom } from "@/state/settings";
+import wrappedFetch from "@/lib/wrappedFetch";
 
 export function Iframe({ id }: { id: string }) {
   const window = useAtomValue(windowAtomFamily(id));
@@ -46,7 +47,7 @@ function IframeInner({ id }: { id: string }) {
         return;
       }
       startedRef.current = true;
-      const res = await fetch(`/api/icon?name=${state.title}`, {
+      const res = await wrappedFetch(`/api/icon?name=${state.title}`, {
         method: "POST",
         body: JSON.stringify({ name: state.title, settings: getSettings() }),
       });
@@ -111,7 +112,7 @@ function IframeInner({ id }: { id: string }) {
           break;
         }
         case "chat": {
-          const result = await fetch(`/api/chat`, {
+          const result = await wrappedFetch(`/api/chat`, {
             method: "POST",
             body: JSON.stringify({
               messages: value,
