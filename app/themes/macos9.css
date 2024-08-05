@@ -1,0 +1,41 @@
+/* MacOS 9 Theme */
+
+:root {
+  --taskbar-height: 22px;
+  --window-border-color: #c0c0c0;
+  --window-background-color: #e0e0e0;
+  --button-background-color: #d0d0d0;
+  --button-border-color: #808080;
+  --button-text-color: #000000;
+}
+
+body {
+  font-family: "Chicago", Arial, sans-serif;
+  background-color: #808080;
+}
+
+.taskbar {
+  background-color: #c0c0c0;
+  border-top: 1px solid #ffffff;
+  border-left: 1px solid #ffffff;
+  border-right: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  height: var(--taskbar-height);
+}
+
+.window {
+  background-color: var(--window-background-color);
+  border: 2px solid var(--window-border-color);
+  box-shadow: 1px 1px 0 0 #ffffff, -1px -1px 0 0 #000000;
+}
+
+.button {
+  background-color: var(--button-background-color);
+  border: 1px solid var(--button-border-color);
+  color: var(--button-text-color);
+  box-shadow: 1px 1px 0 0 #ffffff, -1px -1px 0 0 #000000;
+}
+
+.button:active {
+  box-shadow: inset 1px 1px 0 0 #000000, inset -1px -1px 0 0 #ffffff;
+}

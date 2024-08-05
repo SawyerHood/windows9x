@@ -1,0 +1,29 @@
+/* Windows 7 Theme Styles */
+
+:root {
+  --taskbar-height: 40px;
+  --taskbar-bg-color: #1c1c1c;
+  --taskbar-text-color: #ffffff;
+  --window-bg-color: #f0f0f0;
+  --window-border-color: #a0a0a0;
+  --button-bg-color: #e0e0e0;
+  --button-border-color: #707070;
+  --button-text-color: #000000;
+}
+
+.taskbar {
+  background-color: var(--taskbar-bg-color);
+  color: var(--taskbar-text-color);
+  height: var(--taskbar-height);
+}
+
+.window {
+  background-color: var(--window-bg-color);
+  border: 1px solid var(--window-border-color);
+}
+
+.button {
+  background-color: var(--button-bg-color);
+  border: 1px solid var(--button-border-color);
+  color: var(--button-text-color);
+}
