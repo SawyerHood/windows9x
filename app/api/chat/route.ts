@@ -6,9 +6,6 @@ import { capture } from "@/lib/capture";
 import { getSettingsFromJSON } from "@/lib/getSettingsFromRequest";
 import { isLocal } from "@/lib/isLocal";
 import { log } from "@/lib/log";
-import { createClient } from "@/lib/supabase/server";
-import { canGenerate } from "@/server/usage/canGenerate";
-import { insertGeneration } from "@/server/usage/insertGeneration";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -20,36 +17,16 @@ export async function POST(req: Request) {
         status: 401,
       });
     }
-
-    if (!settings.apiKey && settings.model !== "cheap") {
-      const client = createClient();
-      const hasTokens = await canGenerate(client, user);
-
-      if (!hasTokens) {
-        return new Response(
-          JSON.stringify(
-            "No tokens left. Use a custom key or buy tokens to continue."
-          ),
-          {
-            status: 401,
-          }
-        );
-      }
-
-      await insertGeneration({
-        client,
-        user,
-        tokensUsed: 1,
-        action: "chat",
-      });
-    }
   }
 
   const { messages } = body;
 
   log(messages);
 
-  const { usedOwnKey, preferredModel } = createClientFromSettings(settings);
+  const { usedOwnKey, preferredModel } = createClientFromSettings({
+    ...settings,
+    model: "cheap",
+  });
 
   await capture(
     {

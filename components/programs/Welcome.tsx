@@ -91,6 +91,18 @@ const contentByKey = {
     return (
       <>
         <h3>Updates</h3>
+        <h4>August 5th, 2024</h4>
+        <p>
+          I&apos;m back from vacation and with some small quality of life
+          improvements.
+        </p>
+        <ul>
+          <li>
+            When your program uses the <code>chat</code> api, it no longer
+            counts against your quality tokens. I&apos;m working on new metering
+            methods for that.
+          </li>
+        </ul>
         <h4>July 23rd, 2024</h4>
         <p>
           Introducing mounted file systems. You can now access a directory on
