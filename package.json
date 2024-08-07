@@ -38,6 +38,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.1",
+    "react-twitter-embed": "^4.0.4",
     "replicate": "^0.30.2",
     "sharp": "^0.33.4",
     "stripe": "^16.2.0"
