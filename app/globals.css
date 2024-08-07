@@ -35,6 +35,26 @@ a {
   --taskbar-height: 32px;
 }
 
+.theme-windows7 {
+  --taskbar-height: 40px;
+  --taskbar-bg-color: #1c1c1c;
+  --taskbar-text-color: #ffffff;
+  --window-bg-color: #f0f0f0;
+  --window-border-color: #a0a0a0;
+  --button-bg-color: #e0e0e0;
+  --button-border-color: #707070;
+  --button-text-color: #000000;
+}
+
+.theme-macos9 {
+  --taskbar-height: 22px;
+  --window-border-color: #c0c0c0;
+  --window-background-color: #e0e0e0;
+  --button-background-color: #d0d0d0;
+  --button-border-color: #808080;
+  --button-text-color: #000000;
+}
+
 ::-webkit-scrollbar-button:vertical:start:increment,
 ::-webkit-scrollbar-button:vertical:end:decrement,
 ::-webkit-scrollbar-button:horizontal:start:increment,

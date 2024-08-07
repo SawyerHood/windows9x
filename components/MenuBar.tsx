@@ -16,6 +16,13 @@ type Option = {
 
 export function MenuBar({ options }: { options: Options }) {
   const [openMenuLabel, setOpenMenuLabel] = useState<string | null>(null);
+  const [selectedTheme, setSelectedTheme] = useState("default");
+
+  const handleThemeChange = (theme: string) => {
+    setSelectedTheme(theme);
+    document.documentElement.className = theme;
+  };
+
   if (!options.length) return null;
 
   return (
@@ -28,6 +35,18 @@ export function MenuBar({ options }: { options: Options }) {
           setOpenMenuLabel={setOpenMenuLabel}
         />
       ))}
+      <div className={styles.menuBarButtonContainer}>
+        <label htmlFor="theme-select">Theme:</label>
+        <select
+          id="theme-select"
+          value={selectedTheme}
+          onChange={(e) => handleThemeChange(e.target.value)}
+        >
+          <option value="default">Default</option>
+          <option value="windows7">Windows 7</option>
+          <option value="macos9">MacOS 9</option>
+        </select>
+      </div>
     </div>
   );
 }
