@@ -18,6 +18,7 @@ export const getBestModel = (mode: Provider) => {
   switch (mode) {
     case "anthropic":
     case "braintrust":
+      return "deepseek-coder";
       return "claude-3-5-sonnet-20240620";
     case "openrouter":
       return "anthropic/claude-3.5-sonnet";
@@ -30,6 +31,7 @@ export const getCheapestModel = (mode: Provider) => {
   switch (mode) {
     case "anthropic":
     case "braintrust":
+      return "deepseek-coder";
       return "claude-3-haiku-20240307";
 
     case "openrouter":
