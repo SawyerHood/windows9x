@@ -10,7 +10,6 @@ import { Explorer } from "./programs/Explorer";
 import { Settings } from "./programs/Settings";
 import { History } from "./programs/History";
 import { Alert } from "./programs/Alert";
-import { alert } from "@/lib/alert";
 
 export function WindowBody({ state }: { state: WindowState }) {
   switch (state.program.type) {
@@ -27,10 +26,6 @@ export function WindowBody({ state }: { state: WindowState }) {
     case "settings":
       return <Settings id={state.id} />;
     case "history":
-      alert({
-        message: "history",
-        icon: "x",
-      });
       return <History id={state.program.programID} />;
     case "alert":
       return <Alert id={state.id} />;

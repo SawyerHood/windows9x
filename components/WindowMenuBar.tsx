@@ -114,6 +114,14 @@ export function WindowMenuBar({ id }: { id: string }) {
                     type: "history",
                     programID,
                   },
+                  pos: {
+                    x: 0,
+                    y: 0,
+                  },
+                  size: {
+                    width: 300,
+                    height: 300,
+                  },
                 });
               },
             },
