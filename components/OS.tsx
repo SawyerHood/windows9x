@@ -3,7 +3,7 @@
 import styles from "./OS.module.css";
 import cx from "classnames";
 import { getDefaultStore, useAtom, useAtomValue, useSetAtom } from "jotai";
-import { useEffect } from "react";
+import { useEffect, useState } from "react"; // P2faf
 import { focusedWindowAtom } from "@/state/focusedWindow";
 import { windowsListAtom } from "@/state/windowsList";
 import { windowAtomFamily } from "@/state/window";
@@ -18,6 +18,8 @@ import Image from "next/image";
 import { initState } from "@/lib/initState";
 import { WIDTH } from "./programs/Welcome";
 import { fsManagerAtom } from "@/state/fsManager";
+import "@/app/themes/windows7.css"; // Pc748
+import "@/app/themes/macos9.css"; // Pc748
 
 export function OS() {
   // Temp fix lol
@@ -25,6 +27,7 @@ export function OS() {
   const [windows] = useAtom(windowsListAtom);
   const setFocusedWindow = useSetAtom(focusedWindowAtom);
   const registry = useAtomValue(registryAtom);
+  const [selectedTheme, setSelectedTheme] = useState("default"); // P2faf
 
   const publicDesktopUrl = registry[DESKTOP_URL_KEY] ?? "/bg.jpg";
 
@@ -65,6 +68,7 @@ export function OS() {
         backgroundPosition: "center",
         overflow: "hidden",
       }}
+      className={selectedTheme} // P07b7
       onContextMenu={(e) => {
         e.preventDefault();
       }}
@@ -74,13 +78,13 @@ export function OS() {
         <Window key={id} id={id} />
       ))}
 
-      <TaskBar />
+      <TaskBar selectedTheme={selectedTheme} setSelectedTheme={setSelectedTheme} /> {/* P07b7 */}
       <ContextMenu />
     </div>
   );
 }
 
-function TaskBar() {
+function TaskBar({ selectedTheme, setSelectedTheme }) { // P07b7
   const windows = useAtomValue(windowsListAtom);
   const [startMenuOpen, setStartMenuOpen] = useAtom(startMenuOpenAtom);
   return (
@@ -94,7 +98,7 @@ function TaskBar() {
       >
         Start
       </button>
-      {startMenuOpen && <StartMenu />}
+      {startMenuOpen && <StartMenu selectedTheme={selectedTheme} setSelectedTheme={setSelectedTheme} />} {/* P07b7 */}
       <div className={styles.divider}></div>
       {windows.map((id) => (
         <WindowTaskBarItem key={id} id={id} />
@@ -103,7 +107,7 @@ function TaskBar() {
   );
 }
 
-function StartMenu() {
+function StartMenu({ selectedTheme, setSelectedTheme }) { // P07b7
   const { logout } = useActions();
 
   const entries: { label: string; cb: () => void }[] = [
@@ -178,6 +182,18 @@ function StartMenu() {
           Logout
         </button>
       </form>
+      <div>
+        <label htmlFor="theme-select">Theme:</label>
+        <select
+          id="theme-select"
+          value={selectedTheme}
+          onChange={(e) => setSelectedTheme(e.target.value)}
+        >
+          <option value="default">Default</option>
+          <option value="windows7">Windows 7</option>
+          <option value="macos9">MacOS 9</option>
+        </select>
+      </div>
     </div>
   );
 }
